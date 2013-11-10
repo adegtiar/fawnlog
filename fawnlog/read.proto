@@ -1,0 +1,16 @@
+message ReadRequest {
+    required int64 offset = 1;
+}
+
+message ReadResponse {
+    enum Status {
+        SUCCESS = 0;
+        FAIL = 1;
+    }
+    required Status status = 1;
+    optional bytes data = 2; // only return data when status is SUCCESS
+}
+
+service ReadService {
+    rpc Read(ReadRequest) returns (ReadResponse);
+}
