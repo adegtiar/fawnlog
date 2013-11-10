@@ -8,14 +8,14 @@ class Client(object):
         self.sequencer = sequencer.Sequencer()
         self.projection = projection.Projection()
 
-    def append(data):
+    def append(self, data):
         """ Assume data is string right now.
             Checking the length of data and get appropriate number
               of position tokens from sequencer
             Every position token got from the sequencer is whithin
               the range of [0, 2^64 - 1]
         """
-        # todo: check input
+        assert(isinstance(data, str))
         number_of_tokens = len(data) // config.FLASH_PAGE_SIZE + 1
         pos_list = self.sequencer.get_tokens(number_of_tokens)
 
@@ -32,24 +32,29 @@ class Client(object):
             i += 1
         return pos_list
 
-    def write_to(data, pos):
+    def write_to(self, data, pos):
         # data must be fit in a page right now
-        # todo: check input
         # todo: write data to server
+        self.check_position(pos)
         (dest_flash, dest_page) = projection.translate(pos)
         return True
 
-    def read(pos):
-        # todo: check input
+    def read(self, pos):
         # todo: read data from server
+        self.check_position(pos)
         (dest_flash, dest_page) = projection.translate(pos)
         return True
 
-    def trim(pos):
-        # todo: check input
+    def trim(self, pos):
+        self.check_position(pos)
         return True
 
-    def fill(pos):
-        # todo: check input
+    def fill(self, pos):
+        self.check_position(pos)
         data = "".join(["1"] * config.FLASH_PAGE_SIZE)
         self.write_to(data, pos)
+
+    def check_position(self, pos):
+        assert(isinstance(pos, int))
+        assert(pos >= 0)
+        assert(pos < 2 ** 64)
