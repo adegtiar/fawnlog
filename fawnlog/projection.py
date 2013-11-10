@@ -2,36 +2,55 @@ import config
 
 
 class Projection(object):
+    """ Projection maps the 64-bit virtual address in the whole log to a
+        tuple (dest_host, dest_port, dest_page).
+
+        Currently this mapping is static.
+
+    """
     def __init__(self):
-        """ flash_number: the number of flash servers
-            flash_pages: the number flash pages in a flash server
-        """
-        self.flash_number = config.FLASH_NUMBER
-        self.flash_pages = config.FLASH_PAGES
+        """ Initialize a Projection object.
 
-    def translate(self, pos):
-        """ flash servers are divided into groups of two.
-            The positions grows round-robinly whithin a group, and grows
+        flash_page_number: the number of flash pages in a server
+
+        Currently we assum there is no heterogeneity among servers, so we
+        remember this configuration.
+
+        """
+        self.flash_page_number = config.FLASH_PAGE_NUMBER
+
+    def translate(self, token):
+        """ Statically translate the 64-bit virtual address in the whole
+            log to a tuple (dest_host, dest_port, dest_page). Every token
+            corresponds to one page in the cluster.
+
+            The translation works as follows:
+            * Flash servers are divided into groups of two.
+            * The positions grows round-robinly whithin a group, and grows
               into the next group after filling out the current group.
-            Suppose pos is starting from 0.
+
+            Suppose all variables are starting from 0.
+
         """
-        if pos >= self.flash_pages * flash_number:
+        number_of_servers = len(config.SERVER_HOST_LIST)
+        if token >= self.flash_page_number * number_of_servers:
             # todo: garbage collection
-            pass
+            token %= (self.flash_page_number * number_of_servers)
 
-        pos_flash_number = pos // self.flash_pages
-        group_number = pos_flash_number // 2
-        group_page_number = pos % (self.flash_pages * 2)
+        group_number = token // (self.flash_page_number * 2)
+        group_page = token % (self.flash_page_number * 2)
 
-        # suppose dest_flash and dest_page are starting from 0
-        dest_flash = group_number * 2 + (group_number % 2)
-        dest_page = group_page_number // 2
+        # get the result
+        if (group_number + 1) * 2 > number_of_servers:
+            # if it's the last group, there's a special case that there
+            # is only one server in this group
+            dest_server = number_of_servers - 1
+            dest_page = group_page
+        else:
+            dest_server = group_number * 2 + (group_page % 2)
+            dest_page = group_page // 2
 
-        # if it's the last group, there's a special case that there
-        #   is only one server
-        if pos_flash_number == self.flash_number - 1:
-            if pos_flash_number % 2 == 1:
-                dest_flash = self.flash_number - 1
-                dest_page = group_page_number
+        dest_host = config.SERVER_HOST_LIST[dest_server]
+        dest_port = config.SERVER_PORT_LIST[dest_server]
 
-        return (dest_flash, dest_page)
+        return (dest_host, dest_port, dest_page)
