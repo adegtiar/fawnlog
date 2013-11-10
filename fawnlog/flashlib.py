@@ -6,6 +6,7 @@ data store.
 """
 
 
+import pdb
 import struct
 
 
@@ -35,7 +36,7 @@ class PageStore(object):
     def write(self, data, offset):
         """Writes the data to a page at the given offset."""
         if offset in self.datamap:
-            raise ErrorOverWritten()
+            raise ErrorOverwritten()
 
         page_entry_bytes = PageStore.to_page_bytes(data)
         self.datafile.write(page_entry_bytes, offset)
@@ -56,10 +57,10 @@ class PageStore(object):
 
     def init_data(self):
         """Processes the given data to build a map of written pages."""
-        datamap = set() # TODO: make this more efficient (bitarray?).
-        header_size = PageStore.header.size
+        datamap = set() # TODO: make this more efficient, e.g. w/ bitarray.
 
-        for pidx, page_data in enumerate(self.datafile.iterpages(header_size)):
+
+        for pidx, page_data in self.datafile.iterpages(PageStore.header.size):
             datamap.add(pidx)
 
         self.datamap = datamap
@@ -111,6 +112,7 @@ class PageFile(object):
     def iterpages(self, num_bytes = None):
         """Iterates over the page data, reading up to num_bytes bytes.
 
+        Iterates over (page_id, data) tuples.
         If num_bytes is not specified, reads the entire page each time.
 
         """
@@ -122,12 +124,14 @@ class PageFile(object):
         empty_page = '\x00' * num_bytes
         self.datafile.seek(0)
         data = self.datafile.read(num_bytes)
+        pidx = 0
 
         while data:
             if data != empty_page:
-                yield data
+                yield pidx, data
 
             # Seek to next page boundary.
+            pidx += 1
             self.datafile.seek(self.pagesize - num_bytes, 1)
             data = self.datafile.read(num_bytes)
 
