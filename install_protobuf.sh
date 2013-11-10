@@ -11,5 +11,4 @@ sudo make install
 cd "python"
 python setup.py build
 python setup.py test
-python setup.py install
-export PYTHONPATH=$PYTHONPATH:`pwd`/protobuf-2.5.0/python
+sudo python setup.py install
