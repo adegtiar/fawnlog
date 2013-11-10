@@ -9,31 +9,60 @@ data store.
 import struct
 
 
+class ErrorUnwritten(ValueError):
+    """The page intended to be read has not yet been written."""
+
+
+class ErrorOverwritten(ValueError):
+    """The page intended to be written has already been written."""
+
+
 class PageStore(object):
     """A page-based flash storage interface backed by a file.
 
     Supports writing to an infinite address range of pages. Writes must
-    fit within a page. Enforces write-once semantics.
+    fit within a page. Enforces write-once semantics. Internally writes
+    the data along with a header.
 
     """
+    # Header consists of the length of the data in that page.
     header = struct.Struct("I")
 
     def __init__(self, filepath, page_size):
         self.datafile = PageFile(filepath, page_size + PageStore.header.size)
+        self.init_data() # Initialize self.datamap.
 
     def write(self, data, offset):
         """Writes the data to a page at the given offset."""
+        if offset in self.datamap:
+            raise ErrorOverWritten()
+
         page_entry_bytes = PageStore.to_page_bytes(data)
         self.datafile.write(page_entry_bytes, offset)
 
+        self.datamap.add(offset)
+
     def read(self, offset):
         """Reads the data from the page at the given offset."""
+        if offset not in self.datamap:
+            raise ErrorUnwritten()
+
         page_entry_bytes = self.datafile.read_page(offset)
         return PageStore.from_page_bytes(page_entry_bytes)
 
     def close(self):
         """Closes the data store and prevents further operations."""
         self.datafile.close()
+
+    def init_data(self):
+        """Processes the given data to build a map of written pages."""
+        datamap = set() # TODO: make this more efficient (bitarray?).
+        header_size = PageStore.header.size
+
+        for pidx, page_data in enumerate(self.datafile.iterpages(header_size)):
+            datamap.add(pidx)
+
+        self.datamap = datamap
 
     @staticmethod
     def to_page_bytes(data):
@@ -62,14 +91,45 @@ class PageFile(object):
         self.datafile.seek(offset*self.pagesize)
         self.datafile.write(data)
 
-    def read_page(self, offset):
-        """Reads the data from the page at the given offset."""
+    def read_page(self, offset, num_bytes = None):
+        """Reads a page of data at the given offset.
+
+        If num_bytes is specified, reads that many bytes instead of a
+        full page.
+
+        """
+        if num_bytes is None:
+            num_bytes = self.pagesize
+
         self.datafile.seek(offset*self.pagesize)
-        return self.datafile.read(self.pagesize)
+        return self.datafile.read(num_bytes)
 
     def close(self):
         """Closes the file, after which no more ops are accepted."""
         self.datafile.close()
+
+    def iterpages(self, num_bytes = None):
+        """Iterates over the page data, reading up to num_bytes bytes.
+
+        If num_bytes is not specified, reads the entire page each time.
+
+        """
+        if num_bytes is None:
+            num_bytes = self.pagesize
+        elif num_bytes > self.pagesize:
+            raise ValueError("num_bytes to read must be <= page size")
+
+        empty_page = '\x00' * num_bytes
+        self.datafile.seek(0)
+        data = self.datafile.read(num_bytes)
+
+        while data:
+            if data != empty_page:
+                yield data
+
+            # Seek to next page boundary.
+            self.datafile.seek(self.pagesize - num_bytes, 1)
+            data = self.datafile.read(num_bytes)
 
     @staticmethod
     def open_rw(filepath):
