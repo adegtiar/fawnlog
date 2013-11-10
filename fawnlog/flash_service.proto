@@ -1,0 +1,33 @@
+option py_generic_services = true;
+
+message ReadRequest {
+    required int64 offset = 1;
+}
+
+message ReadResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR_UNWRITTEN = 1;
+    }
+    required Status status = 1;
+    optional bytes data = 2; // only return data when status is SUCCESS
+}
+
+message WriteRequest {
+    required int64 offset = 1;
+    required bytes data = 2;
+}
+
+message WriteResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR_OVERWRITTEN = 1;
+        ERROR_OVERSIZED_DATA = 2;
+    }
+    required Status status = 1;
+}
+
+service FlashService {
+    rpc Read(ReadRequest) returns (ReadResponse);
+    rpc Write(WriteRequest) returns (WriteResponse);
+}
