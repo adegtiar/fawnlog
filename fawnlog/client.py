@@ -15,7 +15,8 @@ class Client(object):
             Every position token got from the sequencer is whithin
               the range of [0, 2^64 - 1]
         """
-        assert(isinstance(data, str))
+        if not (isinstance(data, str)):
+            raise Exception("data is not str")
         number_of_tokens = len(data) // config.FLASH_PAGE_SIZE + 1
         pos_list = self.sequencer.get_tokens(number_of_tokens)
 
