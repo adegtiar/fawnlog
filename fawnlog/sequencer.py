@@ -10,7 +10,10 @@ class Sequencer(object):
         self.counter = counter
 
     def get_token(self, number):
-        """Return the current counter and increase it by number"""
+        """
+        param: number: the number of flash pages wants to reserve.
+        Return the current counter and increase it by number
+        """
         token = self.counter
         for i in range(number):
             self.counter += 1
