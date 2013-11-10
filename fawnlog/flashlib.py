@@ -32,17 +32,26 @@ class PageFile(object):
         self.datafile = PageFile.open_rw(filepath)
         self.pagesize = pagesize
 
-    def write_page(self, data, offset):
+    def write(self, data, offset):
         """Writes the data to a page at the given offset."""
-        pass
+        if len(data) > self.pagesize:
+            raise ValueError("data must fit within page")
+        self.datafile.seek(offset*self.pagesize)
+        self.datafile.write(data)
 
-    def read_page(self, offset):
+    def read(self, offset):
         """Reads the data from the page at the given offset."""
-        pass
+        self.datafile.seek(offset*self.pagesize)
+        return self.datafile.read(self.pagesize)
+
+    def close(self):
+        """Closes the file, after which no more ops are accepted."""
+        self.datafile.close()
 
 
     @staticmethod
     def open_rw(filepath):
+        """Open a file in rw mode without truncation."""
         try:
             # Open file in rw mode without truncating if it exists.
             return open(filepath, "r+b")
