@@ -8,8 +8,7 @@ import flash_service_pb2
 from protobuf.socketrpc import RpcService
 
 
-host = config.SERVER_HOST_LIST[0]
-port = config.SERVER_PORT_LIST[1]
+(host, port) = config.SERVER_ADDR_LIST[0]
 # Create a new service instance
 service = RpcService(flash_service_pb2.FlashServer_Stub,
                      host, port)
