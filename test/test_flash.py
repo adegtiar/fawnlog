@@ -22,10 +22,42 @@ class TestPageFile(unittest.TestCase):
         os.remove(TEST_FILE_PATH)
 
     def test_write_basic(self):
-        data = os.urandom(PAGE_SIZE)
-        self.pagefile.write(data, 0)
-        read_data = self.pagefile.read(0)
-        self.assertEqual(data, read_data)
+        data = self._write_random(0)
+        self.assertEqual(data, self.pagefile.read(0))
+
+    def test_write_random(self):
+        data = self._write_random(5)
+        self.assertEqual(data, self.pagefile.read(5))
+
+    def test_write_multiple(self):
+        data1 = self._write_random(5)
+        data2 = self._write_random(20)
+        self.assertEqual(data1, self.pagefile.read(5))
+        self.assertEqual(data2, self.pagefile.read(20))
+
+    def test_write_small(self):
+        data = self._write_random(0, 10)
+        self.assertEqual(data, self.pagefile.read(0))
+
+    def test_write_multiple_small(self):
+        data1 = self._write_random(offset=5, size=10)
+        data2 = self._write_random(offset=20, size=25)
+        self.assertEqual(data1, self.pagefile.read(5)[0:10])
+        self.assertEqual(data2, self.pagefile.read(20)[0:25])
+
+    def test_write_too_big(self):
+        self.assertRaises(ValueError, self._write_random, 0, PAGE_SIZE+1)
+
+    def test_persisted(self):
+        data = self._write_random(0)
+        self.pagefile.close()
+        self.setUp()
+        self.assertEqual(data, self.pagefile.read(0))
+
+    def _write_random(self, offset, size=PAGE_SIZE):
+        data = os.urandom(size)
+        self.pagefile.write(data, offset)
+        return data
 
 
 
