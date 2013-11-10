@@ -73,8 +73,37 @@ class TestPageStore(unittest.TestCase):
     def test_write_multiple_small(self):
         data1 = self._write_random(offset=5, size=10)
         data2 = self._write_random(offset=20, size=25)
+        data3 = self._write_random(offset=19)
         self.assertEqual(data1, self.pstore.read(5))
+        self.assertEqual(data3, self.pstore.read(19))
         self.assertEqual(data2, self.pstore.read(20))
+
+    def test_overwrite(self):
+        self._write_random(offset=5)
+        self.assertRaises(flashlib.ErrorOverwritten, self._write_random, 5)
+
+    def test_unwritten_hole(self):
+        self._write_random(offset=5)
+        self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 0)
+
+    def test_unwritten_edge(self):
+        self._write_random(offset=0)
+        self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 5)
+
+    def test_persisted_init(self):
+        data1 = self._write_random(offset=5, size=10)
+        data2 = self._write_random(offset=20, size=25)
+        data3 = self._write_random(offset=19)
+
+        self.pstore.close()
+        self.setUp()
+
+        self.assertEqual(data1, self.pstore.read(5))
+        self.assertEqual(data3, self.pstore.read(19))
+        self.assertEqual(data2, self.pstore.read(20))
+        self.assertRaises(flashlib.ErrorOverwritten, self._write_random, 5)
+        self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 1)
+
 
     def _write_random(self, offset, size=PAGE_SIZE):
         data = os.urandom(size)
