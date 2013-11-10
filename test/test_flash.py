@@ -104,7 +104,6 @@ class TestPageStore(unittest.TestCase):
         self.assertRaises(flashlib.ErrorOverwritten, self._write_random, 5)
         self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 1)
 
-
     def _write_random(self, offset, size=PAGE_SIZE):
         data = os.urandom(size)
         self.pstore.write(data, offset)
