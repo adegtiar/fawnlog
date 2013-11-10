@@ -1,5 +1,6 @@
+#!/usr/bin/env python2.7
 """
-   GetToken RPC server implementation
+   GetToken RPC server implementation.
 """
 
 import config
@@ -8,7 +9,7 @@ import protobuf.socketrpc.server as server
 import sequencer
 
 class GetTokenImpl(get_token_pb2.GetTokenService):
-    """GetToken service implementation"""
+    """GetToken service implementation."""
 
     def __init__(self):
         self.sequencer = sequencer.Sequencer()

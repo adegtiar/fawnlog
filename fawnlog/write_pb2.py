@@ -4,6 +4,8 @@
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
+from google.protobuf import service as _service
+from google.protobuf import service_reflection
 from google.protobuf import descriptor_pb2
 # @@protoc_insertion_point(imports)
 
@@ -13,7 +15,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='write.proto',
   package='',
-  serialized_pb='\n\x0bwrite.proto\",\n\x0cWriteRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\x12\x0c\n\x04\x64\x61ta\x18\x02 \x02(\x0c\"W\n\rWriteResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.WriteResponse.Status\"\x1f\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x08\n\x04\x46\x41IL\x10\x01\x32\x36\n\x0cWriteService\x12&\n\x05Write\x12\r.WriteRequest\x1a\x0e.WriteResponse')
+  serialized_pb='\n\x0bwrite.proto\",\n\x0cWriteRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\x12\x0c\n\x04\x64\x61ta\x18\x02 \x02(\x0c\"W\n\rWriteResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.WriteResponse.Status\"\x1f\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x08\n\x04\x46\x41IL\x10\x01\x32\x36\n\x0cWriteService\x12&\n\x05Write\x12\r.WriteRequest\x1a\x0e.WriteResponseB\x03\x90\x01\x01')
 
 
 
@@ -119,5 +121,35 @@ class WriteResponse(_message.Message):
 
   # @@protoc_insertion_point(class_scope:WriteResponse)
 
+
+DESCRIPTOR.has_options = True
+DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), '\220\001\001')
+
+_WRITESERVICE = _descriptor.ServiceDescriptor(
+  name='WriteService',
+  full_name='WriteService',
+  file=DESCRIPTOR,
+  index=0,
+  options=None,
+  serialized_start=150,
+  serialized_end=204,
+  methods=[
+  _descriptor.MethodDescriptor(
+    name='Write',
+    full_name='WriteService.Write',
+    index=0,
+    containing_service=None,
+    input_type=_WRITEREQUEST,
+    output_type=_WRITERESPONSE,
+    options=None,
+  ),
+])
+
+class WriteService(_service.Service):
+  __metaclass__ = service_reflection.GeneratedServiceType
+  DESCRIPTOR = _WRITESERVICE
+class WriteService_Stub(WriteService):
+  __metaclass__ = service_reflection.GeneratedServiceStubType
+  DESCRIPTOR = _WRITESERVICE
 
 # @@protoc_insertion_point(module_scope)

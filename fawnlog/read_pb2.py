@@ -4,6 +4,8 @@
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
+from google.protobuf import service as _service
+from google.protobuf import service_reflection
 from google.protobuf import descriptor_pb2
 # @@protoc_insertion_point(imports)
 
@@ -13,7 +15,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='read.proto',
   package='',
-  serialized_pb='\n\nread.proto\"\x1d\n\x0bReadRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"c\n\x0cReadResponse\x12$\n\x06status\x18\x01 \x02(\x0e\x32\x14.ReadResponse.Status\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"\x1f\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x08\n\x04\x46\x41IL\x10\x01\x32\x32\n\x0bReadService\x12#\n\x04Read\x12\x0c.ReadRequest\x1a\r.ReadResponse')
+  serialized_pb='\n\nread.proto\"\x1d\n\x0bReadRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"c\n\x0cReadResponse\x12$\n\x06status\x18\x01 \x02(\x0e\x32\x14.ReadResponse.Status\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"\x1f\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x08\n\x04\x46\x41IL\x10\x01\x32\x32\n\x0bReadService\x12#\n\x04Read\x12\x0c.ReadRequest\x1a\r.ReadResponseB\x03\x90\x01\x01')
 
 
 
@@ -119,5 +121,35 @@ class ReadResponse(_message.Message):
 
   # @@protoc_insertion_point(class_scope:ReadResponse)
 
+
+DESCRIPTOR.has_options = True
+DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), '\220\001\001')
+
+_READSERVICE = _descriptor.ServiceDescriptor(
+  name='ReadService',
+  full_name='ReadService',
+  file=DESCRIPTOR,
+  index=0,
+  options=None,
+  serialized_start=146,
+  serialized_end=196,
+  methods=[
+  _descriptor.MethodDescriptor(
+    name='Read',
+    full_name='ReadService.Read',
+    index=0,
+    containing_service=None,
+    input_type=_READREQUEST,
+    output_type=_READRESPONSE,
+    options=None,
+  ),
+])
+
+class ReadService(_service.Service):
+  __metaclass__ = service_reflection.GeneratedServiceType
+  DESCRIPTOR = _READSERVICE
+class ReadService_Stub(ReadService):
+  __metaclass__ = service_reflection.GeneratedServiceStubType
+  DESCRIPTOR = _READSERVICE
 
 # @@protoc_insertion_point(module_scope)
