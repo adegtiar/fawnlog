@@ -23,27 +23,27 @@ class TestPageFile(unittest.TestCase):
 
     def test_write_basic(self):
         data = self._write_random(0)
-        self.assertEqual(data, self.pagefile.read(0))
+        self.assertEqual(data, self.pagefile.read_page(0))
 
     def test_write_random(self):
         data = self._write_random(5)
-        self.assertEqual(data, self.pagefile.read(5))
+        self.assertEqual(data, self.pagefile.read_page(5))
 
     def test_write_multiple(self):
         data1 = self._write_random(5)
         data2 = self._write_random(20)
-        self.assertEqual(data1, self.pagefile.read(5))
-        self.assertEqual(data2, self.pagefile.read(20))
+        self.assertEqual(data1, self.pagefile.read_page(5))
+        self.assertEqual(data2, self.pagefile.read_page(20))
 
     def test_write_small(self):
         data = self._write_random(0, 10)
-        self.assertEqual(data, self.pagefile.read(0))
+        self.assertEqual(data, self.pagefile.read_page(0))
 
     def test_write_multiple_small(self):
         data1 = self._write_random(offset=5, size=10)
         data2 = self._write_random(offset=20, size=25)
-        self.assertEqual(data1, self.pagefile.read(5)[0:10])
-        self.assertEqual(data2, self.pagefile.read(20)[0:25])
+        self.assertEqual(data1, self.pagefile.read_page(5)[0:10])
+        self.assertEqual(data2, self.pagefile.read_page(20)[0:25])
 
     def test_write_too_big(self):
         self.assertRaises(ValueError, self._write_random, 0, PAGE_SIZE+1)
@@ -52,13 +52,34 @@ class TestPageFile(unittest.TestCase):
         data = self._write_random(0)
         self.pagefile.close()
         self.setUp()
-        self.assertEqual(data, self.pagefile.read(0))
+        self.assertEqual(data, self.pagefile.read_page(0))
 
     def _write_random(self, offset, size=PAGE_SIZE):
         data = os.urandom(size)
         self.pagefile.write(data, offset)
         return data
 
+
+class TestPageStore(unittest.TestCase):
+    """Tests the PageStore functionality."""
+
+    def setUp(self):
+        self.pstore = flashlib.PageStore(TEST_FILE_PATH, PAGE_SIZE)
+
+    def tearDown(self):
+        self.pstore.close()
+        os.remove(TEST_FILE_PATH)
+
+    def test_write_multiple_small(self):
+        data1 = self._write_random(offset=5, size=10)
+        data2 = self._write_random(offset=20, size=25)
+        self.assertEqual(data1, self.pstore.read(5))
+        self.assertEqual(data2, self.pstore.read(20))
+
+    def _write_random(self, offset, size=PAGE_SIZE):
+        data = os.urandom(size)
+        self.pstore.write(data, offset)
+        return data
 
 
 if __name__ == "__main__":
