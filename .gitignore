@@ -1,4 +1,6 @@
 __pycache__/
 *.py[cod]
 *.sw[op]
+*.o
 config.log
+pagefile.flog
