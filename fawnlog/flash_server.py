@@ -20,6 +20,7 @@ class FlashServerImpl(flash_service_pb2.FlashService):
 
     def Read(self, controller, request, done):
         """Reads the data from the page at the given offset."""
+        print("Received read request: {0}".format(request))
         response = flash_service_pb2.ReadResponse()
 
         try:
@@ -30,11 +31,13 @@ class FlashServerImpl(flash_service_pb2.FlashService):
             status = flash_service_pb2.ReadResponse.SUCCESS
             response.data = data
         response.status = status
+        print("Responding with response: {0}".format(response))
 
         done.run(response)
 
     def Write(self, controller, request, done):
         """Writes the given data to the page at the given offset."""
+        print("Received read request: {0}".format(request))
         response = flash_service_pb2.WriteResponse()
 
         try:
@@ -46,6 +49,7 @@ class FlashServerImpl(flash_service_pb2.FlashService):
         else:
             status = flash_service_pb2.WriteResponse.SUCCESS
         response.status = status
+        print("Responding with response: {0}".format(response))
 
         done.run(response)
 
