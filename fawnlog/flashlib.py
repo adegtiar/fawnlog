@@ -37,7 +37,7 @@ class PageStore(object):
         if offset in self.datamap:
             raise ErrorOverwritten()
 
-        page_entry_bytes = PageStore.to_page_bytes(data)
+        page_entry_bytes = PageStore.pack_data(data)
         self.datafile.write(page_entry_bytes, offset)
 
         self.datamap.add(offset)
@@ -48,7 +48,7 @@ class PageStore(object):
             raise ErrorUnwritten()
 
         page_entry_bytes = self.datafile.read_page(offset)
-        return PageStore.from_page_bytes(page_entry_bytes)
+        return PageStore.unpack_data(page_entry_bytes)
 
     def close(self):
         """Closes the data store and prevents further operations."""
@@ -64,13 +64,13 @@ class PageStore(object):
         return datamap
 
     @staticmethod
-    def to_page_bytes(data):
-        """Serializes raw data into a page entry."""
+    def pack_data(data):
+        """Serializes raw data into a page entry (head + data)."""
         return PageStore.header.pack(len(data)) + data
 
     @staticmethod
-    def from_page_bytes(page_bytes):
-        """Deserializes from a page entry to the raw data."""
+    def unpack_data(page_bytes):
+        """Deserializes from a page entry into the raw data."""
         header_size = PageStore.header.size
         (data_size,) = PageStore.header.unpack(page_bytes[:header_size])
         return page_bytes[header_size:header_size+data_size]
