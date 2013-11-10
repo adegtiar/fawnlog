@@ -51,8 +51,7 @@ class FlashServerImpl(flash_service_pb2.FlashService):
 
 
 def main(server_index):
-    port = config.SERVER_PORT_LIST[server_index]
-    host = config.SERVER_HOST_LIST[server_index]
+    host, port = config.SERVER_ADDR_LIST[server_index]
     server = protobuf.socketrpc.server.SocketRpcServer(port, host)
     server.registerService(FlashServerImpl())
 
