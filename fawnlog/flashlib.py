@@ -5,6 +5,10 @@ data store.
 
 """
 
+
+import struct
+
+
 class FlashStore(object):
     """A page-based flash storage interface backed by a file.
 
@@ -13,16 +17,37 @@ class FlashStore(object):
 
     """
 
-    def __init__(self, filepath):
-        self.datafile = PageFile(filepath)
+    def __init__(self, filepath, page_size):
+        total_page_size = page_size + len(FlashStore.get_header(page_size))
+        self.datafile = PageFile(filepath, total_page_size)
+        self.filepath = filepath
 
     def write_page(self, data, offset):
         """Writes the data to a page at the given offset."""
-        pass
+        page_entry_bytes = FlashStore.to_page_bytes(data)
+        self.datafile.write(page_entry_bytes, offset)
 
     def read_page(self, offset):
         """Reads the data from the page at the given offset."""
-        pass
+        page_entry_bytes = self.datafile.read(offset)
+        return FlashStore.from_page_bytes(page_entry_bytes)
+
+    @staticmethod
+    def to_page_bytes(data):
+        """Serializes raw data into a page entry."""
+        return FlashStore.get_header(len(data)) + data
+
+    @staticmethod
+    def from_page_bytes(page_entry_bytes):
+        """Deserializes from a page entry to the raw data."""
+        header_size = struct.calcsize("I")
+        data_size = struct.unpack(page_entry_bytes[:header_size])
+        return page_entry_bytes[header_size : header_size+data_size]
+
+    @staticmethod
+    def get_header(data_len):
+        """Construct a header given the length of the data."""
+        return struct.pack("I", data_len)
 
 
 class PageFile(object):
@@ -47,7 +72,6 @@ class PageFile(object):
     def close(self):
         """Closes the file, after which no more ops are accepted."""
         self.datafile.close()
-
 
     @staticmethod
     def open_rw(filepath):
