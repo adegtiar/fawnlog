@@ -17,5 +17,6 @@ SERVER_PORT_LIST = [10001, 10001, 10001,
                     10001, 10001, 10001,
                     10001, 10001, 10001]
 
+FLASH_FILE_PATH = "pagefile.flog"
 FLASH_PAGE_NUMBER = 40000
 FLASH_PAGE_SIZE = 4000 # in byte
