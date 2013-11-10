@@ -6,7 +6,6 @@ data store.
 """
 
 
-import pdb
 import struct
 
 
@@ -31,7 +30,7 @@ class PageStore(object):
 
     def __init__(self, filepath, page_size):
         self.datafile = PageFile(filepath, page_size + PageStore.header.size)
-        self.init_data() # Initialize self.datamap.
+        self.datamap = self.init_data()
 
     def write(self, data, offset):
         """Writes the data to a page at the given offset."""
@@ -59,11 +58,10 @@ class PageStore(object):
         """Processes the given data to build a map of written pages."""
         datamap = set() # TODO: make this more efficient, e.g. w/ bitarray.
 
-
-        for pidx, page_data in self.datafile.iterpages(PageStore.header.size):
+        for pidx, _ in self.datafile.iterpages(PageStore.header.size):
             datamap.add(pidx)
 
-        self.datamap = datamap
+        return datamap
 
     @staticmethod
     def to_page_bytes(data):
