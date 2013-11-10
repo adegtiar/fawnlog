@@ -16,11 +16,10 @@ class PageStore(object):
     fit within a page. Enforces write-once semantics.
 
     """
+    header = struct.Struct("I")
 
     def __init__(self, filepath, page_size):
-        total_page_size = page_size + len(PageStore.get_header(page_size))
-        self.datafile = PageFile(filepath, total_page_size)
-        self.filepath = filepath
+        self.datafile = PageFile(filepath, page_size + PageStore.header.size)
 
     def write(self, data, offset):
         """Writes the data to a page at the given offset."""
@@ -39,19 +38,14 @@ class PageStore(object):
     @staticmethod
     def to_page_bytes(data):
         """Serializes raw data into a page entry."""
-        return PageStore.get_header(len(data)) + data
+        return PageStore.header.pack(len(data)) + data
 
     @staticmethod
-    def from_page_bytes(page_entry_bytes):
+    def from_page_bytes(page_bytes):
         """Deserializes from a page entry to the raw data."""
-        header_size = struct.calcsize("I")
-        (data_size,) = struct.unpack("I", page_entry_bytes[:header_size])
-        return page_entry_bytes[header_size : header_size+data_size]
-
-    @staticmethod
-    def get_header(data_len):
-        """Construct a header given the length of the data."""
-        return struct.pack("I", data_len)
+        header_size = PageStore.header.size
+        (data_size,) = PageStore.header.unpack(page_bytes[:header_size])
+        return page_bytes[header_size:header_size+data_size]
 
 
 class PageFile(object):
