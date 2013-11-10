@@ -10,7 +10,7 @@ from protobuf.socketrpc import RpcService
 
 (host, port) = config.SERVER_ADDR_LIST[0]
 # Create a new service instance
-service = RpcService(flash_service_pb2.FlashServer_Stub,
+service = RpcService(flash_service_pb2.FlashService_Stub,
                      host, port)
 
 #  Read
