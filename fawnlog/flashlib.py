@@ -13,8 +13,8 @@ class FlashStore(object):
 
     """
 
-    def __init__(self, file_path):
-        pass
+    def __init__(self, filepath):
+        self.datafile = PageFile(filepath)
 
     def write_page(self, data, offset):
         """Writes the data to a page at the given offset."""
@@ -23,3 +23,29 @@ class FlashStore(object):
     def read_page(self, offset):
         """Reads the data from the page at the given offset."""
         pass
+
+
+class PageFile(object):
+    """A simple file that reads and writes at a page granularity."""
+
+    def __init__(self, filepath, pagesize):
+        self.datafile = PageFile.open_rw(filepath)
+        self.pagesize = pagesize
+
+    def write_page(self, data, offset):
+        """Writes the data to a page at the given offset."""
+        pass
+
+    def read_page(self, offset):
+        """Reads the data from the page at the given offset."""
+        pass
+
+
+    @staticmethod
+    def open_rw(filepath):
+        try:
+            # Open file in rw mode without truncating if it exists.
+            return open(filepath, "r+b")
+        except IOError:
+            # File not found. Truncating is OK.
+            return open(filepath, "w+b")
