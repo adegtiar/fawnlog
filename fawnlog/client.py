@@ -1,6 +1,7 @@
 import config
 import projection
-import socket
+import get_token_pb2
+from protobuf.socketrpc import RpcService
 
 
 class Client(object):
@@ -8,9 +9,11 @@ class Client(object):
         It communicates with the sequencer and server using protobuf.
 
     """
-
     def __init__(self):
         self.projection = projection.Projection()
+        self.service = RpcService(get_token_pb2.GetTokenService_Stub,
+                                  config.SEQUENCER_PORT,
+                                  config.SEQUENCER_HOST)
 
     def append(self, data):
         """ Assume data is string right now.
@@ -19,8 +22,7 @@ class Client(object):
             Every position token got from the sequencer is whithin
               the range of [0, 2^64 - 1]
         """
-        if not (isinstance(data, str)):
-            raise Exception("data is not str")
+        self.check_data(data)
         number_of_tokens = len(data) // config.FLASH_PAGE_SIZE + 1
         token_list = self.get_tokens(number_of_tokens)
 
@@ -66,34 +68,22 @@ class Client(object):
         data = "".join(["1"] * config.FLASH_PAGE_SIZE)
         return self.write_to(data, token)
 
-    def get_tokens(num_tokens):
-        seq_socket = socket.socket(socket.AF_INET)
-        seq_socket.connect((config.SEQUENCE_HOST, config.SEQUENCE_PORT))
-        # todo: send message to sequencer
-        # todo: get message back from sequencer
-        return []
-
-    def send(self, msg):
-        totalsent = 0
-        while totalsent < MSGLEN:
-            sent = self.sock.send(msg[totalsent:])
-            if sent == 0:
-                raise RuntimeError("socket connection broken")
-            totalsent = totalsent + sent
-
-    def receive(self):
-        msg = ''
-        while len(msg) < MSGLEN:
-            chunk = self.sock.recv(MSGLEN-len(msg))
-            if chunk == '':
-                raise RuntimeError("socket connection broken")
-            msg = msg + chunk
-        return msg
+    def get_tokens(self, num_tokens):
+        request = get_token_pb2.GetTokenRequest()
+        request.number = num_tokens
+        try:
+            return service.GetToken(request, timeout=10000)
+        except Exception, ex:
+            print ex
 
     def check_position(self, token):
         if not (isinstance(token, int)):
             raise Exception("token is not int")
-        if (token < 0):
+        if token < 0:
             raise Exception("token is smaller than 0")
-        if (token >= 2 ** 64):
-            raise Exception("token is bigger than 2^64")
+        if token >= 2 ** 64:
+            raise Exception("token is bigger than 2^64 - 1")
+
+    def check_data(self, data):
+        if not (isinstance(data, str)):
+            raise Exception("data is not string")

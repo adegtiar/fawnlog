@@ -1,6 +1,6 @@
 class Sequencer(object):
     """
-    A simple sequencer which serialize requests and generates tokens. 
+    A simple sequencer which serialize requests and generates tokens.
     """
 
     def __init__(self, start=0):
