@@ -3,6 +3,7 @@
 
 import sys
 import threading
+import time
 
 import protobuf.socketrpc.server
 
@@ -73,11 +74,12 @@ def run_server(server_index):
 
     # Start the server.
     print "Starting flash server on {0}:{1}".format(host, port)
+    server_thread.start()
     try:
-        server_thread.run()
-        server_thread.join()
+        while True:
+            time.sleep(10)
     except KeyboardInterrupt:
-        pass
+        sys.exit(0)
 
 
 if __name__ == "__main__":
