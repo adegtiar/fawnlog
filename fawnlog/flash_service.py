@@ -73,7 +73,7 @@ def run_server(server_index):
     server_thread = FlashServerThread(port, host)
 
     # Start the server.
-    print "Starting flash server on {0}:{1}".format(host, port)
+    print("Starting flash server on {0}:{1}".format(host, port))
     server_thread.start()
     try:
         while True:
@@ -84,7 +84,7 @@ def run_server(server_index):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print "Usage: flash_service.py <server_index>"
+        print("Usage: flash_service.py <server_index>")
         sys.exit(1)
 
     run_server(int(sys.argv[1]))
