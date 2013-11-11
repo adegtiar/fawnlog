@@ -21,11 +21,11 @@ class FlashServerThread(threading.Thread):
         self.daemon = True
 
     def run(self):
-        self.server.registerService(FlashServerImpl())
+        self.server.registerService(FlashServiceImpl())
         self.server.run()
 
 
-class FlashServerImpl(flash_service_pb2.FlashService):
+class FlashServiceImpl(flash_service_pb2.FlashService):
     """Handles requests to read and write pages on flash storage."""
 
     def __init__(self):
@@ -84,7 +84,7 @@ def run_server(server_index):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print "Usage: flash_server.py <server_index>"
+        print "Usage: flash_service.py <server_index>"
         sys.exit(1)
 
     run_server(int(sys.argv[1]))
