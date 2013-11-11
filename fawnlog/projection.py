@@ -50,7 +50,6 @@ class Projection(object):
             dest_server = group_number * 2 + (group_page % 2)
             dest_page = group_page // 2
 
-        dest_host = config.SERVER_HOST_LIST[dest_server]
-        dest_port = config.SERVER_PORT_LIST[dest_server]
+        (dest_host, dest_port) = config.SERVER_ADDR_LIST[dest_server]
 
         return (dest_host, dest_port, dest_page)

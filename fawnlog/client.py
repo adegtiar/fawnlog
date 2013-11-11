@@ -1,6 +1,7 @@
 import config
 import projection
 import get_token_pb2
+import flash_service_pb2
 from protobuf.socketrpc import RpcService
 
 
@@ -43,21 +44,33 @@ class Client(object):
         # data must be fit in a page right now
         self.check_position(token)
         (dest_host, dest_port, dest_page) = self.projection.translate(token)
-        server_socket = socket.socket(socket.AF_INET)
-        server_socket.connect((dest_host, dest_port))
-        # todo: write data to server
-        # error is handled in the server
-        return True
+        service_w = RpcService(flash_service_pb2.FlashService_Stub,
+                               dest_port, dest_host)
+        request_w = flash_service_pb2.WriteRequest()
+        request_w.offset = dest_page
+        request_w.data = data
+        try:
+            response_w = service_w.Write(request_w, timeout=10000)
+            return response_w.status
+        except Exception, ex:
+            raise ex
 
     def read(self, token):
         # todo: read data from server
         self.check_position(token)
         (dest_host, dest_port, dest_page) = self.projection.translate(token)
-        server_socket = socket.socket(socket.AF_INET)
-        server_socket.connect((dest_host, dest_port))
-        # todo: read data from server
-        # error is handled in the server
-        return True
+        service_r = RpcService(flash_service_pb2.FlashService_Stub,
+                               dest_port, dest_host)
+        request_r = flash_service_pb2.ReadRequest()
+        request_r.offset = dest_page
+        try:
+            response_r = service_r.Read(request_r, timeout=10000)
+            if response_r.status == flash_service_pb2.ReadResponse.SUCCESS:
+                return response_r.data
+            else:
+                raise Exception("server read error")
+        except Exception, ex:
+            raise ex
 
     def trim(self, token):
         self.check_position(token)
@@ -65,16 +78,16 @@ class Client(object):
 
     def fill(self, token):
         self.check_position(token)
-        data = "".join(["1"] * config.FLASH_PAGE_SIZE)
+        data = "".join(["\xff"] * config.FLASH_PAGE_SIZE)
         return self.write_to(data, token)
 
     def get_tokens(self, num_tokens):
-        request = get_token_pb2.GetTokenRequest()
-        request.number = num_tokens
+        request_s = get_token_pb2.GetTokenRequest()
+        request_s.number = num_tokens
         try:
-            return service.GetToken(request, timeout=10000)
+            return self.service.GetToken(request_s, timeout=10000)
         except Exception, ex:
-            print ex
+            raise ex
 
     def check_position(self, token):
         if not (isinstance(token, int)):
