@@ -2,8 +2,6 @@
 """The fawnlog server backend, which hosts an individual flash unit."""
 
 import sys
-import threading
-import time
 
 import protobuf.socketrpc.server
 
@@ -11,18 +9,6 @@ from fawnlog import config
 from fawnlog import flashlib
 from fawnlog import flash_service_pb2
 
-
-class FlashServerThread(threading.Thread):
-    """A background server thread with a registered flash service."""
-
-    def __init__(self, port, host):
-        threading.Thread.__init__(self)
-        self.server = protobuf.socketrpc.server.SocketRpcServer(port, host)
-        self.daemon = True
-
-    def run(self):
-        self.server.registerService(FlashServiceImpl())
-        self.server.run()
 
 
 class FlashServiceImpl(flash_service_pb2.FlashService):
@@ -70,18 +56,14 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
 def run_server(server_index):
     host, port = config.SERVER_ADDR_LIST[server_index]
-    server_thread = FlashServerThread(port, host)
 
     # Start the server.
     print("Starting flash server on {0}:{1}".format(host, port))
-    server_thread.start()
-    try:
-        while True:
-            time.sleep(10)
-    except KeyboardInterrupt:
-        sys.exit(0)
+    server = protobuf.socketrpc.server.SocketRpcServer(port, host)
+    server.registerService(FlashServiceImpl())
+    server.run()
 
-
+ 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: flash_service.py <server_index>")
