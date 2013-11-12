@@ -7,9 +7,6 @@ import config
 import get_token_pb2
 import protobuf.socketrpc.server
 import sequencer
-import sys
-import threading
-import time
 
 class GetTokenImpl(get_token_pb2.GetTokenService):
     """GetToken service implementation."""
