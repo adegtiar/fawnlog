@@ -15,6 +15,5 @@ class Sequencer(object):
         Return the current counter and increase it by number
         """
         token = self.counter
-        for i in range(number):
-            self.counter += 1
+        self.counter += number
         return token
