@@ -56,7 +56,6 @@ class Client(object):
             raise ex
 
     def read(self, token):
-        # todo: read data from server
         self.check_position(token)
         (dest_host, dest_port, dest_page) = self.projection.translate(token)
         service_r = RpcService(flash_service_pb2.FlashService_Stub,
@@ -73,13 +72,14 @@ class Client(object):
             raise ex
 
     def trim(self, token):
+        # we don't need trim in this project
         self.check_position(token)
-        return True
+        return -1
 
     def fill(self, token):
+        # holes will be filled by servers
         self.check_position(token)
-        data = "".join(["\xff"] * config.FLASH_PAGE_SIZE)
-        return self.write_to(data, token)
+        return -1
 
     def get_tokens(self, num_tokens):
         request_s = get_token_pb2.GetTokenRequest()
