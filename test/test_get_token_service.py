@@ -14,33 +14,35 @@ SEQUENCER_PORT = 9999
 class TestGetTokenService(unittest.TestCase):
     """Tests get token service functionality."""
 
-    def setUp(self):
-        self.service_impl = get_token_service.GetTokenImpl()
+    @classmethod
+    def setUpClass(cls):
         # start server thread
-        helper.ServerThread.start_server(SEQUENCER_PORT,
-            SEQUENCER_HOST, self.service_impl)
-        self.service = RpcService(get_token_pb2.GetTokenService_Stub,
+        cls.server_thread = helper.ServerThread(SEQUENCER_PORT,
+            SEQUENCER_HOST, get_token_service.GetTokenImpl())
+        cls.server_thread.start()
+        cls.service = RpcService(get_token_pb2.GetTokenService_Stub,
             SEQUENCER_PORT, SEQUENCER_HOST)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         pass
 
     def test_get_token_basic(self):
         token = 10
-        helper.ServerThread.reset(token)
-        self.service_impl.reset(token)
+        TestGetTokenService.server_thread.reset(token)
         request = get_token_pb2.GetTokenRequest()
         request.number = 1
-        response = self.service.GetToken(request, timeout=10000)
+        response = TestGetTokenService.service.GetToken(request, timeout=10000)
         self.assertEqual(response.token, token)
 
     def test_get_token_multiple(self):
         token = 10
-        helper.ServerThread.reset(token)
+        TestGetTokenService.server_thread.reset(token)
         for i in range(100, 10000, 100):
             request = get_token_pb2.GetTokenRequest()
             request.number = i
-            response = self.service.GetToken(request, timeout=10000)
+            response = TestGetTokenService.service.GetToken(
+                request, timeout=10000)
             self.assertEqual(response.token, token)
             token += i
         

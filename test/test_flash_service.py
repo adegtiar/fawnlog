@@ -16,15 +16,17 @@ PAGE_SIZE = 1024
 class TestFlashService(unittest.TestCase):
     """Tests flash service functionality."""
 
-    def setUp(self):
-        self.service_impl = flash_service.FlashServiceImpl()
+    @classmethod
+    def setUpClass(cls):
         # start server thread
-        helper.ServerThread.start_server(FLASH_SERVER_PORT,
-            FLASH_SERVER_HOST, self.service_impl)
-        self.service = RpcService(flash_service_pb2.FlashService_Stub,
+        cls.server_thread = helper.ServerThread(FLASH_SERVER_PORT,
+            FLASH_SERVER_HOST, flash_service.FlashServiceImpl())
+        cls.server_thread.start()
+        cls.service = RpcService(flash_service_pb2.FlashService_Stub,
             FLASH_SERVER_PORT, FLASH_SERVER_HOST)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         pass
 
     def test_write_read_basic(self):
@@ -33,13 +35,13 @@ class TestFlashService(unittest.TestCase):
         request_w = flash_service_pb2.WriteRequest()
         request_w.offset = offset
         request_w.data = data
-        response_w = self.service.Write(request_w, timeout=10000)
+        response_w = TestFlashService.service.Write(request_w, timeout=10000)
         self.assertEqual(response_w.status,
             flash_service_pb2.WriteResponse.SUCCESS)
 
         request_r = flash_service_pb2.ReadRequest()
         request_r.offset = offset
-        response_r = self.service.Read(request_r, timeout=10000)
+        response_r = TestFlashService.service.Read(request_r, timeout=10000)
         self.assertEqual(response_r.status,
             flash_service_pb2.ReadResponse.SUCCESS)
         self.assertEqual(response_r.data, data)
