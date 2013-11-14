@@ -32,7 +32,7 @@ class Projection(object):
             Suppose all variables are starting from 0.
 
         """
-        number_of_servers = len(config.SERVER_HOST_LIST)
+        number_of_servers = len(config.SERVER_ADDR_LIST)
         if token >= self.flash_page_number * number_of_servers:
             # todo: garbage collection
             token %= (self.flash_page_number * number_of_servers)

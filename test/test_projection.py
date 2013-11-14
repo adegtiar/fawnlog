@@ -69,9 +69,10 @@ class TestProjection(unittest.TestCase):
                 else:
                     (expect_h, expect_pt) = self.servers[number_of_server - 1]
                     expect_pg = config.FLASH_PAGE_NUMBER // 2 - 1
-            self.assertEqual(dest_h, expect_h)
-            self.assertEqual(dest_pt, expect_pt)
-            self.assertEqual(dest_pg, expect_pg)
+        self.assertEqual(dest_h, expect_h)
+        self.assertEqual(dest_pt, expect_pt)
+        self.assertEqual(dest_pg, expect_pg)
 
 if __name__ == "__main__":
+    print "\n\ntesting fawnlag/projection.py..."
     unittest.main()
