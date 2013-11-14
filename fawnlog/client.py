@@ -25,20 +25,18 @@ class Client(object):
         """
         self.check_data(data)
         number_of_tokens = len(data) // config.FLASH_PAGE_SIZE + 1
-        token_list = self.get_tokens(number_of_tokens)
+        token_head = self.get_tokens(number_of_tokens)
 
-        i = 1
-        for token in token_list:
-            beg = (i - 1) * config.FLASH_PAGE_SIZE
-            if i < number_of_tokens:
+        for i in range(number_of_tokens):
+            beg = i * config.FLASH_PAGE_SIZE
+            if i < number_of_tokens - 1:
                 # not the last one
-                end = i * config.FLASH_PAGE_SIZE
-                self.write_to(data[beg:end], token)
+                end = (i + 1) * config.FLASH_PAGE_SIZE
+                self.write_to(data[beg:end], token_head + i)
             else:
                 # the last one
-                self.write_to(data[beg:], token)
-            i += 1
-        return token_list
+                self.write_to(data[beg:], token_head + i)
+        return (token_head, number_of_tokens)
 
     def write_to(self, data, token):
         # data must be fit in a page right now
@@ -85,7 +83,8 @@ class Client(object):
         request_s = get_token_pb2.GetTokenRequest()
         request_s.number = num_tokens
         try:
-            return self.service.GetToken(request_s, timeout=10000)
+            response_s = self.service.GetToken(request_s, timeout=10000)
+            return response_s.token
         except Exception, ex:
             raise ex
 
