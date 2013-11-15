@@ -30,8 +30,8 @@ class GetTokenImpl(get_token_pb2.GetTokenService):
         self.sequencer.reset(counter)
 
 def start_server():
-#    print("Start sequencer server on port {0}:{1}".format(
-#        config.SEQUENCER_HOST, config.SEQUENCER_PORT))
+    print("Starting sequencer server on port {0}:{1}".format(
+        config.SEQUENCER_HOST, config.SEQUENCER_PORT))
     server = protobuf.socketrpc.server.SocketRpcServer(
         config.SEQUENCER_PORT, config.SEQUENCER_HOST)
     server.registerService(GetTokenImpl())
