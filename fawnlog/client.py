@@ -23,7 +23,6 @@ class Client(object):
             Every position token got from the sequencer is whithin
               the range of [0, 2^64 - 1]
         """
-        self.check_data(data)
         number_of_tokens = len(data) // config.FLASH_PAGE_SIZE + 1
         token_head = self.get_tokens(number_of_tokens)
 
@@ -40,7 +39,6 @@ class Client(object):
 
     def write_to(self, data, token):
         # data must be fit in a page right now
-        self.check_position(token)
         (dest_host, dest_port, dest_page) = self.projection.translate(token)
         service_w = RpcService(flash_service_pb2.FlashService_Stub,
                                dest_port, dest_host)
@@ -54,7 +52,6 @@ class Client(object):
             raise ex
 
     def read(self, token):
-        self.check_position(token)
         (dest_host, dest_port, dest_page) = self.projection.translate(token)
         service_r = RpcService(flash_service_pb2.FlashService_Stub,
                                dest_port, dest_host)
@@ -71,13 +68,11 @@ class Client(object):
 
     def trim(self, token):
         # we don't need trim in this project
-        self.check_position(token)
-        return -1
+        pass
 
     def fill(self, token):
         # holes will be filled by servers
-        self.check_position(token)
-        return -1
+        pass
 
     def get_tokens(self, num_tokens):
         request_s = get_token_pb2.GetTokenRequest()
@@ -87,15 +82,3 @@ class Client(object):
             return response_s.token
         except Exception, ex:
             raise ex
-
-    def check_position(self, token):
-        if not (isinstance(token, int)):
-            raise Exception("token is not int")
-        if token < 0:
-            raise Exception("token is smaller than 0")
-        if token >= 2 ** 64:
-            raise Exception("token is bigger than 2^64 - 1")
-
-    def check_data(self, data):
-        if not (isinstance(data, str)):
-            raise Exception("data is not string")
