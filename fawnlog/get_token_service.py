@@ -15,13 +15,13 @@ class GetTokenImpl(get_token_pb2.GetTokenService):
         self.sequencer = sequencer.Sequencer()
 
     def GetToken(self, controller, request, done):
-        print("request: {0}".format(request))
+#        print("request: {0}".format(request))
 
         number = request.number
 
         response = get_token_pb2.GetTokenResponse()
         response.token = self.sequencer.get_token(number)
-        print("respone: {0}".format(response.token))
+#        print("respone: {0}".format(response.token))
 
         done.run(response)
 
@@ -30,8 +30,8 @@ class GetTokenImpl(get_token_pb2.GetTokenService):
         self.sequencer.reset(counter)
 
 def start_server():
-    print("Start sequencer server on port {0}:{1}".format(
-        config.SEQUENCER_HOST, config.SEQUENCER_PORT))
+#    print("Start sequencer server on port {0}:{1}".format(
+#        config.SEQUENCER_HOST, config.SEQUENCER_PORT))
     server = protobuf.socketrpc.server.SocketRpcServer(
         config.SEQUENCER_PORT, config.SEQUENCER_HOST)
     server.registerService(GetTokenImpl())

@@ -37,7 +37,8 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
     def Write(self, controller, request, done):
         """Writes the given data to the page at the given offset."""
-        print("Received read request: {0}".format(request))
+        # TODO: add nicer debug logging support
+#        print("Received read request: {0}".format(request))
         response = flash_service_pb2.WriteResponse()
 
         try:
@@ -49,7 +50,7 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
         else:
             status = flash_service_pb2.WriteResponse.SUCCESS
         response.status = status
-        print("Responding with response: {0}".format(response))
+#        print("Responding with response: {0}".format(response))
 
         done.run(response)
 
@@ -63,7 +64,7 @@ def run_server(server_index):
     server.registerService(FlashServiceImpl())
     server.run()
 
- 
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: flash_service.py <server_index>")
