@@ -5,7 +5,7 @@ import threading
 
 class ServerThread(threading.Thread):
     """Starts server in a seperate thread for testing"""
-    
+
     def __init__(self, port, host, service):
         """param: service: RPC service implementation"""
 
@@ -18,7 +18,7 @@ class ServerThread(threading.Thread):
 
     def run(self):
         self.server.run()
-    
+
     def reset(self, *args, **kwargs):
         self.service.reset(*args, **kwargs)
 
