@@ -8,3 +8,4 @@ echo "Running flash service tests"
 python -m test.test_flash_service
 python -m test.test_projection
 rm fawnlog/*.pyc
+rm test/*.pyc
