@@ -6,6 +6,7 @@ data store.
 """
 
 
+import os
 import struct
 
 
@@ -24,6 +25,8 @@ class PageStore(object):
     fit within a page. Enforces write-once semantics. Internally writes
     the data along with a header.
 
+    TODO: add concurrency support.
+
     """
     # Header consists of the length of the data in that page.
     header = struct.Struct("I")
@@ -31,6 +34,7 @@ class PageStore(object):
     def __init__(self, filepath, page_size):
         self.datafile = PageFile(filepath, page_size + PageStore.header.size)
         self.datamap = self.init_data()
+        self.page_size = page_size
 
     def write(self, data, offset):
         """Writes the data to a page at the given offset."""
@@ -53,6 +57,11 @@ class PageStore(object):
     def close(self):
         """Closes the data store and prevents further operations."""
         self.datafile.close()
+
+    def reset(self):
+        self.datafile.close()
+        os.remove(self.datafile.filepath)
+        self.__init__(self.datafile.filepath, self.page_size)
 
     def init_data(self):
         """Processes the given data to build a map of written pages."""
@@ -82,6 +91,7 @@ class PageFile(object):
     def __init__(self, filepath, pagesize):
         self.datafile = PageFile.open_rw(filepath)
         self.pagesize = pagesize
+        self.filepath = filepath
 
     def write(self, data, offset):
         """Writes the data to a page at the given offset."""
