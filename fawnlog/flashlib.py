@@ -108,9 +108,7 @@ class PageFile(object):
         full page.
 
         """
-        if num_bytes is None:
-            num_bytes = self.pagesize
-
+        num_bytes = num_bytes or self.pagesize
         self.datafile.seek(offset*self.pagesize)
         return self.datafile.read(num_bytes)
 
@@ -125,9 +123,8 @@ class PageFile(object):
         If num_bytes is not specified, reads the entire page each time.
 
         """
-        if num_bytes is None:
-            num_bytes = self.pagesize
-        elif num_bytes > self.pagesize:
+        num_bytes = num_bytes or self.pagesize
+        if num_bytes > self.pagesize:
             raise ValueError("num_bytes to read must be <= page size")
 
         empty_page = '\x00' * num_bytes
