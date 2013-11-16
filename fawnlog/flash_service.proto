@@ -27,7 +27,19 @@ message WriteResponse {
     required Status status = 1;
 }
 
+message ResetRequest {
+}
+
+message ResetResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR = 1;
+    }
+    required Status status = 1;
+}
+
 service FlashService {
     rpc Read(ReadRequest) returns (ReadResponse);
     rpc Write(WriteRequest) returns (WriteResponse);
+    rpc Reset(ResetRequest) returns (ResetResponse);
 }

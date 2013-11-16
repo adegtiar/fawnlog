@@ -55,6 +55,22 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
         done.run(response)
 
+    def Reset(self, controller, request, done):
+        """Resets the server state, clearing all data."""
+#        print("Received reset request")
+        response = flash_service_pb2.ResetResponse()
+
+        try:
+            self.pagestore.reset()
+        except OSError:
+            status = flash_service_pb2.ResetResponse.ERROR
+        else:
+            status = flash_service_pb2.ResetResponse.SUCCESS
+        response.status = status
+#        print("Responding with response: {0}".format(response))
+
+        done.run(response)
+
 
 def run_server(server_index):
     logger = logging.getLogger(__name__)
@@ -71,7 +87,7 @@ if __name__ == "__main__":
     protobuf_log = logging.getLogger("protobuf.socketrpc.server")
     protobuf_log.setLevel(logging.WARNING)
     logging.basicConfig(level=logging.DEBUG)
-    
+
     if len(sys.argv) < 2:
         print("Usage: flash_service.py <server_index>")
         sys.exit(1)

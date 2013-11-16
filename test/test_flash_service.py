@@ -24,10 +24,17 @@ class TestFlashService(unittest.TestCase):
         cls.server_thread.start()
         cls.service = RpcService(flash_service_pb2.FlashService_Stub,
             FLASH_SERVER_PORT, FLASH_SERVER_HOST)
+        cls._reset_flash_server()
 
     @classmethod
     def tearDownClass(cls):
-        pass
+        cls._reset_flash_server()
+
+    @classmethod
+    def _reset_flash_server(cls):
+        reset_request = flash_service_pb2.ResetRequest()
+        reset_response = TestFlashService.service.Reset(reset_request)
+        assert(reset_response.status == flash_service_pb2.ResetResponse.SUCCESS)
 
     def test_write_read_basic(self):
         offset = 25
