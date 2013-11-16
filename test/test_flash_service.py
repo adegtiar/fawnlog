@@ -2,16 +2,20 @@
 """Tests flash service."""
 
 import unittest
-import helper
 import os
+
+from protobuf.socketrpc import RpcService
+
+import test.helper
 
 from fawnlog import flash_service_pb2
 from fawnlog import flash_service
-from protobuf.socketrpc import RpcService
+
 
 FLASH_SERVER_PORT = 40001
 FLASH_SERVER_HOST = "127.0.0.1"
 PAGE_SIZE = 1024
+
 
 class TestFlashService(unittest.TestCase):
     """Tests flash service functionality."""
@@ -19,7 +23,7 @@ class TestFlashService(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # start server thread
-        cls.server_thread = helper.ServerThread(FLASH_SERVER_PORT,
+        cls.server_thread = test.helper.ServerThread(FLASH_SERVER_PORT,
             FLASH_SERVER_HOST, flash_service.FlashServiceImpl())
         cls.server_thread.start()
         cls.service = RpcService(flash_service_pb2.FlashService_Stub,
@@ -61,6 +65,7 @@ class TestFlashService(unittest.TestCase):
 
     def test_oversized_data(self):
         pass
+
 
 if __name__ == "__main__":
     unittest.main()

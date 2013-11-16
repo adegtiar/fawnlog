@@ -11,7 +11,6 @@ from fawnlog import flashlib
 from fawnlog import flash_service_pb2
 
 
-
 class FlashServiceImpl(flash_service_pb2.FlashService):
     """Handles requests to read and write pages on flash storage."""
 
@@ -57,7 +56,7 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
     def Reset(self, controller, request, done):
         """Resets the server state, clearing all data."""
-#        print("Received reset request")
+        self.logger.debug("Received reset request")
         response = flash_service_pb2.ResetResponse()
 
         try:
@@ -67,12 +66,12 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
         else:
             status = flash_service_pb2.ResetResponse.SUCCESS
         response.status = status
-#        print("Responding with response: {0}".format(response))
+        self.logger.debug("Responding with response: {0}".format(response))
 
         done.run(response)
 
 
-def run_server(server_index):
+def main(server_index):
     logger = logging.getLogger(__name__)
     host, port = config.SERVER_ADDR_LIST[server_index]
 
@@ -92,4 +91,4 @@ if __name__ == "__main__":
         print("Usage: flash_service.py <server_index>")
         sys.exit(1)
 
-    run_server(int(sys.argv[1]))
+    main(int(sys.argv[1]))
