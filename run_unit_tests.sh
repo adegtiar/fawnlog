@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Running flash library tests"
-python -m test.test_flash
+python -m test.test_flashlib
 echo "Running get token service tests"
 python -m test.test_get_token_service
 echo "Running flash service tests"
