@@ -5,23 +5,24 @@
 
 import config
 import get_token_pb2
+import logging
 import protobuf.socketrpc.server
 import sequencer
 
 class GetTokenImpl(get_token_pb2.GetTokenService):
     """GetToken service implementation."""
 
-    def __init__(self):
+    def __init__(self, logger=None):
         self.sequencer = sequencer.Sequencer()
+        self.logger = logger or logging.getLogger(__name__)
 
     def GetToken(self, controller, request, done):
-#        print("request: {0}".format(request))
-
         number = request.number
+        self.logger.debug("request number: {0}".format(number))
 
         response = get_token_pb2.GetTokenResponse()
         response.token = self.sequencer.get_token(number)
-#        print("respone: {0}".format(response.token))
+        self.logger.debug("response token: {0}".format(response.token))
 
         done.run(response)
 
@@ -30,12 +31,17 @@ class GetTokenImpl(get_token_pb2.GetTokenService):
         self.sequencer.reset(counter)
 
 def start_server():
-    print("Starting sequencer server on port {0}:{1}".format(
+    logger = logging.getLogger(__name__)
+    logger.info("Starting sequencer server on port {0}:{1}".format(
         config.SEQUENCER_HOST, config.SEQUENCER_PORT))
     server = protobuf.socketrpc.server.SocketRpcServer(
         config.SEQUENCER_PORT, config.SEQUENCER_HOST)
-    server.registerService(GetTokenImpl())
+    server.registerService(GetTokenImpl(logger))
     server.run()
 
 if __name__ == '__main__':
+    protobuf_log = logging.getLogger("protobuf.socketrpc.server")
+    protobuf_log.setLevel(logging.WARNING)
+    logging.basicConfig(level=logging.DEBUG)
+
     start_server()
