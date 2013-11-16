@@ -25,7 +25,7 @@ class TestFlashService(unittest.TestCase):
         # start server thread
         cls.server_thread = test.helper.ServerThread(FLASH_SERVER_PORT,
             FLASH_SERVER_HOST, flash_service.FlashServiceImpl())
-        cls.server_thread.start()
+        cls.server_thread.start_server()
         cls.service = RpcService(flash_service_pb2.FlashService_Stub,
             FLASH_SERVER_PORT, FLASH_SERVER_HOST)
         cls._reset_flash_server()
