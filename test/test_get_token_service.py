@@ -19,7 +19,7 @@ class TestGetTokenService(unittest.TestCase):
         # start server thread
         cls.server_thread = helper.ServerThread(SEQUENCER_PORT,
             SEQUENCER_HOST, get_token_service.GetTokenImpl())
-        cls.server_thread.start()
+        cls.server_thread.start_server()
         cls.service = RpcService(get_token_pb2.GetTokenService_Stub,
             SEQUENCER_PORT, SEQUENCER_HOST)
 

@@ -30,8 +30,10 @@ except Exception, ex:
     print ex
 
 # Make an asynchronous call
+"""
 try:
     print "Make an asynchronous call"
     response = service.GetToken(request, callback=callback)
 except Exception, ex:
     print ex
+"""

@@ -15,7 +15,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='flash_service.proto',
   package='',
-  serialized_pb='\n\x13\x66lash_service.proto\"\x1d\n\x0bReadRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"n\n\x0cReadResponse\x12$\n\x06status\x18\x01 \x02(\x0e\x32\x14.ReadResponse.Status\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"*\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x13\n\x0f\x45RROR_UNWRITTEN\x10\x01\",\n\x0cWriteRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\x12\x0c\n\x04\x64\x61ta\x18\x02 \x02(\x0c\"~\n\rWriteResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.WriteResponse.Status\"F\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x15\n\x11\x45RROR_OVERWRITTEN\x10\x01\x12\x18\n\x14\x45RROR_OVERSIZED_DATA\x10\x02\x32[\n\x0c\x46lashService\x12#\n\x04Read\x12\x0c.ReadRequest\x1a\r.ReadResponse\x12&\n\x05Write\x12\r.WriteRequest\x1a\x0e.WriteResponseB\x03\x90\x01\x01')
+  serialized_pb='\n\x13\x66lash_service.proto\"\x1d\n\x0bReadRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"n\n\x0cReadResponse\x12$\n\x06status\x18\x01 \x02(\x0e\x32\x14.ReadResponse.Status\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"*\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x13\n\x0f\x45RROR_UNWRITTEN\x10\x01\",\n\x0cWriteRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\x12\x0c\n\x04\x64\x61ta\x18\x02 \x02(\x0c\"~\n\rWriteResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.WriteResponse.Status\"F\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x15\n\x11\x45RROR_OVERWRITTEN\x10\x01\x12\x18\n\x14\x45RROR_OVERSIZED_DATA\x10\x02\"\x0e\n\x0cResetRequest\"X\n\rResetResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.ResetResponse.Status\" \n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x32\x83\x01\n\x0c\x46lashService\x12#\n\x04Read\x12\x0c.ReadRequest\x1a\r.ReadResponse\x12&\n\x05Write\x12\r.WriteRequest\x1a\x0e.WriteResponse\x12&\n\x05Reset\x12\r.ResetRequest\x1a\x0e.ResetResponseB\x03\x90\x01\x01')
 
 
 
@@ -63,6 +63,27 @@ _WRITERESPONSE_STATUS = _descriptor.EnumDescriptor(
   options=None,
   serialized_start=268,
   serialized_end=338,
+)
+
+_RESETRESPONSE_STATUS = _descriptor.EnumDescriptor(
+  name='Status',
+  full_name='ResetResponse.Status',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='SUCCESS', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='ERROR', index=1, number=1,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=412,
+  serialized_end=444,
 )
 
 
@@ -193,14 +214,68 @@ _WRITERESPONSE = _descriptor.Descriptor(
   serialized_end=338,
 )
 
+
+_RESETREQUEST = _descriptor.Descriptor(
+  name='ResetRequest',
+  full_name='ResetRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=340,
+  serialized_end=354,
+)
+
+
+_RESETRESPONSE = _descriptor.Descriptor(
+  name='ResetResponse',
+  full_name='ResetResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='status', full_name='ResetResponse.status', index=0,
+      number=1, type=14, cpp_type=8, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _RESETRESPONSE_STATUS,
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=356,
+  serialized_end=444,
+)
+
 _READRESPONSE.fields_by_name['status'].enum_type = _READRESPONSE_STATUS
 _READRESPONSE_STATUS.containing_type = _READRESPONSE;
 _WRITERESPONSE.fields_by_name['status'].enum_type = _WRITERESPONSE_STATUS
 _WRITERESPONSE_STATUS.containing_type = _WRITERESPONSE;
+_RESETRESPONSE.fields_by_name['status'].enum_type = _RESETRESPONSE_STATUS
+_RESETRESPONSE_STATUS.containing_type = _RESETRESPONSE;
 DESCRIPTOR.message_types_by_name['ReadRequest'] = _READREQUEST
 DESCRIPTOR.message_types_by_name['ReadResponse'] = _READRESPONSE
 DESCRIPTOR.message_types_by_name['WriteRequest'] = _WRITEREQUEST
 DESCRIPTOR.message_types_by_name['WriteResponse'] = _WRITERESPONSE
+DESCRIPTOR.message_types_by_name['ResetRequest'] = _RESETREQUEST
+DESCRIPTOR.message_types_by_name['ResetResponse'] = _RESETRESPONSE
 
 class ReadRequest(_message.Message):
   __metaclass__ = _reflection.GeneratedProtocolMessageType
@@ -226,6 +301,18 @@ class WriteResponse(_message.Message):
 
   # @@protoc_insertion_point(class_scope:WriteResponse)
 
+class ResetRequest(_message.Message):
+  __metaclass__ = _reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _RESETREQUEST
+
+  # @@protoc_insertion_point(class_scope:ResetRequest)
+
+class ResetResponse(_message.Message):
+  __metaclass__ = _reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _RESETRESPONSE
+
+  # @@protoc_insertion_point(class_scope:ResetResponse)
+
 
 DESCRIPTOR.has_options = True
 DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), '\220\001\001')
@@ -236,8 +323,8 @@ _FLASHSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=340,
-  serialized_end=431,
+  serialized_start=447,
+  serialized_end=578,
   methods=[
   _descriptor.MethodDescriptor(
     name='Read',
@@ -255,6 +342,15 @@ _FLASHSERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_WRITEREQUEST,
     output_type=_WRITERESPONSE,
+    options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='Reset',
+    full_name='FlashService.Reset',
+    index=2,
+    containing_service=None,
+    input_type=_RESETREQUEST,
+    output_type=_RESETRESPONSE,
     options=None,
   ),
 ])

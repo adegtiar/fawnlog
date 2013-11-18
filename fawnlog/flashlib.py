@@ -41,7 +41,7 @@ class PageStore(object):
         if offset in self.datamap:
             raise ErrorOverwritten()
 
-        page_entry_bytes = PageStore.pack_data(data)
+        page_entry_bytes = PageStore._pack_data(data)
         self.datafile.write(page_entry_bytes, offset)
 
         self.datamap.add(offset)
@@ -52,13 +52,14 @@ class PageStore(object):
             raise ErrorUnwritten()
 
         page_entry_bytes = self.datafile.read_page(offset)
-        return PageStore.unpack_data(page_entry_bytes)
+        return PageStore._unpack_data(page_entry_bytes)
 
     def close(self):
         """Closes the data store and prevents further operations."""
         self.datafile.close()
 
     def reset(self):
+        """Resets the state of the server, clearing all data."""
         self.datafile.close()
         os.remove(self.datafile.filepath)
         self.__init__(self.datafile.filepath, self.page_size)
@@ -73,12 +74,12 @@ class PageStore(object):
         return datamap
 
     @staticmethod
-    def pack_data(data):
+    def _pack_data(data):
         """Serializes raw data into a page entry (head + data)."""
         return PageStore.header.pack(len(data)) + data
 
     @staticmethod
-    def unpack_data(page_bytes):
+    def _unpack_data(page_bytes):
         """Deserializes from a page entry into the raw data."""
         header_size = PageStore.header.size
         (data_size,) = PageStore.header.unpack(page_bytes[:header_size])
@@ -89,7 +90,7 @@ class PageFile(object):
     """A simple file that reads and writes at a page granularity."""
 
     def __init__(self, filepath, pagesize):
-        self.datafile = PageFile.open_rw(filepath)
+        self.datafile = PageFile._open_rw(filepath)
         self.pagesize = pagesize
         self.filepath = filepath
 
@@ -107,9 +108,7 @@ class PageFile(object):
         full page.
 
         """
-        if num_bytes is None:
-            num_bytes = self.pagesize
-
+        num_bytes = num_bytes or self.pagesize
         self.datafile.seek(offset*self.pagesize)
         return self.datafile.read(num_bytes)
 
@@ -118,15 +117,14 @@ class PageFile(object):
         self.datafile.close()
 
     def iterpages(self, num_bytes = None):
-        """Iterates over the page data, reading up to num_bytes bytes.
+        """Iterate over the pages, reading up to num_bytes from each.
 
         Iterates over (page_id, data) tuples.
         If num_bytes is not specified, reads the entire page each time.
 
         """
-        if num_bytes is None:
-            num_bytes = self.pagesize
-        elif num_bytes > self.pagesize:
+        num_bytes = num_bytes or self.pagesize
+        if num_bytes > self.pagesize:
             raise ValueError("num_bytes to read must be <= page size")
 
         empty_page = '\x00' * num_bytes
@@ -144,7 +142,7 @@ class PageFile(object):
             data = self.datafile.read(num_bytes)
 
     @staticmethod
-    def open_rw(filepath):
+    def _open_rw(filepath):
         """Open a file in rw mode without truncation."""
         try:
             # Open file in rw mode without truncating if it exists.
