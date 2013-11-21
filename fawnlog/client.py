@@ -1,7 +1,7 @@
-import config
-import projection
-import get_token_pb2
-import flash_service_pb2
+from fawnlog import config
+from fawnlog import projection
+from fawnlog import get_token_pb2
+from fawnlog import flash_service_pb2
 from protobuf.socketrpc import RpcService
 
 
