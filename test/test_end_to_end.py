@@ -107,7 +107,7 @@ class TestEndToEnd(unittest.TestCase):
         self.assertEqual(len(return_tokens), 2)
         self.assertEqual(test_str, return_str)
 
-    def test_append_six_page(self):
+    def test_append_nine_page(self):
         ''' test writing to nine pages
         '''
         TestEndToEnd._reset_flash_server()
