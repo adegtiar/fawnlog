@@ -91,7 +91,7 @@ class TestEndToEnd(unittest.TestCase):
         self.assertEqual(test_str, return_str)
 
     def test_append_two_page(self):
-        ''' test writing to two page
+        ''' test writing to two pages
         '''
         TestEndToEnd._reset_flash_server()
 
@@ -105,6 +105,23 @@ class TestEndToEnd(unittest.TestCase):
         return_str_2 = test_client.read(return_tokens[1])
         return_str = return_str_1 + return_str_2
         self.assertEqual(len(return_tokens), 2)
+        self.assertEqual(test_str, return_str)
+
+    def test_append_six_page(self):
+        ''' test writing to nine pages
+        '''
+        TestEndToEnd._reset_flash_server()
+
+        test_str_list = []
+        for _ in range(config.FLASH_PAGE_SIZE * 9 - 1):
+            test_str_list.append(chr(random.randint(65, 90)))
+        test_str = ''.join(test_str_list)
+        test_client = client.Client()
+        return_tokens = test_client.append(test_str)
+        return_str = ""
+        for token in return_tokens:
+            return_str += test_client.read(token)
+        self.assertEqual(len(return_tokens), 9)
         self.assertEqual(test_str, return_str)
 
 if __name__ == "__main__":
