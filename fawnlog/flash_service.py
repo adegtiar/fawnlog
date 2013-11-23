@@ -86,7 +86,10 @@ def main(server_index):
         host, port))
     server = protobuf.socketrpc.server.SocketRpcServer(port, host)
     server.registerService(FlashServiceImpl(server_index))
-    server.run()
+    try:
+        server.run()
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 
 if __name__ == "__main__":
