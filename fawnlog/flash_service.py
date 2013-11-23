@@ -71,6 +71,13 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
         done.run(response)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, typ, value, traceback):
+        # Make sure the pagestore is closed.
+        self.pagestore.close()
+
     @staticmethod
     def _get_filepath(server_index):
         base_path, ext = os.path.splitext(config.FLASH_FILE_PATH)
@@ -85,9 +92,11 @@ def main(server_index):
     logger.info("Starting flash server {0} on {1}:{2}".format(server_index,
         host, port))
     server = protobuf.socketrpc.server.SocketRpcServer(port, host)
-    server.registerService(FlashServiceImpl(server_index))
+
     try:
-        server.run()
+        with FlashServiceImpl(server_index) as flash_service:
+            server.registerService(flash_service)
+            server.run()
     except KeyboardInterrupt:
         sys.exit(0)
 
