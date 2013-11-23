@@ -3,4 +3,4 @@ __pycache__/
 *.sw[op]
 *.o
 config.log
-pagefile.flog
+*.flog

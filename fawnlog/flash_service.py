@@ -1,8 +1,9 @@
 #!/usr/bin/env python2.7
 """The fawnlog server backend, which hosts an individual flash unit."""
 
-import sys
 import logging
+import os.path
+import sys
 
 import protobuf.socketrpc.server
 
@@ -14,9 +15,9 @@ from fawnlog import flash_service_pb2
 class FlashServiceImpl(flash_service_pb2.FlashService):
     """Handles requests to read and write pages on flash storage."""
 
-    def __init__(self, logger=None):
-        self.pagestore = flashlib.PageStore(config.FLASH_FILE_PATH,
-                config.FLASH_PAGE_SIZE)
+    def __init__(self, server_index, logger=None):
+        filepath = FlashServiceImpl._get_filepath(server_index)
+        self.pagestore = flashlib.PageStore(filepath, config.FLASH_PAGE_SIZE)
         self.logger = logger or logging.getLogger(__name__)
 
     def Read(self, controller, request, done):
@@ -70,15 +71,21 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
         done.run(response)
 
+    @staticmethod
+    def _get_filepath(server_index):
+        base_path, ext = os.path.splitext(config.FLASH_FILE_PATH)
+        return "{0}_{1}{2}".format(base_path, server_index, ext)
+
 
 def main(server_index):
     logger = logging.getLogger(__name__)
     host, port = config.SERVER_ADDR_LIST[server_index]
 
     # Start the server.
-    logger.info("Starting flash server on {0}:{1}".format(host, port))
+    logger.info("Starting flash server {0} on {1}:{2}".format(server_index,
+        host, port))
     server = protobuf.socketrpc.server.SocketRpcServer(port, host)
-    server.registerService(FlashServiceImpl())
+    server.registerService(FlashServiceImpl(server_index))
     server.run()
 
 
