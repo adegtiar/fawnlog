@@ -29,41 +29,33 @@ class TestEndToEnd(unittest.TestCase):
         cls.sequencer_service = RpcService(get_token_pb2.GetTokenService_Stub,
             config.SEQUENCER_PORT, config.SEQUENCER_HOST)
 
-        # start flash server 0
-        (SERVER_0_HOST, SERVER_0_PORT) = config.SERVER_ADDR_LIST[0]
-        cls.server_0_thread = test.helper.ServerThread(SERVER_0_PORT,
-            SERVER_0_HOST, flash_service.FlashServiceImpl())
-        cls.server_0_thread.start_server()
-        cls.flash_service_0 = RpcService(flash_service_pb2.FlashService_Stub,
-            SERVER_0_PORT, SERVER_0_HOST)
+        # start flash servers 0 and 1
+        cls.flash_services = [cls._start_flash_server(i) for i in (0, 1)]
 
-        # start flash server 1
-        (SERVER_1_HOST, SERVER_1_PORT) = config.SERVER_ADDR_LIST[1]
-        cls.server_1_thread = test.helper.ServerThread(SERVER_1_PORT,
-            SERVER_1_HOST, flash_service.FlashServiceImpl())
-        cls.server_1_thread.start_server()
-        cls.flash_service_1 = RpcService(flash_service_pb2.FlashService_Stub,
-            SERVER_1_PORT, SERVER_1_HOST)
-        cls._reset_flash_server()
+        cls._reset_flash_servers()
 
     @classmethod
     def tearDownClass(cls):
-        cls._reset_flash_server()
+        cls._reset_flash_servers()
 
     @classmethod
-    def _reset_flash_server(cls):
-        reset_request = flash_service_pb2.ResetRequest()
-        reset_response_0 = TestEndToEnd.flash_service_0.Reset(reset_request)
-        reset_response_1 = TestEndToEnd.flash_service_1.Reset(reset_request)
-        assert(reset_response_0.status ==
-                flash_service_pb2.ResetResponse.SUCCESS)
-        assert(reset_response_1.status ==
-                flash_service_pb2.ResetResponse.SUCCESS)
+    def _start_flash_server(cls, server_index):
+        host, port = config.SERVER_ADDR_LIST[server_index]
+        server_thread = test.helper.ServerThread(port, host,
+                flash_service.FlashServiceImpl(server_index))
+        server_thread.start_server()
+        return RpcService(flash_service_pb2.FlashService_Stub, port, host)
+
+    @classmethod
+    def _reset_flash_servers(cls):
+        for service in cls.flash_services:
+            response = service.Reset(flash_service_pb2.ResetRequest())
+            assert(response.status == flash_service_pb2.ResetResponse.SUCCESS)
 
     def test_append_one_short(self):
         ''' test writing a short data to one page
         '''
-        TestEndToEnd._reset_flash_server()
+        TestEndToEnd._reset_flash_servers()
 
         test_str_list = []
         for _ in range(config.FLASH_PAGE_SIZE // 100):
@@ -78,7 +70,7 @@ class TestEndToEnd(unittest.TestCase):
     def test_append_one_long(self):
         ''' test writing a long data to one page
         '''
-        TestEndToEnd._reset_flash_server()
+        TestEndToEnd._reset_flash_servers()
 
         test_str_list = []
         for _ in range(config.FLASH_PAGE_SIZE - 1):
@@ -93,7 +85,7 @@ class TestEndToEnd(unittest.TestCase):
     def test_append_two_page(self):
         ''' test writing to two pages
         '''
-        TestEndToEnd._reset_flash_server()
+        TestEndToEnd._reset_flash_servers()
 
         test_str_list = []
         for _ in range(config.FLASH_PAGE_SIZE * 2 - 1):
@@ -110,7 +102,7 @@ class TestEndToEnd(unittest.TestCase):
     def test_append_nine_page(self):
         ''' test writing to nine pages
         '''
-        TestEndToEnd._reset_flash_server()
+        TestEndToEnd._reset_flash_servers()
 
         test_str_list = []
         for _ in range(config.FLASH_PAGE_SIZE * 9 - 1):
