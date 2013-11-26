@@ -15,7 +15,7 @@ from fawnlog import flash_service_pb2
 class FlashServiceImpl(flash_service_pb2.FlashService):
     """Handles requests to read and write pages on flash storage."""
 
-    def __init__(self, server_index, logger=None):
+    def __init__(self, server_index=0, logger=None):
         filepath = FlashServiceImpl._get_filepath(server_index)
         self.pagestore = flashlib.PageStore(filepath, config.FLASH_PAGE_SIZE)
         self.logger = logger or logging.getLogger(__name__)
