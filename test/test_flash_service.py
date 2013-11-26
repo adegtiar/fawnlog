@@ -73,7 +73,7 @@ class TestFlashService(unittest.TestCase):
         response_w = self._write(offset, data)
         self.assertEqual(response_w.status,
             flash_service_pb2.WriteResponse.ERROR_OVERSIZED_DATA)
-    
+
     def _read(self, offset):
         request_r = flash_service_pb2.ReadRequest()
         request_r.offset = offset
