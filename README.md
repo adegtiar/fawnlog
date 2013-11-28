@@ -13,3 +13,8 @@ pip install protobuf
 ```bash
 easy_install protobuf.socketrpc-1.3.2-py2.7.egg
 ```
+
+### Install bitarray
+```bash
+pip install bitarray
+```
