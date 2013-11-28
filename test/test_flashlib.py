@@ -62,15 +62,22 @@ class TestPageFile(unittest.TestCase):
         return data
 
 
-class TestPageStore(unittest.TestCase):
-    """Tests the PageStore functionality."""
-
+class TestPageStoreBase(object):
     def setUp(self):
         self.pstore = flashlib.PageStore(TEST_FILE_PATH, PAGE_SIZE)
 
     def tearDown(self):
         self.pstore.close()
         os.remove(TEST_FILE_PATH)
+
+    def _write_random(self, offset, size=PAGE_SIZE):
+        data = os.urandom(size)
+        self.pstore.write(data, offset)
+        return data
+
+
+class TestPageStoreBasic(TestPageStoreBase, unittest.TestCase):
+    """Tests basic PageStore functionality."""
 
     def test_write_multiple_small(self):
         data1 = self._write_random(offset=5, size=10)
@@ -117,40 +124,35 @@ class TestPageStore(unittest.TestCase):
         self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 20)
         self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 19)
 
+
+class TestPageStoreConcurrent(TestPageStoreBase, unittest.TestCase):
+    """Tests the PageStore concurrent functionality."""
+
+    def setUp(self):
+        TestPageStoreBase.setUp(self)
+        self.pool1 = multiprocessing.pool.ThreadPool(20)
+        self.pool2 = multiprocessing.pool.ThreadPool(20)
+
+    def tearDown(self):
+        self.pool1.terminate()
+        self.pool2.terminate()
+        TestPageStoreBase.tearDown(self)
+
     def test_concurrent_writes(self):
-        pool = multiprocessing.pool.ThreadPool(20)
-        try:
-            data = pool.map(self._write_random, xrange(20))
-        finally:
-            pool.close()
+        data = self.pool1.map(self._write_random, xrange(20))
         read_data = map(self.pstore.read, xrange(20))
         self.assertEqual(data, read_data)
 
     def test_concurrent_reads(self):
         data = map(self._write_random, xrange(20))
-        pool = multiprocessing.pool.ThreadPool(20)
-        try:
-            read_data = pool.map(self.pstore.read, xrange(20))
-        finally:
-            pool.close()
+        read_data = self.pool1.map(self.pstore.read, xrange(20))
         self.assertEqual(data, read_data)
 
     def test_concurrent_rw(self):
         data = map(self._write_random, xrange(20))
-        pool1 = multiprocessing.pool.ThreadPool(20)
-        pool2 = multiprocessing.pool.ThreadPool(20)
-        try:
-            pool1.map_async(self._write_random, xrange(20, 40))
-            read_data = pool2.map(self.pstore.read, xrange(20))
-        finally:
-            pool1.terminate()
-            pool2.terminate()
+        self.pool1.map_async(self._write_random, xrange(20, 40))
+        read_data = self.pool2.map(self.pstore.read, xrange(20))
         self.assertEqual(data, read_data)
-
-    def _write_random(self, offset, size=PAGE_SIZE):
-        data = os.urandom(size)
-        self.pstore.write(data, offset)
-        return data
 
 
 if __name__ == "__main__":
