@@ -26,58 +26,56 @@ class PageStore(object):
     fit within a page. Enforces write-once semantics. Internally writes
     the data along with a header.
 
-    TODO: add concurrency support.
-
     """
     # Header consists of the length of the data in that page.
     header = struct.Struct("I")
 
     def __init__(self, filepath, page_size):
-        self.datafile = PageFile(filepath, page_size + PageStore.header.size)
-        self.datamap = self.init_data()
+        self.pagefile = PageFile(filepath, page_size + PageStore.header.size)
+        self.written_pages = self._init_data()
         self.page_size = page_size
         self.lock = threading.Lock()
 
     def write(self, data, offset):
         """Writes the data to a page at the given offset."""
         with self.lock:
-            if offset in self.datamap:
+            if offset in self.written_pages:
                 raise ErrorOverwritten()
 
             page_entry_bytes = PageStore._pack_data(data)
-            self.datafile.write(page_entry_bytes, offset)
+            self.pagefile.write(page_entry_bytes, offset)
 
-            self.datamap.add(offset)
+            self.written_pages.add(offset)
 
     def read(self, offset):
         """Reads the data from the page at the given offset."""
         with self.lock:
-            if offset not in self.datamap:
+            if offset not in self.written_pages:
                 raise ErrorUnwritten()
 
-            page_entry_bytes = self.datafile.read_page(offset)
+            page_entry_bytes = self.pagefile.read_page(offset)
             return PageStore._unpack_data(page_entry_bytes)
 
     def close(self):
         """Closes the data store and prevents further operations."""
         with self.lock:
-            self.datafile.close()
+            self.pagefile.close()
 
     def reset(self):
         """Resets the state of the server, clearing all data."""
         with self.lock:
-            self.datafile.close()
-            os.remove(self.datafile.filepath)
-            self.__init__(self.datafile.filepath, self.page_size)
+            self.pagefile.close()
+            os.remove(self.pagefile.filepath)
+            self.__init__(self.pagefile.filepath, self.page_size)
 
-    def init_data(self):
+    def _init_data(self):
         """Processes the given data to build a map of written pages."""
-        datamap = set() # TODO: make this more efficient, e.g. w/ bitarray.
+        written_pages = set() #TODO: make this more efficient, e.g. w/ bitarray.
 
-        for pidx, _ in self.datafile.iterpages(PageStore.header.size):
-            datamap.add(pidx)
+        for pidx, _ in self.pagefile.iterpages(PageStore.header.size):
+            written_pages.add(pidx)
 
-        return datamap
+        return written_pages
 
     @staticmethod
     def _pack_data(data):
