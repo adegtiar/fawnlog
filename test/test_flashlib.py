@@ -11,6 +11,7 @@ from fawnlog import flashlib
 
 TEST_FILE_PATH = "pagefile_test.flog"
 PAGE_SIZE = 1024
+NUM_PAGES = 40000
 
 
 class TestPageFile(unittest.TestCase):
@@ -64,7 +65,7 @@ class TestPageFile(unittest.TestCase):
 
 class TestPageStoreBase(object):
     def setUp(self):
-        self.pstore = flashlib.PageStore(TEST_FILE_PATH, PAGE_SIZE)
+        self.pstore = flashlib.PageStore(TEST_FILE_PATH, PAGE_SIZE, NUM_PAGES)
 
     def tearDown(self):
         self.pstore.close()

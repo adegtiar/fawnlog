@@ -10,6 +10,8 @@ import os
 import struct
 import threading
 
+from bitarray import bitarray
+
 
 class ErrorUnwritten(ValueError):
     """The page intended to be read has not yet been written."""
@@ -22,7 +24,7 @@ class ErrorOverwritten(ValueError):
 class PageStore(object):
     """A page-based flash storage interface backed by a file.
 
-    Supports writing to an infinite address range of pages. Writes must
+    Supports writing to a fixed address range of pages. Writes must
     fit within a page. Enforces write-once semantics. Internally writes
     the data along with a header.
 
@@ -30,27 +32,28 @@ class PageStore(object):
     # Header consists of the length of the data in that page.
     header = struct.Struct("I")
 
-    def __init__(self, filepath, page_size):
-        self.pagefile = PageFile(filepath, page_size + PageStore.header.size)
-        self.written_pages = self._init_data()
+    def __init__(self, filepath, page_size, num_pages):
         self.page_size = page_size
+        self.num_pages = num_pages
         self.lock = threading.Lock()
+        self.pagefile = PageFile(filepath, page_size + PageStore.header.size)
+        self.written_pages = self._init_data(num_pages)
 
     def write(self, data, offset):
         """Writes the data to a page at the given offset."""
         with self.lock:
-            if offset in self.written_pages:
+            if self.written_pages[offset]:
                 raise ErrorOverwritten()
 
             page_entry_bytes = PageStore._pack_data(data)
             self.pagefile.write(page_entry_bytes, offset)
 
-            self.written_pages.add(offset)
+            self.written_pages[offset] = True
 
     def read(self, offset):
         """Reads the data from the page at the given offset."""
         with self.lock:
-            if offset not in self.written_pages:
+            if not self.written_pages[offset]:
                 raise ErrorUnwritten()
 
             page_entry_bytes = self.pagefile.read_page(offset)
@@ -66,14 +69,14 @@ class PageStore(object):
         with self.lock:
             self.pagefile.close()
             os.remove(self.pagefile.filepath)
-            self.__init__(self.pagefile.filepath, self.page_size)
+            self.__init__(self.pagefile.filepath, self.page_size, self.num_pages)
 
-    def _init_data(self):
+    def _init_data(self, num_pages):
         """Processes the given data to build a map of written pages."""
-        written_pages = set() #TODO: make this more efficient, e.g. w/ bitarray.
+        written_pages = bitarray(False for page in xrange(self.num_pages))
 
         for pidx, _ in self.pagefile.iterpages(PageStore.header.size):
-            written_pages.add(pidx)
+            written_pages[pidx] = True
 
         return written_pages
 

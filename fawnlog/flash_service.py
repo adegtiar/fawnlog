@@ -17,7 +17,8 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
     def __init__(self, server_index=0, logger=None):
         filepath = FlashServiceImpl._get_filepath(server_index)
-        self.pagestore = flashlib.PageStore(filepath, config.FLASH_PAGE_SIZE)
+        self.pagestore = flashlib.PageStore(filepath, config.FLASH_PAGE_SIZE,
+                config.FLASH_PAGE_NUMBER)
         self.logger = logger or logging.getLogger(__name__)
 
     def Read(self, controller, request, done):
