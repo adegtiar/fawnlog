@@ -8,6 +8,7 @@ data store.
 
 import os
 import struct
+import threading
 
 
 class ErrorUnwritten(ValueError):
@@ -35,34 +36,39 @@ class PageStore(object):
         self.datafile = PageFile(filepath, page_size + PageStore.header.size)
         self.datamap = self.init_data()
         self.page_size = page_size
+        self.lock = threading.Lock()
 
     def write(self, data, offset):
         """Writes the data to a page at the given offset."""
-        if offset in self.datamap:
-            raise ErrorOverwritten()
+        with self.lock:
+            if offset in self.datamap:
+                raise ErrorOverwritten()
 
-        page_entry_bytes = PageStore._pack_data(data)
-        self.datafile.write(page_entry_bytes, offset)
+            page_entry_bytes = PageStore._pack_data(data)
+            self.datafile.write(page_entry_bytes, offset)
 
-        self.datamap.add(offset)
+            self.datamap.add(offset)
 
     def read(self, offset):
         """Reads the data from the page at the given offset."""
-        if offset not in self.datamap:
-            raise ErrorUnwritten()
+        with self.lock:
+            if offset not in self.datamap:
+                raise ErrorUnwritten()
 
-        page_entry_bytes = self.datafile.read_page(offset)
-        return PageStore._unpack_data(page_entry_bytes)
+            page_entry_bytes = self.datafile.read_page(offset)
+            return PageStore._unpack_data(page_entry_bytes)
 
     def close(self):
         """Closes the data store and prevents further operations."""
-        self.datafile.close()
+        with self.lock:
+            self.datafile.close()
 
     def reset(self):
         """Resets the state of the server, clearing all data."""
-        self.datafile.close()
-        os.remove(self.datafile.filepath)
-        self.__init__(self.datafile.filepath, self.page_size)
+        with self.lock:
+            self.datafile.close()
+            os.remove(self.datafile.filepath)
+            self.__init__(self.datafile.filepath, self.page_size)
 
     def init_data(self):
         """Processes the given data to build a map of written pages."""
@@ -87,7 +93,11 @@ class PageStore(object):
 
 
 class PageFile(object):
-    """A simple file that reads and writes at a page granularity."""
+    """A simple file that reads and writes at a page granularity.
+
+    Note: this class is not thread-safe.
+
+    """
 
     def __init__(self, filepath, pagesize):
         self.datafile = PageFile._open_rw(filepath)
