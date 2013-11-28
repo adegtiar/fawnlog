@@ -135,6 +135,18 @@ class TestPageStore(unittest.TestCase):
             pool.close()
         self.assertEqual(data, read_data)
 
+    def test_concurrent_rw(self):
+        data = map(self._write_random, xrange(20))
+        pool1 = multiprocessing.pool.ThreadPool(20)
+        pool2 = multiprocessing.pool.ThreadPool(20)
+        try:
+            pool1.map_async(self._write_random, xrange(20, 40))
+            read_data = pool2.map(self.pstore.read, xrange(20))
+        finally:
+            pool1.terminate()
+            pool2.terminate()
+        self.assertEqual(data, read_data)
+
     def _write_random(self, offset, size=PAGE_SIZE):
         data = os.urandom(size)
         self.pstore.write(data, offset)
