@@ -2,7 +2,9 @@
 """Tests the flash-writing backend library."""
 
 import os
+import multiprocessing.pool
 import unittest
+
 
 from fawnlog import flashlib
 
@@ -114,6 +116,15 @@ class TestPageStore(unittest.TestCase):
         self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 5)
         self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 20)
         self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 19)
+
+    def test_concurrent_writes(self):
+        pool = multiprocessing.pool.ThreadPool(20)
+        try:
+            data = pool.map(self._write_random, xrange(20))
+        finally:
+            pool.close()
+        read_data = map(self.pstore.read, xrange(20))
+        self.assertEqual(data, read_data)
 
     def _write_random(self, offset, size=PAGE_SIZE):
         data = os.urandom(size)
