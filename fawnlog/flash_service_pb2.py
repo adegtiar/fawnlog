@@ -15,7 +15,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='flash_service.proto',
   package='',
-  serialized_pb='\n\x13\x66lash_service.proto\"\x1d\n\x0bReadRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"n\n\x0cReadResponse\x12$\n\x06status\x18\x01 \x02(\x0e\x32\x14.ReadResponse.Status\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"*\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x13\n\x0f\x45RROR_UNWRITTEN\x10\x01\",\n\x0cWriteRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\x12\x0c\n\x04\x64\x61ta\x18\x02 \x02(\x0c\"~\n\rWriteResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.WriteResponse.Status\"F\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x15\n\x11\x45RROR_OVERWRITTEN\x10\x01\x12\x18\n\x14\x45RROR_OVERSIZED_DATA\x10\x02\"\x0e\n\x0cResetRequest\"X\n\rResetResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.ResetResponse.Status\" \n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x32\x83\x01\n\x0c\x46lashService\x12#\n\x04Read\x12\x0c.ReadRequest\x1a\r.ReadResponse\x12&\n\x05Write\x12\r.WriteRequest\x1a\x0e.WriteResponse\x12&\n\x05Reset\x12\r.ResetRequest\x1a\x0e.ResetResponseB\x03\x90\x01\x01')
+  serialized_pb='\n\x13\x66lash_service.proto\"\x1d\n\x0bReadRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"\x85\x01\n\x0cReadResponse\x12$\n\x06status\x18\x01 \x02(\x0e\x32\x14.ReadResponse.Status\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"A\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x13\n\x0f\x45RROR_UNWRITTEN\x10\x01\x12\x15\n\x11\x45RROR_FILLED_HOLE\x10\x02\",\n\x0cWriteRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\x12\x0c\n\x04\x64\x61ta\x18\x02 \x02(\x0c\"\x95\x01\n\rWriteResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.WriteResponse.Status\"]\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x15\n\x11\x45RROR_OVERWRITTEN\x10\x01\x12\x15\n\x11\x45RROR_FILLED_HOLE\x10\x02\x12\x18\n\x14\x45RROR_OVERSIZED_DATA\x10\x03\"\x0e\n\x0cResetRequest\"X\n\rResetResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.ResetResponse.Status\" \n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x32\x83\x01\n\x0c\x46lashService\x12#\n\x04Read\x12\x0c.ReadRequest\x1a\r.ReadResponse\x12&\n\x05Write\x12\r.WriteRequest\x1a\x0e.WriteResponse\x12&\n\x05Reset\x12\r.ResetRequest\x1a\x0e.ResetResponseB\x03\x90\x01\x01')
 
 
 
@@ -33,11 +33,15 @@ _READRESPONSE_STATUS = _descriptor.EnumDescriptor(
       name='ERROR_UNWRITTEN', index=1, number=1,
       options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='ERROR_FILLED_HOLE', index=2, number=2,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=122,
-  serialized_end=164,
+  serialized_start=123,
+  serialized_end=188,
 )
 
 _WRITERESPONSE_STATUS = _descriptor.EnumDescriptor(
@@ -55,14 +59,18 @@ _WRITERESPONSE_STATUS = _descriptor.EnumDescriptor(
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='ERROR_OVERSIZED_DATA', index=2, number=2,
+      name='ERROR_FILLED_HOLE', index=2, number=2,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='ERROR_OVERSIZED_DATA', index=3, number=3,
       options=None,
       type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=268,
-  serialized_end=338,
+  serialized_start=293,
+  serialized_end=386,
 )
 
 _RESETRESPONSE_STATUS = _descriptor.EnumDescriptor(
@@ -82,8 +90,8 @@ _RESETRESPONSE_STATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=412,
-  serialized_end=444,
+  serialized_start=460,
+  serialized_end=492,
 )
 
 
@@ -146,8 +154,8 @@ _READRESPONSE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=54,
-  serialized_end=164,
+  serialized_start=55,
+  serialized_end=188,
 )
 
 
@@ -181,8 +189,8 @@ _WRITEREQUEST = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=166,
-  serialized_end=210,
+  serialized_start=190,
+  serialized_end=234,
 )
 
 
@@ -210,8 +218,8 @@ _WRITERESPONSE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=212,
-  serialized_end=338,
+  serialized_start=237,
+  serialized_end=386,
 )
 
 
@@ -231,8 +239,8 @@ _RESETREQUEST = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=340,
-  serialized_end=354,
+  serialized_start=388,
+  serialized_end=402,
 )
 
 
@@ -260,8 +268,8 @@ _RESETRESPONSE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=356,
-  serialized_end=444,
+  serialized_start=404,
+  serialized_end=492,
 )
 
 _READRESPONSE.fields_by_name['status'].enum_type = _READRESPONSE_STATUS
@@ -323,8 +331,8 @@ _FLASHSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=447,
-  serialized_end=578,
+  serialized_start=495,
+  serialized_end=626,
   methods=[
   _descriptor.MethodDescriptor(
     name='Read',

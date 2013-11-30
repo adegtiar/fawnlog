@@ -30,6 +30,8 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
             data = self.pagestore.read(request.offset)
         except flashlib.ErrorUnwritten:
             status = flash_service_pb2.ReadResponse.ERROR_UNWRITTEN
+        except flashlib.ErrorFilledHole:
+            status = flash_service_pb2.ReadResponse.ERROR_FILLED_HOLE
         else:
             status = flash_service_pb2.ReadResponse.SUCCESS
             response.data = data
@@ -47,6 +49,8 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
             self.pagestore.write(request.data, request.offset)
         except flashlib.ErrorOverwritten:
             status = flash_service_pb2.WriteResponse.ERROR_OVERWRITTEN
+        except flashlib.ErrorFilledHole:
+            status = flash_service_pb2.WriteResponse.ERROR_FILLED_HOLE
         except ValueError:
             status = flash_service_pb2.WriteResponse.ERROR_OVERSIZED_DATA
         else:
