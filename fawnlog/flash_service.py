@@ -42,7 +42,7 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
     def Write(self, controller, request, done):
         """Writes the given data to the page at the given offset."""
-        self.logger.debug("Received read request: {0}".format(request))
+        self.logger.debug("Received write request: {0}".format(request))
         response = flash_service_pb2.WriteResponse()
 
         try:
@@ -55,6 +55,22 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
             status = flash_service_pb2.WriteResponse.ERROR_OVERSIZED_DATA
         else:
             status = flash_service_pb2.WriteResponse.SUCCESS
+        response.status = status
+        self.logger.debug("Responding with response: {0}".format(response))
+
+        done.run(response)
+
+    def FillHole(self, controller, request, done):
+        """Fills a hole at the page at the given offset."""
+        self.logger.debug("Received fill_hole request: {0}".format(request))
+        response = flash_service_pb2.FillHoleResponse()
+
+        try:
+            self.pagestore.fill_hole(request.offset)
+        except flashlib.ErrorOverwritten:
+            status = flash_service_pb2.FillHoleResponse.ERROR_OVERWRITTEN
+        else:
+            status = flash_service_pb2.FillHoleResponse.SUCCESS
         response.status = status
         self.logger.debug("Responding with response: {0}".format(response))
 

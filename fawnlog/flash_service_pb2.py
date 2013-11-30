@@ -15,7 +15,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='flash_service.proto',
   package='',
-  serialized_pb='\n\x13\x66lash_service.proto\"\x1d\n\x0bReadRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"\x85\x01\n\x0cReadResponse\x12$\n\x06status\x18\x01 \x02(\x0e\x32\x14.ReadResponse.Status\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"A\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x13\n\x0f\x45RROR_UNWRITTEN\x10\x01\x12\x15\n\x11\x45RROR_FILLED_HOLE\x10\x02\",\n\x0cWriteRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\x12\x0c\n\x04\x64\x61ta\x18\x02 \x02(\x0c\"\x95\x01\n\rWriteResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.WriteResponse.Status\"]\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x15\n\x11\x45RROR_OVERWRITTEN\x10\x01\x12\x15\n\x11\x45RROR_FILLED_HOLE\x10\x02\x12\x18\n\x14\x45RROR_OVERSIZED_DATA\x10\x03\"\x0e\n\x0cResetRequest\"X\n\rResetResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.ResetResponse.Status\" \n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x32\x83\x01\n\x0c\x46lashService\x12#\n\x04Read\x12\x0c.ReadRequest\x1a\r.ReadResponse\x12&\n\x05Write\x12\r.WriteRequest\x1a\x0e.WriteResponse\x12&\n\x05Reset\x12\r.ResetRequest\x1a\x0e.ResetResponseB\x03\x90\x01\x01')
+  serialized_pb='\n\x13\x66lash_service.proto\"\x1d\n\x0bReadRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"\x85\x01\n\x0cReadResponse\x12$\n\x06status\x18\x01 \x02(\x0e\x32\x14.ReadResponse.Status\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"A\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x13\n\x0f\x45RROR_UNWRITTEN\x10\x01\x12\x15\n\x11\x45RROR_FILLED_HOLE\x10\x02\",\n\x0cWriteRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\x12\x0c\n\x04\x64\x61ta\x18\x02 \x02(\x0c\"\x95\x01\n\rWriteResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.WriteResponse.Status\"]\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x15\n\x11\x45RROR_OVERWRITTEN\x10\x01\x12\x15\n\x11\x45RROR_FILLED_HOLE\x10\x02\x12\x18\n\x14\x45RROR_OVERSIZED_DATA\x10\x03\"!\n\x0f\x46illHoleRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"j\n\x10\x46illHoleResponse\x12(\n\x06status\x18\x01 \x02(\x0e\x32\x18.FillHoleResponse.Status\",\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x15\n\x11\x45RROR_OVERWRITTEN\x10\x01\"\x0e\n\x0cResetRequest\"X\n\rResetResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.ResetResponse.Status\" \n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x32\xb4\x01\n\x0c\x46lashService\x12#\n\x04Read\x12\x0c.ReadRequest\x1a\r.ReadResponse\x12&\n\x05Write\x12\r.WriteRequest\x1a\x0e.WriteResponse\x12/\n\x08\x46illHole\x12\x10.FillHoleRequest\x1a\x11.FillHoleResponse\x12&\n\x05Reset\x12\r.ResetRequest\x1a\x0e.ResetResponseB\x03\x90\x01\x01')
 
 
 
@@ -73,6 +73,27 @@ _WRITERESPONSE_STATUS = _descriptor.EnumDescriptor(
   serialized_end=386,
 )
 
+_FILLHOLERESPONSE_STATUS = _descriptor.EnumDescriptor(
+  name='Status',
+  full_name='FillHoleResponse.Status',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='SUCCESS', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='ERROR_OVERWRITTEN', index=1, number=1,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=293,
+  serialized_end=337,
+)
+
 _RESETRESPONSE_STATUS = _descriptor.EnumDescriptor(
   name='Status',
   full_name='ResetResponse.Status',
@@ -90,8 +111,8 @@ _RESETRESPONSE_STATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=460,
-  serialized_end=492,
+  serialized_start=603,
+  serialized_end=635,
 )
 
 
@@ -223,6 +244,63 @@ _WRITERESPONSE = _descriptor.Descriptor(
 )
 
 
+_FILLHOLEREQUEST = _descriptor.Descriptor(
+  name='FillHoleRequest',
+  full_name='FillHoleRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='offset', full_name='FillHoleRequest.offset', index=0,
+      number=1, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=388,
+  serialized_end=421,
+)
+
+
+_FILLHOLERESPONSE = _descriptor.Descriptor(
+  name='FillHoleResponse',
+  full_name='FillHoleResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='status', full_name='FillHoleResponse.status', index=0,
+      number=1, type=14, cpp_type=8, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _FILLHOLERESPONSE_STATUS,
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=423,
+  serialized_end=529,
+)
+
+
 _RESETREQUEST = _descriptor.Descriptor(
   name='ResetRequest',
   full_name='ResetRequest',
@@ -239,8 +317,8 @@ _RESETREQUEST = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=388,
-  serialized_end=402,
+  serialized_start=531,
+  serialized_end=545,
 )
 
 
@@ -268,20 +346,24 @@ _RESETRESPONSE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=404,
-  serialized_end=492,
+  serialized_start=547,
+  serialized_end=635,
 )
 
 _READRESPONSE.fields_by_name['status'].enum_type = _READRESPONSE_STATUS
 _READRESPONSE_STATUS.containing_type = _READRESPONSE;
 _WRITERESPONSE.fields_by_name['status'].enum_type = _WRITERESPONSE_STATUS
 _WRITERESPONSE_STATUS.containing_type = _WRITERESPONSE;
+_FILLHOLERESPONSE.fields_by_name['status'].enum_type = _FILLHOLERESPONSE_STATUS
+_FILLHOLERESPONSE_STATUS.containing_type = _FILLHOLERESPONSE;
 _RESETRESPONSE.fields_by_name['status'].enum_type = _RESETRESPONSE_STATUS
 _RESETRESPONSE_STATUS.containing_type = _RESETRESPONSE;
 DESCRIPTOR.message_types_by_name['ReadRequest'] = _READREQUEST
 DESCRIPTOR.message_types_by_name['ReadResponse'] = _READRESPONSE
 DESCRIPTOR.message_types_by_name['WriteRequest'] = _WRITEREQUEST
 DESCRIPTOR.message_types_by_name['WriteResponse'] = _WRITERESPONSE
+DESCRIPTOR.message_types_by_name['FillHoleRequest'] = _FILLHOLEREQUEST
+DESCRIPTOR.message_types_by_name['FillHoleResponse'] = _FILLHOLERESPONSE
 DESCRIPTOR.message_types_by_name['ResetRequest'] = _RESETREQUEST
 DESCRIPTOR.message_types_by_name['ResetResponse'] = _RESETRESPONSE
 
@@ -309,6 +391,18 @@ class WriteResponse(_message.Message):
 
   # @@protoc_insertion_point(class_scope:WriteResponse)
 
+class FillHoleRequest(_message.Message):
+  __metaclass__ = _reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _FILLHOLEREQUEST
+
+  # @@protoc_insertion_point(class_scope:FillHoleRequest)
+
+class FillHoleResponse(_message.Message):
+  __metaclass__ = _reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _FILLHOLERESPONSE
+
+  # @@protoc_insertion_point(class_scope:FillHoleResponse)
+
 class ResetRequest(_message.Message):
   __metaclass__ = _reflection.GeneratedProtocolMessageType
   DESCRIPTOR = _RESETREQUEST
@@ -331,8 +425,8 @@ _FLASHSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=495,
-  serialized_end=626,
+  serialized_start=638,
+  serialized_end=818,
   methods=[
   _descriptor.MethodDescriptor(
     name='Read',
@@ -353,9 +447,18 @@ _FLASHSERVICE = _descriptor.ServiceDescriptor(
     options=None,
   ),
   _descriptor.MethodDescriptor(
+    name='FillHole',
+    full_name='FlashService.FillHole',
+    index=2,
+    containing_service=None,
+    input_type=_FILLHOLEREQUEST,
+    output_type=_FILLHOLERESPONSE,
+    options=None,
+  ),
+  _descriptor.MethodDescriptor(
     name='Reset',
     full_name='FlashService.Reset',
-    index=2,
+    index=3,
     containing_service=None,
     input_type=_RESETREQUEST,
     output_type=_RESETRESPONSE,

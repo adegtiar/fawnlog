@@ -29,6 +29,18 @@ message WriteResponse {
     required Status status = 1;
 }
 
+message FillHoleRequest {
+    required int64 offset = 1;
+}
+
+message FillHoleResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR_OVERWRITTEN = 1;
+    }
+    required Status status = 1;
+}
+
 message ResetRequest {
 }
 
@@ -43,5 +55,6 @@ message ResetResponse {
 service FlashService {
     rpc Read(ReadRequest) returns (ReadResponse);
     rpc Write(WriteRequest) returns (WriteResponse);
+    rpc FillHole(FillHoleRequest) returns (FillHoleResponse);
     rpc Reset(ResetRequest) returns (ResetResponse);
 }
