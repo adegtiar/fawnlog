@@ -17,8 +17,12 @@ class ErrorUnwritten(ValueError):
     """The page intended to be read has not yet been written."""
 
 
+class ErrorFilledHole(ValueError):
+    """The page intended to be read or written is a filled hole page."""
+
+
 class ErrorOverwritten(ValueError):
-    """The page intended to be written has already been written."""
+    """The page intended to be written or filled is already written."""
 
 
 class PageStore(object):
@@ -49,6 +53,8 @@ class PageStore(object):
         with self.lock:
             if self.written_pages[offset]:
                 raise ErrorOverwritten()
+            elif offset in self.hole_pages:
+                raise ErrorFilledHole()
 
             page_entry_bytes = PageStore._pack_data(data)
             self.pagefile.write(page_entry_bytes, offset)
@@ -60,9 +66,21 @@ class PageStore(object):
         with self.lock:
             if not self.written_pages[offset]:
                 raise ErrorUnwritten()
+            elif offset in self.hole_pages:
+                raise ErrorFilledHole()
 
             page_entry_bytes = self.pagefile.read_page(offset)
             return PageStore._unpack_data(page_entry_bytes)
+
+    def fill_hole(self, offset):
+        """Fills the page at the given offset with a hole."""
+        with self.lock:
+            if self.written_pages[offset]:
+                raise ErrorOverwritten()
+
+            if offset not in self.hole_pages:
+                self.pagefile.write(self.hole_header, offset)
+                self.hole_pages.add(offset)
 
     def close(self):
         """Closes the data store and prevents further operations."""
