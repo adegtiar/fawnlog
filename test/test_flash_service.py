@@ -29,9 +29,8 @@ class TestFlashService(unittest.TestCase):
             FLASH_SERVER_PORT, FLASH_SERVER_HOST)
         cls._reset_flash_server()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls._reset_flash_server()
+    def tearDown(self):
+        self.__class__._reset_flash_server()
 
     @classmethod
     def _reset_flash_server(cls):
@@ -74,6 +73,43 @@ class TestFlashService(unittest.TestCase):
         self.assertEqual(response_w.status,
             flash_service_pb2.WriteResponse.ERROR_OVERSIZED_DATA)
 
+    def test_read_hole(self):
+        offset = 5000
+        response_fh = self._fill_hole(offset)
+        self.assertEqual(response_fh.status,
+            flash_service_pb2.FillHoleResponse.SUCCESS)
+
+        response_r = self._read(offset)
+        self.assertEqual(response_r.status,
+            flash_service_pb2.ReadResponse.ERROR_FILLED_HOLE)
+
+    def test_write_hole(self):
+        offset = 5000
+        response_fh = self._fill_hole(offset)
+        self.assertEqual(response_fh.status,
+            flash_service_pb2.FillHoleResponse.SUCCESS)
+
+        response_w = self._write(offset, os.urandom(PAGE_SIZE))
+        self.assertEqual(response_w.status,
+            flash_service_pb2.WriteResponse.ERROR_FILLED_HOLE)
+
+    def test_fill_hole_basic(self):
+        offset = 5000
+        response_fh = self._fill_hole(offset)
+        self.assertEqual(response_fh.status,
+            flash_service_pb2.FillHoleResponse.SUCCESS)
+
+    def test_fill_hole_overwritten(self):
+        offset=5000
+        data = os.urandom(PAGE_SIZE)
+        response_w = self._write(offset, data)
+        self.assertEqual(response_w.status,
+            flash_service_pb2.WriteResponse.SUCCESS)
+
+        response_fh = self._fill_hole(offset)
+        self.assertEqual(response_fh.status,
+            flash_service_pb2.FillHoleResponse.ERROR_OVERWRITTEN)
+
     def _read(self, offset):
         request_r = flash_service_pb2.ReadRequest()
         request_r.offset = offset
@@ -86,6 +122,12 @@ class TestFlashService(unittest.TestCase):
         request_w.data = data
         response_w = TestFlashService.service.Write(request_w, timeout=10000)
         return response_w
+
+    def _fill_hole(self, offset):
+        request_fh = flash_service_pb2.FillHoleRequest()
+        request_fh.offset = offset
+        response_fh = TestFlashService.service.FillHole(request_fh, timeout=10000)
+        return response_fh
 
 if __name__ == "__main__":
     unittest.main()
