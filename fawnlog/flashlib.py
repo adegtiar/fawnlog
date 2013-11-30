@@ -35,9 +35,14 @@ class PageStore(object):
     def __init__(self, filepath, page_size, num_pages):
         self.page_size = page_size
         self.num_pages = num_pages
+        self.unwritten_header = '\x00' * PageStore.header.size
+        self.hole_header = PageStore.header.pack(page_size + 1)
         self.lock = threading.Lock()
+
         self.pagefile = PageFile(filepath, page_size + PageStore.header.size)
-        self.written_pages = self._init_data(num_pages)
+        self.written_pages = bitarray(False for page in xrange(num_pages))
+        self.hole_pages = set()
+        self._init_data(num_pages)
 
     def write(self, data, offset):
         """Writes the data to a page at the given offset."""
@@ -73,12 +78,13 @@ class PageStore(object):
 
     def _init_data(self, num_pages):
         """Processes the given data to build a map of written pages."""
-        written_pages = bitarray(False for page in xrange(self.num_pages))
-
-        for pidx, _ in self.pagefile.iterpages(PageStore.header.size):
-            written_pages[pidx] = True
-
-        return written_pages
+        for pidx, header in self.pagefile.iterpages(PageStore.header.size):
+            if header == self.unwritten_header:
+                continue
+            elif header == self.hole_header:
+                self.hole_pages.add(pidx)
+            else:
+                self.written_pages[pidx] = True
 
     @staticmethod
     def _pack_data(data):
@@ -138,14 +144,12 @@ class PageFile(object):
         if num_bytes > self.pagesize:
             raise ValueError("num_bytes to read must be <= page size")
 
-        empty_page = '\x00' * num_bytes
         self.datafile.seek(0)
         data = self.datafile.read(num_bytes)
         pidx = 0
 
         while data:
-            if data != empty_page:
-                yield pidx, data
+            yield pidx, data
 
             # Seek to next page boundary.
             pidx += 1
