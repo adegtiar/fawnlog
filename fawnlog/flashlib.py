@@ -64,10 +64,10 @@ class PageStore(object):
     def read(self, offset):
         """Reads the data from the page at the given offset."""
         with self.lock:
-            if not self.written_pages[offset]:
-                raise ErrorUnwritten()
-            elif offset in self.hole_pages:
+            if offset in self.hole_pages:
                 raise ErrorFilledHole()
+            elif not self.written_pages[offset]:
+                raise ErrorUnwritten()
 
             page_entry_bytes = self.pagefile.read_page(offset)
             return PageStore._unpack_data(page_entry_bytes)
