@@ -92,7 +92,7 @@ class TestPageStoreBasic(TestPageStoreBase, unittest.TestCase):
         self._write_random(offset=5)
         self.assertRaises(flashlib.ErrorOverwritten, self._write_random, 5)
 
-    def test_unwritten_hole(self):
+    def test_unwritten(self):
         self._write_random(offset=5)
         self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 0)
 
@@ -100,10 +100,25 @@ class TestPageStoreBasic(TestPageStoreBase, unittest.TestCase):
         self._write_random(offset=0)
         self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 5)
 
+    def test_hole_read(self):
+        self.pstore.fill_hole(offset=5)
+        self.assertRaises(flashlib.ErrorFilledHole, self.pstore.read, 5)
+
+    def test_hole_write(self):
+        self.pstore.fill_hole(offset=5)
+        self.assertRaises(flashlib.ErrorFilledHole, self._write_random, 5)
+
+    def test_hole_overwritten(self):
+        self._write_random(offset=5)
+        self.assertRaises(flashlib.ErrorOverwritten, self.pstore.fill_hole, 5)
+
     def test_persisted_init(self):
         data1 = self._write_random(offset=5, size=10)
         data2 = self._write_random(offset=20, size=25)
         data3 = self._write_random(offset=19)
+        self.pstore.fill_hole(offset=4)
+        self.pstore.fill_hole(offset=6)
+        self.pstore.fill_hole(offset=10)
 
         self.pstore.close()
         self.setUp()
@@ -113,6 +128,10 @@ class TestPageStoreBasic(TestPageStoreBase, unittest.TestCase):
         self.assertEqual(data2, self.pstore.read(20))
         self.assertRaises(flashlib.ErrorOverwritten, self._write_random, 5)
         self.assertRaises(flashlib.ErrorUnwritten, self.pstore.read, 1)
+
+        self.assertRaises(flashlib.ErrorFilledHole, self.pstore.read, 4)
+        self.assertRaises(flashlib.ErrorFilledHole, self.pstore.read, 6)
+        self.assertRaises(flashlib.ErrorFilledHole, self.pstore.read, 10)
 
     def test_reset(self):
         data1 = self._write_random(offset=5, size=10)
