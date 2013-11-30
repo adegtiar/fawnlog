@@ -80,6 +80,8 @@ class PageStore(object):
 
             if offset not in self.hole_pages:
                 self.pagefile.write(self.hole_header, offset)
+                # NOTE: may need to punch hole (fallocate) if not
+                # automatically made sparse.
                 self.hole_pages.add(offset)
 
     def close(self):
