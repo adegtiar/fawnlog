@@ -3,6 +3,7 @@ from fawnlog import projection
 from fawnlog import get_token_pb2
 from fawnlog import flash_service_pb2
 from protobuf.socketrpc import RpcService
+from uuid import uuid4
 
 
 class Client(object):
@@ -15,17 +16,21 @@ class Client(object):
         self.service = RpcService(get_token_pb2.GetTokenService_Stub,
                                   config.SEQUENCER_PORT,
                                   config.SEQUENCER_HOST)
+        # guess_info: last_token * last_timestamp
+        self.guess_info = (-1, 0.0)
+        self.client_id = str(uuid4())
 
     def append(self, data):
         """ string -> int list
 
-            Checking length of data and get appropriate number of tokens
-            from the sequencer. Then use those tokens to write to the
-            shared log. Return the list of tokens storing the data.
+            Checking length of data and for every piece of the data, try
+            guessing a server to write to and waiting for response. If a
+            guess failed, retry writing. Every time some feedback helps to
+            guess better next time. Return the list of tokens storing the data.
 
             Failure Handling:
-                If a write operation fails with one token, get a new token
-                from the sequencer and retry writing the piece of data.
+                Sequencer returns specific token ID when the guessing server
+                is already full.
 
             Exception Handling:
                 NONE
@@ -36,12 +41,10 @@ class Client(object):
             return []
 
         number_of_tokens = (data_len - 1) // config.FLASH_PAGE_SIZE + 1
-        token_head = self.get_tokens(number_of_tokens)
-        token_list = [token_head + i for i in range(0, number_of_tokens)]
+        token_list = []
 
-        # try send every piece of data
-        for i in range(number_of_tokens):
-            cur_token = token_list[i]
+        # try send every piece of data by guessing
+        for i in xrange(number_of_tokens):
             piece_beg = i * config.FLASH_PAGE_SIZE
             piece_end = (i + 1) * config.FLASH_PAGE_SIZE
             if i == number_of_tokens - 1:
@@ -49,14 +52,28 @@ class Client(object):
             piece_data = data[piece_beg:piece_end]
 
             while True:
-                status_w = self.write_to(piece_data, cur_token)
-                if status_w == flash_service_pb2.WriteResponse.SUCCESS:
+                server_w = self.guess_server()
+                piece_id = self.client_id
+                self.send_to_sequencer(server_w, piece_id)
+                response_w = self.write_to_server(piece_data, piece_id)
+                if response_w == flash_service_pb2.WriteResponse.SUCCESS:
+                    token_list.append(response_w.token)
+                    self.guess_info = response_w.guess_info
                     break
                 else:
-                    new_token = self.get_tokens(1)
-                    token_list[i] = new_token
-                    cur_token = new_token
+                    self.guess_info = response_w.guess_info
+
         return token_list
+
+    def guess_server(self):
+        ''' None -> int
+
+            Guess the next server that should be written to.
+
+        '''
+        if last_timestamp == 0.0:
+            # the server contact last time is full
+
 
     def write_to(self, data, token):
         ''' string * int -> WriteResponse.Status
@@ -112,21 +129,3 @@ class Client(object):
         # holes will be filled by servers
         pass
 
-    def get_tokens(self, num_tokens):
-        ''' int -> int
-
-            Given the number of tokens wanted, return a token number tok_head,
-            indicating that the range of [tok_head, tok_head + num_tokens) is
-            given by the sequencer.
-
-            Failure Handling:
-                NONE
-
-            Exception Handling:
-                NONE
-
-        '''
-        request_s = get_token_pb2.GetTokenRequest()
-        request_s.number = num_tokens
-        response_s = self.service.GetToken(request_s, timeout=10000)
-        return response_s.token

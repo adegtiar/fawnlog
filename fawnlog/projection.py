@@ -1,4 +1,4 @@
-import config
+from fawnlog import config
 
 
 class Projection(object):
@@ -18,6 +18,7 @@ class Projection(object):
 
         """
         self.flash_page_number = config.FLASH_PAGE_NUMBER
+        self.flash_per_group = config.FLASH_PER_GROUP
 
     def translate(self, token):
         """ Statically translate the 64-bit virtual address in the whole
@@ -25,30 +26,33 @@ class Projection(object):
             corresponds to one page in the cluster.
 
             The translation works as follows:
-            * Flash servers are divided into groups of two.
+            * Flash servers are divided into groups of config.flash_per_group.
             * The positions grows round-robinly whithin a group, and grows
               into the next group after filling out the current group.
 
             Suppose all variables are starting from 0.
 
         """
-        number_of_servers = len(config.SERVER_ADDR_LIST)
-        if token >= self.flash_page_number * number_of_servers:
+        total_server = len(config.SERVER_ADDR_LIST)
+        if token >= self.flash_page_number * total_server:
             # todo: garbage collection
-            token %= (self.flash_page_number * number_of_servers)
+            token %= (self.flash_page_number * total_server)
 
-        group_number = token // (self.flash_page_number * 2)
-        group_page = token % (self.flash_page_number * 2)
+        group_index = token // (self.flash_page_number * self.flash_per_group)
+        group_page = token % (self.flash_page_number * self.flash_per_group)
+
+        group_server = 0
+        if (group_index + 1) * self.flash_per_group > total_server:
+            # if it's the last group, there's a special case that there
+            #   is fewer number of servers
+            group_server = total_server - group_index * self.flash_per_group
+        else:
+            group_server = self.flash_per_group
 
         # get the result
-        if (group_number + 1) * 2 > number_of_servers:
-            # if it's the last group, there's a special case that there
-            # is only one server in this group
-            dest_server = number_of_servers - 1
-            dest_page = group_page
-        else:
-            dest_server = group_number * 2 + (group_page % 2)
-            dest_page = group_page // 2
+        prev_server = group_index * self.flash_per_group
+        dest_server = prev_server + (group_page % group_server)
+        dest_page = group_page // group_server
 
         (dest_host, dest_port) = config.SERVER_ADDR_LIST[dest_server]
 
