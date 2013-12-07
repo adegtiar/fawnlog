@@ -30,7 +30,9 @@ class TestEndToEnd(unittest.TestCase):
             config.SEQUENCER_PORT, config.SEQUENCER_HOST)
 
         # start flash servers 0 and 1
-        cls.flash_services = [cls._start_flash_server(i) for i in (0, 1)]
+        cls.flash_services = []
+        for i in xrange(config.FLASH_PER_GROUP):
+            cls.flash_services.append(cls._start_flash_server(i))
 
         cls._reset_flash_servers()
 
@@ -58,7 +60,7 @@ class TestEndToEnd(unittest.TestCase):
         TestEndToEnd._reset_flash_servers()
 
         test_str_list = []
-        for _ in range(config.FLASH_PAGE_SIZE // 100):
+        for _ in xrange(config.FLASH_PAGE_SIZE // 100):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
         test_client = client.Client()
@@ -73,7 +75,7 @@ class TestEndToEnd(unittest.TestCase):
         TestEndToEnd._reset_flash_servers()
 
         test_str_list = []
-        for _ in range(config.FLASH_PAGE_SIZE - 1):
+        for _ in xrange(config.FLASH_PAGE_SIZE - 1):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
         test_client = client.Client()
@@ -88,7 +90,7 @@ class TestEndToEnd(unittest.TestCase):
         TestEndToEnd._reset_flash_servers()
 
         test_str_list = []
-        for _ in range(config.FLASH_PAGE_SIZE * 2 - 1):
+        for _ in xrange(config.FLASH_PAGE_SIZE * 2 - 1):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
         test_client = client.Client()
@@ -105,7 +107,7 @@ class TestEndToEnd(unittest.TestCase):
         TestEndToEnd._reset_flash_servers()
 
         test_str_list = []
-        for _ in range(config.FLASH_PAGE_SIZE * 9 - 1):
+        for _ in xrange(config.FLASH_PAGE_SIZE * 9 - 1):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
         test_client = client.Client()
