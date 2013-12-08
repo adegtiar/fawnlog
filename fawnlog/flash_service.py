@@ -26,19 +26,50 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
         self.logger.debug("Received read request: {0}".format(request))
         response = flash_service_pb2.ReadResponse()
 
+        data = None
         try:
             data = self.pagestore.read(request.offset)
         except flashlib.ErrorUnwritten:
-            status = flash_service_pb2.ReadResponse.ERROR_UNWRITTEN
+            status, data = self._handle_read_unwritten(request.offset)
         except flashlib.ErrorFilledHole:
             status = flash_service_pb2.ReadResponse.ERROR_FILLED_HOLE
         else:
             status = flash_service_pb2.ReadResponse.SUCCESS
-            response.data = data
+
         response.status = status
+        if data:
+            response.data = data
         self.logger.debug("Responding with response: {0}".format(response))
 
         done.run(response)
+
+    def _handle_read_unwritten(self, offset):
+        """Handles the error of a read requests for an unwritten page.
+
+        Checks if the page is likely to be a hole, and potentially fills it.
+
+        """
+        data = None
+        if self._check_is_hole(offset):
+            try:
+                self.pagestore.fill_hole(offset)
+            except ErrorOverwritten:
+                # Unwritten page got written during check.
+                status = flash_service_pb2.ReadResponse.SUCCESS
+                data = self.pagestore.read(offset)
+            else:
+                # Page is now filled with a hole
+                status = flash_service_pb2.ReadResponse.ERROR_FILLED_HOLE
+        else:
+            # This page is not a hole - simply not yet written.
+            status = flash_service_pb2.ReadResponse.ERROR_UNWRITTEN
+
+        return status, data
+
+    def _check_is_hole(self, page):
+        """Determines whether the page is likely to be a hole."""
+        # TODO: implement this.
+        return False
 
     def Write(self, controller, request, done):
         """Writes the given data to the page at the given offset."""
