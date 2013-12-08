@@ -15,7 +15,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='client_to_seq.proto',
   package='',
-  serialized_pb='\n\x13\x63lient_to_seq.proto\"@\n\x12\x43lientToSeqRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\x19\n\x11\x66lash_unit_number\x18\x02 \x02(\x05\"\x15\n\x13\x43lientToSeqResponse2N\n\x12\x43lientToSeqService\x12\x38\n\x0b\x43lientToSeq\x12\x13.ClientToSeqRequest\x1a\x14.ClientToSeqResponseB\x03\x90\x01\x01')
+  serialized_pb='\n\x13\x63lient_to_seq.proto\"@\n\x12\x43lientToSeqRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\x19\n\x11\x66lash_unit_number\x18\x02 \x02(\x05\"\x15\n\x13\x43lientToSeqResponse2H\n\x12\x43lientToSeqService\x12\x32\n\x05Write\x12\x13.ClientToSeqRequest\x1a\x14.ClientToSeqResponseB\x03\x90\x01\x01')
 
 
 
@@ -101,11 +101,11 @@ _CLIENTTOSEQSERVICE = _descriptor.ServiceDescriptor(
   index=0,
   options=None,
   serialized_start=112,
-  serialized_end=190,
+  serialized_end=184,
   methods=[
   _descriptor.MethodDescriptor(
-    name='ClientToSeq',
-    full_name='ClientToSeqService.ClientToSeq',
+    name='Write',
+    full_name='ClientToSeqService.Write',
     index=0,
     containing_service=None,
     input_type=_CLIENTTOSEQREQUEST,

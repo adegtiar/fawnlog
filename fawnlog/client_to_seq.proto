@@ -9,5 +9,5 @@ message ClientToSeqResponse {
 }
 
 service ClientToSeqService {
-    rpc ClientToSeq(ClientToSeqRequest) returns(ClientToSeqResponse);
+    rpc Write(ClientToSeqRequest) returns(ClientToSeqResponse);
 }

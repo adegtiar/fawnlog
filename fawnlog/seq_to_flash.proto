@@ -1,0 +1,15 @@
+option py_generic_services = true;
+
+message SeqToFlashRequest {
+    required bytes data_id = 1;
+    required int64 toekn = 2;
+    required float timestamp = 3;
+    required float ips = 4;
+}
+
+message SeqToFlashResponse {
+}
+
+service SeqToFlashService {
+    rpc Write(SeqToFlashRequest) returns(SeqToFlashResponse);
+}
