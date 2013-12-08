@@ -56,4 +56,4 @@ class Projection(object):
 
         (dest_host, dest_port) = config.SERVER_ADDR_LIST[dest_server]
 
-        return (dest_host, dest_port, dest_page)
+        return (dest_server, dest_host, dest_port, dest_page)
