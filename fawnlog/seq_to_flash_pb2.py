@@ -15,7 +15,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='seq_to_flash.proto',
   package='',
-  serialized_pb='\n\x12seq_to_flash.proto\"S\n\x11SeqToFlashRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\r\n\x05toekn\x18\x02 \x02(\x03\x12\x11\n\ttimestamp\x18\x03 \x02(\x02\x12\x0b\n\x03ips\x18\x04 \x02(\x02\"\x14\n\x12SeqToFlashResponse2E\n\x11SeqToFlashService\x12\x30\n\x05Write\x12\x12.SeqToFlashRequest\x1a\x13.SeqToFlashResponseB\x03\x90\x01\x01')
+  serialized_pb='\n\x12seq_to_flash.proto\"S\n\x11SeqToFlashRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\r\n\x05token\x18\x02 \x02(\x03\x12\x11\n\ttimestamp\x18\x03 \x02(\x02\x12\x0b\n\x03ips\x18\x04 \x02(\x02\"\x14\n\x12SeqToFlashResponse2E\n\x11SeqToFlashService\x12\x30\n\x05Write\x12\x12.SeqToFlashRequest\x1a\x13.SeqToFlashResponseB\x03\x90\x01\x01')
 
 
 
@@ -35,7 +35,7 @@ _SEQTOFLASHREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='toekn', full_name='SeqToFlashRequest.toekn', index=1,
+      name='token', full_name='SeqToFlashRequest.token', index=1,
       number=2, type=3, cpp_type=2, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
