@@ -3,6 +3,7 @@ SEQUENCER_PORT = 10001
 
 COUNT_IPS_INTERVAL = 0.1 # seconds
 COUNT_IPS_ALPHA = 0.5 # weight for exponential moving average calculation
+REQUEST_TIMEOUT = 0.1 # seconds
 
 SERVER_ADDR_LIST = [("127.0.0.1", 10002),
                     ("127.0.0.1", 10003),
