@@ -25,6 +25,7 @@ message WriteResponse {
         ERROR_OVERWRITTEN = 1;
         ERROR_FILLED_HOLE = 2;
         ERROR_OVERSIZED_DATA = 3;
+        ERROR_NO_CAPACITY = 4;
     }
     required Status status = 1;
     required int64 token = 2;
