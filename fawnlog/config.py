@@ -1,7 +1,7 @@
 SEQUENCER_HOST = "127.0.0.1"
 SEQUENCER_PORT = 10001
 
-COUNT_IPS_INTERVAL = 100 # milliseconds
+COUNT_IPS_INTERVAL = 0.1 # seconds
 COUNT_IPS_ALPHA = 0.5 # weight for exponential moving average calculation
 
 SERVER_ADDR_LIST = [("127.0.0.1", 10002),
