@@ -5,13 +5,14 @@ class Sequencer(object):
     A simple sequencer which serialize requests and generates tokens.
     """
 
-    def __init__(self, start=0):
-        self.counter = start
+    def __init__(self, start_token=0):
         self.lock = threading.Lock()
+        self.counter = start_token
 
     def reset(self, counter):
         with self.lock:
             self.counter = counter
+
 
     def get_token(self, number):
         """
