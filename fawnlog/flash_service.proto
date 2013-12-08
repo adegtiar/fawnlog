@@ -27,6 +27,9 @@ message WriteResponse {
         ERROR_OVERSIZED_DATA = 3;
     }
     required Status status = 1;
+    required int64 token = 2;
+    required float timestamp = 3;
+    required float ips = 4;
 }
 
 message FillHoleRequest {
