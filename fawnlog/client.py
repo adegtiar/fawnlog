@@ -5,23 +5,29 @@ from fawnlog import flash_service_pb2
 from protobuf.socketrpc import RpcService
 from uuid import uuid4
 
+import threading
+import time
+
 
 class Client(object):
-    """ Client handles the write and read requests to the shared log.
+    ''' Client handles the write and read requests to the shared log.
         It communicates with the sequencer and server using protobuf.
 
-    """
+    '''
     def __init__(self):
         self.projection = projection.Projection()
         self.service = RpcService(get_token_pb2.GetTokenService_Stub,
                                   config.SEQUENCER_PORT,
                                   config.SEQUENCER_HOST)
-        # guess_info: last_token * last_timestamp
-        self.guess_info = (-1, 0.0)
         self.client_id = str(uuid4())
+        # guessing information
+        self.last_token = -2
+        self.last_server = -1
+        self.last_timestamp = 0.0
+        self.last_ips = 0.0
 
     def append(self, data):
-        """ string -> int list
+        ''' string -> int list
 
             Checking length of data and for every piece of the data, try
             guessing a server to write to and waiting for response. If a
@@ -35,7 +41,7 @@ class Client(object):
             Exception Handling:
                 NONE
 
-        """
+        '''
         data_len = len(data)
         if data_len == 0:
             return []
@@ -54,14 +60,23 @@ class Client(object):
             while True:
                 server_w = self.guess_server()
                 piece_id = self.client_id
-                self.send_to_sequencer(server_w, piece_id)
-                response_w = self.write_to_server(piece_data, piece_id)
-                if response_w == flash_service_pb2.WriteResponse.SUCCESS:
+                threading.Thread(target=self.send_to_sequencer,
+                                 args=(server_w, piece_id)).start()
+                response_w = self.write_to_flash(server_w,
+                                                 piece_data,
+                                                 piece_id)
+                if response_w.status == flash_service_pb2.WriteResponse.SUCCESS:
                     token_list.append(response_w.token)
-                    self.guess_info = response_w.guess_info
+                    self.last_token = response_w.token
+                    self.last_server = server_w
+                    self.last_timestamp = response_w.timestamp
+                    self.last_ips = response_w.ips
                     break
                 else:
-                    self.guess_info = response_w.guess_info
+                    self.last_token = -1
+                    self.last_server = server_w
+                    self.last_timestamp = 0.0
+                    self.last_ips = 0.0
 
         return token_list
 
@@ -71,32 +86,52 @@ class Client(object):
             Guess the next server that should be written to.
 
         '''
-        if last_timestamp == 0.0:
-            # the server contact last time is full
+        if self.last_token == -2:
+            # the client write for the first time
+            return 0
+        elif self.last_token == -1:
+            # the server contacted last time is full
+            return self.last_server + 1
+        else:
+            guess_inc = int((time.time() - self.last_timestamp) * self.last_ips)
+            guess_token = self.last_token + guess_inc
+            (guess_host, _, _) = self.projection.translate(guess_token)
+            return guess_host
 
+    def send_to_sequencer(self, flash_unit_number, data_id):
+        ''' int * int -> GetTokenResponse
 
-    def write_to(self, data, token):
-        ''' string * int -> WriteResponse.Status
+            Send server and data id to the sequencer, ignores the response.
 
-            Write data to the position 'token' in the shared log. Return
-            the status of the operation to caller, either SUCCESS or ERROR.
+        '''
+        request_seq = get_token_pb2.GetTokenRequest()
+        request_seq.flash_unit_number = flash_unit_number
+        request_seq.data_id = data_id
+        response_seq = self.service.Write(request_seq, timeout=10000)
+        return response_seq
+
+    def write_to_flash(self, server, data, data_id):
+        ''' int * string * int -> WriteResponse.Status
+
+            Send data and its id to the server, and wait until the response
+            is back.
 
             Failure Handling:
-                Pop failure case up to caller.
+                NONE
 
             Exception Handling:
                 NONE
 
         '''
         # data must be fit in a page right now
-        (dest_host, dest_port, dest_page) = self.projection.translate(token)
+        (dest_host, dest_port) = config.SERVER_ADDR_LIST[server]
         service_w = RpcService(flash_service_pb2.FlashService_Stub,
                                dest_port, dest_host)
         request_w = flash_service_pb2.WriteRequest()
-        request_w.offset = dest_page
         request_w.data = data
+        request_w.data_id = data_id
         response_w = service_w.Write(request_w, timeout=10000)
-        return response_w.status
+        return response_w
 
     def read(self, token):
         ''' int -> string
@@ -128,4 +163,3 @@ class Client(object):
     def fill(self, token):
         # holes will be filled by servers
         pass
-
