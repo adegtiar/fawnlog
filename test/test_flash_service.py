@@ -38,7 +38,6 @@ class TestFlashService(unittest.TestCase):
         reset_response = TestFlashService.service.Reset(reset_request)
         assert(reset_response.status == flash_service_pb2.ResetResponse.SUCCESS)
 
-    @unittest.skip("need to update fawnlog write")
     def test_write_read_basic(self):
         offset = 0
         data = os.urandom(PAGE_SIZE)
@@ -57,7 +56,6 @@ class TestFlashService(unittest.TestCase):
         self.assertEqual(response_r.status,
             flash_service_pb2.ReadResponse.ERROR_UNWRITTEN)
 
-    @unittest.skip("need to update fawnlog write")
     def test_write_overwritten(self):
         offset = 10000
         data = os.urandom(PAGE_SIZE)
@@ -68,7 +66,6 @@ class TestFlashService(unittest.TestCase):
         self.assertEqual(response_w.status,
             flash_service_pb2.WriteResponse.ERROR_OVERWRITTEN)
 
-    @unittest.skip("need to update fawnlog write")
     def test_oversized_data(self):
         offset = 15000
         data = os.urandom(PAGE_SIZE*2)
@@ -86,7 +83,6 @@ class TestFlashService(unittest.TestCase):
         self.assertEqual(response_r.status,
             flash_service_pb2.ReadResponse.ERROR_FILLED_HOLE)
 
-    @unittest.skip("need to update fawnlog write")
     def test_write_hole(self):
         offset = 5000
         response_fh = self._fill_hole(offset)
@@ -103,7 +99,6 @@ class TestFlashService(unittest.TestCase):
         self.assertEqual(response_fh.status,
             flash_service_pb2.FillHoleResponse.SUCCESS)
 
-    @unittest.skip("need to update fawnlog write")
     def test_fill_hole_overwritten(self):
         offset=5000
         data = os.urandom(PAGE_SIZE)
@@ -122,8 +117,21 @@ class TestFlashService(unittest.TestCase):
         return response_r
 
     def _write(self, offset, data):
+        data_id = "foo"
+
+        # Write the offset.
+        request_wo = flash_service_pb2.WriteOffsetRequest()
+        request_wo.data_id = data_id
+        request_wo.offset = offset
+        request_wo.is_full = False
+        request_wo.measure.token = 1
+        request_wo.measure.token_timestamp = 2
+        request_wo.measure.request_timestamp = 3
+        request_wo.measure.ips = 4
+        TestFlashService.service.WriteOffset(request_wo, timeout=10000)
+
         request_w = flash_service_pb2.WriteRequest()
-        request_w.offset = offset
+        request_w.data_id = data_id
         request_w.data = data
         response_w = TestFlashService.service.Write(request_w, timeout=10000)
         return response_w
