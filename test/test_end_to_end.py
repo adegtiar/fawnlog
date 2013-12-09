@@ -1,17 +1,17 @@
 #!/usr/bin/env python2.7
 """Tests flash service."""
 
+import os
+import random
 import unittest
 
 from protobuf.socketrpc import RpcService
 
 import test.helper
 
-import random
-
 from fawnlog import client
 from fawnlog import config
-from fawnlog import client_to_seq_pb2
+from fawnlog import sequencer_service_pb2
 from fawnlog import sequencer_service
 from fawnlog import flash_service_pb2
 from fawnlog import flash_service
@@ -24,20 +24,19 @@ class TestEndToEnd(unittest.TestCase):
     def setUpClass(cls):
         # start sequencer
         cls.sequencer_thread = test.helper.ServerThread(config.SEQUENCER_PORT,
-            config.SEQUENCER_HOST, sequencer_service.ClientToSeqImpl())
+            config.SEQUENCER_HOST, sequencer_service.SequencerServiceImpl())
         cls.sequencer_thread.start_server()
-        cls.sequencer_service = RpcService(client_to_seq_pb2. ClientToSeqService_Stub,
-            config.SEQUENCER_PORT, config.SEQUENCER_HOST)
+        cls.sequencer_service = RpcService(
+                sequencer_service_pb2.SequencerService_Stub,
+                config.SEQUENCER_PORT, config.SEQUENCER_HOST)
 
         cls.flash_services = []
         for i in xrange(config.FLASH_PER_GROUP):
             cls.flash_services.append(cls._start_flash_server(i))
 
-        cls._reset_flash_servers()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls._reset_flash_servers()
+    def setUp(self):
+        TestEndToEnd._reset_flash_servers()
+        self.test_client = client.Client()
 
     @classmethod
     def _start_flash_server(cls, server_index):
@@ -56,17 +55,11 @@ class TestEndToEnd(unittest.TestCase):
     def test_append_one_short(self):
         ''' test writing a short data to one page
         '''
-        TestEndToEnd._reset_flash_servers()
-
-        test_str_list = []
-        for _ in xrange(config.FLASH_PAGE_SIZE // 100):
-            test_str_list.append(chr(random.randint(65, 90)))
-        test_str = ''.join(test_str_list)
-        test_client = client.Client()
-        return_tokens = test_client.append(test_str)
-        return_str = test_client.read(return_tokens[0])
+        test_data = os.urandom(config.FLASH_PAGE_SIZE // 100)
+        return_tokens = self.test_client.append(test_data)
+        return_data = self.test_client.read(return_tokens[0])
         self.assertEqual(len(return_tokens), 1)
-        self.assertEqual(test_str, return_str)
+        self.assertEqual(test_data, return_data)
 
     # def test_append_one_long(self):
     #     ''' test writing a long data to one page
