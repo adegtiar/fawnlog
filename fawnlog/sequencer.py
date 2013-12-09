@@ -26,6 +26,7 @@ class IpsThread(threading.Thread):
         # FIXME: what should be the start up value?
         self.cur_ips = -1
         self.stopped = False
+        self.setDaemon(True)
 
     def run(self):
         self.last_token = self.sequencer.token
