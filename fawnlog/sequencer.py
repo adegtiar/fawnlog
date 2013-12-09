@@ -250,8 +250,7 @@ class Sequencer(object):
         """
         (host, port) = config.SERVER_ADDR_LIST[request.flash_unit_index]
         # TODO: initialize RpcService in init
-        service_f = RpcService(flash_service_pb2.FlashService_Stub,
-            host, port)
+        service_f = RpcService(flash_service_pb2.FlashService_Stub, port, host)
         request_f = flash_service_pb2.WriteOffsetRequest()
         request_f.data_id = request.data_id
         (_, _, _, request_f.offset) = self.projection.translate(token)
@@ -271,5 +270,5 @@ class Sequencer(object):
         request_f.offset = offset
 
         # TODO: initialize RpcService in init
-        service_f = RpcService(flash_service_pb2.FlashService_Stub, host, port)
+        service_f = RpcService(flash_service_pb2.FlashService_Stub, port, host)
         service_f.FillHole(request_f, callback=self.callback)
