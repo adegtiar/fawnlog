@@ -1,6 +1,7 @@
 import collections
 import os.path
 import threading
+import time
 
 from fawnlog import config
 from fawnlog import flashlib
@@ -46,27 +47,74 @@ class FlashUnit(object):
         self.pagestore = flashlib.PageStore(filepath, config.FLASH_PAGE_SIZE,
                 config.FLASH_PAGE_NUMBER)
         self.offset_buffer = OffsetBuffer()
+        # WriteOffset timestamps, used for hole detection.
+        self.offset_timestamps = dict()
 
     def read(self, offset):
-        return self.pagestore.read(offset)
+        """Reads the page at the offset from the underlying pagestore.
+
+        If the given offset has been received from the sequencer but not
+        yet written by the client, the offset may be considered a hole
+        and filled.
+
+        """
+        try:
+            return self.pagestore.read(offset)
+        except flashlib.ErrorUnwritten as err:
+            if self._is_likely_hole(offset):
+                try:
+                    self.pagestore.fill_hole(offset)
+                except flashlib.ErrorOverwritten:
+                    # Page got written between check and fill.
+                    return self.pagestore.read(offset)
+                else:
+                    raise flashlib.ErrorFilledHole()
+            else:
+                raise err
+
+    def _is_likely_hole(self, offset):
+        """Checks whether this offset is likely a hole.
+
+        An offset is considered a hole when it has been written by the
+        sequencer and at least config.FLASH_HOLE_DELAY_THRESHOLD seconds
+        have passed.
+
+        """
+        try:
+            time_since_offset = time.time() - self.offset_timestamps[offset]
+        except KeyError:
+            # This offset has not been received from the sequencer.
+            return False
+        else:
+            return time_since_offset > config.FLASH_HOLE_DELAY_THRESHOLD
 
     def write(self, data_id, data):
+        """Writes the data, blocking until the offset is received."""
         offset_message = self.offset_buffer.pop_offset_message(data_id)
         if offset_message.is_full:
             raise flashlib.ErrorNoCapacity()
         else:
-            self.pagestore.write(data, offset_message.offset)
-            return offset_message.measure
+            try:
+                self.pagestore.write(data, offset_message.offset)
+                return offset_message.measure
+            finally:
+                del self.offset_timestamps[offset_message.offset]
 
     def write_offset(self, data_id, offset_message):
+        """Writes the offset message for the given data id."""
+        if not offset_message.is_full:
+            self.offset_timestamps[offset_message.offset] = time.time()
         self.offset_buffer.put_offset_message(data_id, offset_message)
 
     def fill_hole(self, offset):
+        """Fills the page at the given offset with a hole."""
         self.pagestore.fill_hole(offset)
 
     def reset(self):
+        """Clears all data for the pagestore."""
         self.pagestore.reset()
         self.offset_buffer = OffsetBuffer()
+        self.offset_timestamps = dict()
 
     def close(self):
         self.pagestore.close()
