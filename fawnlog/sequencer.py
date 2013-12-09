@@ -4,7 +4,7 @@
 from fawnlog import config
 from fawnlog import projection
 from fawnlog import linkedlist_queue
-from fawnlog import seq_to_flash_pb2
+from fawnlog import flash_service_pb2
 from protobuf.socketrpc import RpcService
 
 import Queue
@@ -175,7 +175,6 @@ class Sequencer(object):
         if not self.global_req_queue.empty():
             timestamp = self.global_req_queue.head.data.request_timestamp
             interval = config.REQUEST_TIMEOUT - (time.time() - timestamp)
-            # TODO: if interval is negative or zero
             self.global_req_timer = threading.Timer(
                 interval, self.remove_request)
             self.global_req_timer.start()
@@ -232,15 +231,19 @@ class Sequencer(object):
         """Resets the state of the sequencer."""
         pass
 
+    def callback(self, request, response):
+        """Async callback which does nothing"""
+        pass
+
     def send_to_flash(self, request, token, is_full=False):
         """If is_full is True, token does not have any meaning,
         should be ignored.
         """
-        # TODO: need to make asychronous call
         (host, port) = config.SERVER_ADDR_LIST[request.flash_unit_index]
-        service_f = RpcService(seq_to_flash_pb2.SeqToFlashService_Stub,
+        # TODO: initialize RpcService in init
+        service_f = RpcService(flash_service_pb2.FlashService_Stub,
             host, port)
-        request_f = seq_to_flash_pb2.SeqToFlashRequest()
+        request_f = flash_service_pb2.WriteTokenRequest()
         request_f.data_id = request.data_id
         request_f.token = token
         request_f.request_timestamp = request.request_timestamp
@@ -248,14 +251,15 @@ class Sequencer(object):
         request_f.token_timestamp = time.time()
         request_f.ips = self.ips_thread.get_ips()
         request_f.is_full = is_full
-        service_f.Write(request_f, timeout=10000)
+        service_f.WriteToken(request_f, callback=self.callback)
 
     def fill_hole_flash(self, token):
         """Creates a hole at the token by sending a FillHole request."""
         _, host, port, offset = self.projection.translate(token)
 
         request_f = flash_service_pb2.FillHoleRequest()
-        request_f.offset = translate_to_local_page_offset(token)
+        request_f.offset = offset
 
+        # TODO: initialize RpcService in init
         service_f = RpcService(flash_service_pb2.FlashService_Stub, host, port)
-        service_f.FillHole(request_f, timeout=10000)
+        service_f.FillHole(request_f, callback=self.callback)
