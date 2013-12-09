@@ -4,12 +4,12 @@
 """
 
 from fawnlog import config
-from fawnlog import client_to_seq_pb2
+from fawnlog import sequencer_service_pb2
 from fawnlog import sequencer
 import logging
 import protobuf.socketrpc.server
 
-class ClientToSeqImpl(client_to_seq_pb2.ClientToSeqService):
+class SequencerServiceImpl(sequencer_service_pb2.ClientToSeqService):
     """GetToken service implementation."""
 
     def __init__(self, logger=None):

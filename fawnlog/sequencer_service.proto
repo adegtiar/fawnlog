@@ -8,6 +8,6 @@ message SequencerServiceRequest {
 message SequencerServiceResponse {
 }
 
-service SequencerServiceService {
+service SequencerService {
     rpc Write(SequencerServiceRequest) returns(SequencerServiceResponse);
 }

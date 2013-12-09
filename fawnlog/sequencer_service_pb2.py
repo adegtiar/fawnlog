@@ -15,7 +15,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='sequencer_service.proto',
   package='',
-  serialized_pb='\n\x17sequencer_service.proto\"E\n\x17SequencerServiceRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\x19\n\x11\x66lash_unit_number\x18\x02 \x02(\x05\"\x1a\n\x18SequencerServiceResponse2W\n\x17SequencerServiceService\x12<\n\x05Write\x12\x18.SequencerServiceRequest\x1a\x19.SequencerServiceResponseB\x03\x90\x01\x01')
+  serialized_pb='\n\x17sequencer_service.proto\"E\n\x17SequencerServiceRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\x19\n\x11\x66lash_unit_number\x18\x02 \x02(\x05\"\x1a\n\x18SequencerServiceResponse2P\n\x10SequencerService\x12<\n\x05Write\x12\x18.SequencerServiceRequest\x1a\x19.SequencerServiceResponseB\x03\x90\x01\x01')
 
 
 
@@ -94,18 +94,18 @@ class SequencerServiceResponse(_message.Message):
 DESCRIPTOR.has_options = True
 DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), '\220\001\001')
 
-_SEQUENCERSERVICESERVICE = _descriptor.ServiceDescriptor(
-  name='SequencerServiceService',
-  full_name='SequencerServiceService',
+_SEQUENCERSERVICE = _descriptor.ServiceDescriptor(
+  name='SequencerService',
+  full_name='SequencerService',
   file=DESCRIPTOR,
   index=0,
   options=None,
   serialized_start=126,
-  serialized_end=213,
+  serialized_end=206,
   methods=[
   _descriptor.MethodDescriptor(
     name='Write',
-    full_name='SequencerServiceService.Write',
+    full_name='SequencerService.Write',
     index=0,
     containing_service=None,
     input_type=_SEQUENCERSERVICEREQUEST,
@@ -114,11 +114,11 @@ _SEQUENCERSERVICESERVICE = _descriptor.ServiceDescriptor(
   ),
 ])
 
-class SequencerServiceService(_service.Service):
+class SequencerService(_service.Service):
   __metaclass__ = service_reflection.GeneratedServiceType
-  DESCRIPTOR = _SEQUENCERSERVICESERVICE
-class SequencerServiceService_Stub(SequencerServiceService):
+  DESCRIPTOR = _SEQUENCERSERVICE
+class SequencerService_Stub(SequencerService):
   __metaclass__ = service_reflection.GeneratedServiceStubType
-  DESCRIPTOR = _SEQUENCERSERVICESERVICE
+  DESCRIPTOR = _SEQUENCERSERVICE
 
 # @@protoc_insertion_point(module_scope)
