@@ -31,10 +31,6 @@ class TestEndToEnd(unittest.TestCase):
         for i in xrange(config.FLASH_PER_GROUP):
             cls.flash_services.append(cls._start_flash_server(i))
 
-    def setUp(self):
-        TestEndToEnd._reset_flash_servers()
-        self.test_client = client.Client()
-
     @classmethod
     def _start_flash_server(cls, server_index):
         host, port = config.SERVER_ADDR_LIST[server_index]
@@ -49,36 +45,28 @@ class TestEndToEnd(unittest.TestCase):
             response = service.Reset(flash_service_pb2.ResetRequest())
             assert(response.status == flash_service_pb2.ResetResponse.SUCCESS)
 
+    def setUp(self):
+        TestEndToEnd._reset_flash_servers()
+        self.test_client = client.Client()
+
     def test_append_one_short(self):
         """Test writing a short data to one page."""
-        self._append_and_assert(os.urandom(config.FLASH_PAGE_SIZE // 100))
+        self._append_and_assert(config.FLASH_PAGE_SIZE // 100, 1)
 
     def test_append_one_long(self):
         """Test writing a long data to one page."""
-        self._append_and_assert(os.urandom(config.FLASH_PAGE_SIZE - 1))
+        self._append_and_assert(config.FLASH_PAGE_SIZE - 1, 1)
 
-    def _append_and_assert(self, test_data):
+    def test_append_two_page(self):
+        """Test writing to two pages."""
+        self._append_and_assert(config.FLASH_PAGE_SIZE * 2 - 1, 2)
+
+    def _append_and_assert(self, data_size, expected_num_tokens):
+        test_data = os.urandom(data_size)
         return_tokens = self.test_client.append(test_data)
-        self.assertEqual(len(return_tokens), 1)
-        return_data = self.test_client.read(return_tokens[0])
-        self.assertEqual(test_data, return_data)
-
-    # def test_append_two_page(self):
-    #     ''' test writing to two pages
-    #     '''
-    #     TestEndToEnd._reset_flash_servers()
-
-    #     test_str_list = []
-    #     for _ in xrange(config.FLASH_PAGE_SIZE * 2 - 1):
-    #         test_str_list.append(chr(random.randint(65, 90)))
-    #     test_str = ''.join(test_str_list)
-    #     test_client = client.Client()
-    #     return_tokens = test_client.append(test_str)
-    #     return_str_1 = test_client.read(return_tokens[0])
-    #     return_str_2 = test_client.read(return_tokens[1])
-    #     return_str = return_str_1 + return_str_2
-    #     self.assertEqual(len(return_tokens), 2)
-    #     self.assertEqual(test_str, return_str)
+        self.assertEqual(expected_num_tokens, len(return_tokens))
+        return_data = [self.test_client.read(token) for token in return_tokens]
+        self.assertEqual(test_data, "".join(return_data))
 
     # def test_append_nine_page(self):
     #     ''' test writing to nine pages
