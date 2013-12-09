@@ -70,16 +70,17 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
         done.run(response)
 
-    def WriteToken(self, controller, request, done):
+    def WriteOffset(self, controller, request, done):
         """Writes the given data to the page at the given offset."""
-        self.logger.debug("Received WriteToken request: {0}".format(request))
+        self.logger.debug("Received WriteOffset request: {0}".format(request))
 
-        ips_measure = IpsMeasure(request.token, request.token_timestamp,
-                request.request_timestamp, request.ips)
-        self.flash_unit.write_token(request.data_id, request.token,
+        ips_measure = IpsMeasure(request.IpsMeasure.token,
+            request.IpsMeasure.token_timestamp,
+            request.IpsMeasure.request_timestamp, request.IpsMeasure.ips)
+        self.flash_unit.write_token(request.data_id, request.IpsMeasure.token,
                 request.is_full, ips_measure)
 
-        done.run(flash_service_pb2.WriteTokenResponse())
+        done.run(flash_service_pb2.WriteOffsetResponse())
 
     def FillHole(self, controller, request, done):
         """Fills a hole at the page at the given offset."""

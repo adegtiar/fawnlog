@@ -243,15 +243,16 @@ class Sequencer(object):
         # TODO: initialize RpcService in init
         service_f = RpcService(flash_service_pb2.FlashService_Stub,
             host, port)
-        request_f = flash_service_pb2.WriteTokenRequest()
+        request_f = flash_service_pb2.WriteOffsetRequest()
         request_f.data_id = request.data_id
-        request_f.token = token
-        request_f.request_timestamp = request.request_timestamp
-        # timestamp is the timestamp for ips
-        request_f.token_timestamp = time.time()
-        request_f.ips = self.ips_thread.get_ips()
+        (_, _, _, request_f.offset) = self.projection.translate(token)
         request_f.is_full = is_full
-        service_f.WriteToken(request_f, callback=self.callback)
+        request_f.IpsMeasure.token = token
+        request_f.IpsMeasure.request_timestamp = request.request_timestamp
+        # timestamp is the timestamp for ips
+        request_f.IpsMeasure.token_timestamp = time.time()
+        request_f.IpsMeasure.ips = self.ips_thread.get_ips()
+        service_f.WriteOffset(request_f, callback=self.callback)
 
     def fill_hole_flash(self, token):
         """Creates a hole at the token by sending a FillHole request."""
