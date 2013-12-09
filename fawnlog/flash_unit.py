@@ -66,13 +66,16 @@ class FlashUnit(object):
 
     def reset(self):
         self.pagestore.reset()
+        self.offset_buffer = OffsetBuffer()
+
+    def close(self):
+        self.pagestore.close()
 
     def __enter__(self):
         return self
 
     def __exit__(self, typ, value, traceback):
-        # Make sure the pagestore is closed.
-        self.pagestore.close()
+        self.close()
 
     @staticmethod
     def _get_filepath(server_index):
