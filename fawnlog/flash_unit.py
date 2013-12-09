@@ -6,24 +6,11 @@ from fawnlog import config
 from fawnlog import flashlib
 
 
-class IpsMeasure(object):
-    """A recorded Ips measurement.
-
-    TODO: this could be replaced with a Protobuf message type.
-
-    """
-
-    def __init__(self, token, token_timestamp, request_timestamp, ips):
-        self.token = token
-        self.token_timestamp = token_timestamp
-        self.request_timestamp = request_timestamp
-        self.ips = ips
-
 class TokenBuffer(object):
     """A synchronized table of token buffers."""
 
     def __init__(self):
-        self.buffer_table = collections.defaultdict(BufferEntry)
+        self.buffer_table = collections.defaultdict(TokenBuffer.BufferEntry)
         self.buffer_lock = threading.Lock()
 
     def pop_token_message(self, data_id):
@@ -46,7 +33,7 @@ class TokenBuffer(object):
         entry.token_indicator.release()
 
     class BufferEntry(object):
-        def __init__(self)
+        def __init__(self):
             self.token_indicator = threading.Semaphore(0)
             self.token_message = None
 
@@ -69,9 +56,9 @@ class FlashUnit(object):
             raise flashlib.ErrorNoCapacity()
         else:
             self.page_store.write(token_message.offset, data)
-            return token_message.IpsMeasure
+            return token_message.measure
 
-    def write_token(self, data_id, token_message):
+    def write_offset(self, data_id, offset_message):
         self.token_buffer.put_token_mssage(data_id, token_message)
 
     def fill_hole(self, offset):

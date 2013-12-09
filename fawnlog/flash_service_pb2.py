@@ -15,7 +15,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='flash_service.proto',
   package='',
-  serialized_pb='\n\x13\x66lash_service.proto\"\x1d\n\x0bReadRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"\x85\x01\n\x0cReadResponse\x12$\n\x06status\x18\x01 \x02(\x0e\x32\x14.ReadResponse.Status\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"A\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x13\n\x0f\x45RROR_UNWRITTEN\x10\x01\x12\x15\n\x11\x45RROR_FILLED_HOLE\x10\x02\"-\n\x0cWriteRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\x0c\n\x04\x64\x61ta\x18\x02 \x02(\x0c\"\xfc\x01\n\rWriteResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.WriteResponse.Status\x12\r\n\x05token\x18\x02 \x02(\x03\x12\x17\n\x0ftoken_timestamp\x18\x03 \x02(\x02\x12\x19\n\x11request_timestamp\x18\x04 \x02(\x02\x12\x0b\n\x03ips\x18\x05 \x02(\x02\"t\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x15\n\x11\x45RROR_OVERWRITTEN\x10\x01\x12\x15\n\x11\x45RROR_FILLED_HOLE\x10\x02\x12\x18\n\x14\x45RROR_OVERSIZED_DATA\x10\x03\x12\x15\n\x11\x45RROR_NO_CAPACITY\x10\x04\"!\n\x0f\x46illHoleRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"j\n\x10\x46illHoleResponse\x12(\n\x06status\x18\x01 \x02(\x0e\x32\x18.FillHoleResponse.Status\",\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x15\n\x11\x45RROR_OVERWRITTEN\x10\x01\"\x0e\n\x0cResetRequest\"X\n\rResetResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.ResetResponse.Status\" \n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\"\xa4\x01\n\x12WriteOffsetRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\x0e\n\x06offset\x18\x02 \x02(\x03\x12\x0f\n\x07is_full\x18\x03 \x02(\x08\x1a\\\n\nIpsMeasure\x12\r\n\x05token\x18\x01 \x02(\x03\x12\x19\n\x11request_timestamp\x18\x02 \x02(\x02\x12\x17\n\x0ftoken_timestamp\x18\x03 \x02(\x02\x12\x0b\n\x03ips\x18\x04 \x02(\x02\"\x15\n\x13WriteOffsetResponse2\xee\x01\n\x0c\x46lashService\x12#\n\x04Read\x12\x0c.ReadRequest\x1a\r.ReadResponse\x12&\n\x05Write\x12\r.WriteRequest\x1a\x0e.WriteResponse\x12/\n\x08\x46illHole\x12\x10.FillHoleRequest\x1a\x11.FillHoleResponse\x12&\n\x05Reset\x12\r.ResetRequest\x1a\x0e.ResetResponse\x12\x38\n\x0bWriteOffset\x12\x13.WriteOffsetRequest\x1a\x14.WriteOffsetResponseB\x03\x90\x01\x01')
+  serialized_pb='\n\x13\x66lash_service.proto\"\x1d\n\x0bReadRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"\x85\x01\n\x0cReadResponse\x12$\n\x06status\x18\x01 \x02(\x0e\x32\x14.ReadResponse.Status\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"A\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x13\n\x0f\x45RROR_UNWRITTEN\x10\x01\x12\x15\n\x11\x45RROR_FILLED_HOLE\x10\x02\"-\n\x0cWriteRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\x0c\n\x04\x64\x61ta\x18\x02 \x02(\x0c\"\\\n\nIpsMeasure\x12\r\n\x05token\x18\x01 \x02(\x03\x12\x19\n\x11request_timestamp\x18\x02 \x02(\x02\x12\x17\n\x0ftoken_timestamp\x18\x03 \x02(\x02\x12\x0b\n\x03ips\x18\x04 \x02(\x02\"\xca\x01\n\rWriteResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.WriteResponse.Status\x12\x1c\n\x07measure\x18\x02 \x01(\x0b\x32\x0b.IpsMeasure\"t\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x15\n\x11\x45RROR_OVERWRITTEN\x10\x01\x12\x15\n\x11\x45RROR_FILLED_HOLE\x10\x02\x12\x18\n\x14\x45RROR_OVERSIZED_DATA\x10\x03\x12\x15\n\x11\x45RROR_NO_CAPACITY\x10\x04\"!\n\x0f\x46illHoleRequest\x12\x0e\n\x06offset\x18\x01 \x02(\x03\"j\n\x10\x46illHoleResponse\x12(\n\x06status\x18\x01 \x02(\x0e\x32\x18.FillHoleResponse.Status\",\n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\x15\n\x11\x45RROR_OVERWRITTEN\x10\x01\"\x0e\n\x0cResetRequest\"X\n\rResetResponse\x12%\n\x06status\x18\x01 \x02(\x0e\x32\x15.ResetResponse.Status\" \n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\"d\n\x12WriteOffsetRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\x0e\n\x06offset\x18\x02 \x02(\x03\x12\x0f\n\x07is_full\x18\x03 \x02(\x08\x12\x1c\n\x07measure\x18\x04 \x02(\x0b\x32\x0b.IpsMeasure\"\x15\n\x13WriteOffsetResponse2\xee\x01\n\x0c\x46lashService\x12#\n\x04Read\x12\x0c.ReadRequest\x1a\r.ReadResponse\x12&\n\x05Write\x12\r.WriteRequest\x1a\x0e.WriteResponse\x12/\n\x08\x46illHole\x12\x10.FillHoleRequest\x1a\x11.FillHoleResponse\x12&\n\x05Reset\x12\r.ResetRequest\x1a\x0e.ResetResponse\x12\x38\n\x0bWriteOffset\x12\x13.WriteOffsetRequest\x1a\x14.WriteOffsetResponseB\x03\x90\x01\x01')
 
 
 
@@ -73,8 +73,8 @@ _WRITERESPONSE_STATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=374,
-  serialized_end=490,
+  serialized_start=418,
+  serialized_end=534,
 )
 
 _FILLHOLERESPONSE_STATUS = _descriptor.EnumDescriptor(
@@ -94,8 +94,8 @@ _FILLHOLERESPONSE_STATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=374,
-  serialized_end=418,
+  serialized_start=418,
+  serialized_end=462,
 )
 
 _RESETRESPONSE_STATUS = _descriptor.EnumDescriptor(
@@ -115,8 +115,8 @@ _RESETRESPONSE_STATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=707,
-  serialized_end=739,
+  serialized_start=751,
+  serialized_end=783,
 )
 
 
@@ -219,6 +219,55 @@ _WRITEREQUEST = _descriptor.Descriptor(
 )
 
 
+_IPSMEASURE = _descriptor.Descriptor(
+  name='IpsMeasure',
+  full_name='IpsMeasure',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='token', full_name='IpsMeasure.token', index=0,
+      number=1, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='request_timestamp', full_name='IpsMeasure.request_timestamp', index=1,
+      number=2, type=2, cpp_type=6, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='token_timestamp', full_name='IpsMeasure.token_timestamp', index=2,
+      number=3, type=2, cpp_type=6, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='ips', full_name='IpsMeasure.ips', index=3,
+      number=4, type=2, cpp_type=6, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=237,
+  serialized_end=329,
+)
+
+
 _WRITERESPONSE = _descriptor.Descriptor(
   name='WriteResponse',
   full_name='WriteResponse',
@@ -234,30 +283,9 @@ _WRITERESPONSE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='token', full_name='WriteResponse.token', index=1,
-      number=2, type=3, cpp_type=2, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='token_timestamp', full_name='WriteResponse.token_timestamp', index=2,
-      number=3, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='request_timestamp', full_name='WriteResponse.request_timestamp', index=3,
-      number=4, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='ips', full_name='WriteResponse.ips', index=4,
-      number=5, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
+      name='measure', full_name='WriteResponse.measure', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -271,8 +299,8 @@ _WRITERESPONSE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=238,
-  serialized_end=490,
+  serialized_start=332,
+  serialized_end=534,
 )
 
 
@@ -299,8 +327,8 @@ _FILLHOLEREQUEST = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=492,
-  serialized_end=525,
+  serialized_start=536,
+  serialized_end=569,
 )
 
 
@@ -328,8 +356,8 @@ _FILLHOLERESPONSE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=527,
-  serialized_end=633,
+  serialized_start=571,
+  serialized_end=677,
 )
 
 
@@ -349,8 +377,8 @@ _RESETREQUEST = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=635,
-  serialized_end=649,
+  serialized_start=679,
+  serialized_end=693,
 )
 
 
@@ -378,58 +406,10 @@ _RESETRESPONSE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=651,
-  serialized_end=739,
+  serialized_start=695,
+  serialized_end=783,
 )
 
-
-_WRITEOFFSETREQUEST_IPSMEASURE = _descriptor.Descriptor(
-  name='IpsMeasure',
-  full_name='WriteOffsetRequest.IpsMeasure',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='token', full_name='WriteOffsetRequest.IpsMeasure.token', index=0,
-      number=1, type=3, cpp_type=2, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='request_timestamp', full_name='WriteOffsetRequest.IpsMeasure.request_timestamp', index=1,
-      number=2, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='token_timestamp', full_name='WriteOffsetRequest.IpsMeasure.token_timestamp', index=2,
-      number=3, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='ips', full_name='WriteOffsetRequest.IpsMeasure.ips', index=3,
-      number=4, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  extension_ranges=[],
-  serialized_start=814,
-  serialized_end=906,
-)
 
 _WRITEOFFSETREQUEST = _descriptor.Descriptor(
   name='WriteOffsetRequest',
@@ -459,17 +439,24 @@ _WRITEOFFSETREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='measure', full_name='WriteOffsetRequest.measure', index=3,
+      number=4, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
-  nested_types=[_WRITEOFFSETREQUEST_IPSMEASURE, ],
+  nested_types=[],
   enum_types=[
   ],
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=742,
-  serialized_end=906,
+  serialized_start=785,
+  serialized_end=885,
 )
 
 
@@ -489,22 +476,24 @@ _WRITEOFFSETRESPONSE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=908,
-  serialized_end=929,
+  serialized_start=887,
+  serialized_end=908,
 )
 
 _READRESPONSE.fields_by_name['status'].enum_type = _READRESPONSE_STATUS
 _READRESPONSE_STATUS.containing_type = _READRESPONSE;
 _WRITERESPONSE.fields_by_name['status'].enum_type = _WRITERESPONSE_STATUS
+_WRITERESPONSE.fields_by_name['measure'].message_type = _IPSMEASURE
 _WRITERESPONSE_STATUS.containing_type = _WRITERESPONSE;
 _FILLHOLERESPONSE.fields_by_name['status'].enum_type = _FILLHOLERESPONSE_STATUS
 _FILLHOLERESPONSE_STATUS.containing_type = _FILLHOLERESPONSE;
 _RESETRESPONSE.fields_by_name['status'].enum_type = _RESETRESPONSE_STATUS
 _RESETRESPONSE_STATUS.containing_type = _RESETRESPONSE;
-_WRITEOFFSETREQUEST_IPSMEASURE.containing_type = _WRITEOFFSETREQUEST;
+_WRITEOFFSETREQUEST.fields_by_name['measure'].message_type = _IPSMEASURE
 DESCRIPTOR.message_types_by_name['ReadRequest'] = _READREQUEST
 DESCRIPTOR.message_types_by_name['ReadResponse'] = _READRESPONSE
 DESCRIPTOR.message_types_by_name['WriteRequest'] = _WRITEREQUEST
+DESCRIPTOR.message_types_by_name['IpsMeasure'] = _IPSMEASURE
 DESCRIPTOR.message_types_by_name['WriteResponse'] = _WRITERESPONSE
 DESCRIPTOR.message_types_by_name['FillHoleRequest'] = _FILLHOLEREQUEST
 DESCRIPTOR.message_types_by_name['FillHoleResponse'] = _FILLHOLERESPONSE
@@ -530,6 +519,12 @@ class WriteRequest(_message.Message):
   DESCRIPTOR = _WRITEREQUEST
 
   # @@protoc_insertion_point(class_scope:WriteRequest)
+
+class IpsMeasure(_message.Message):
+  __metaclass__ = _reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _IPSMEASURE
+
+  # @@protoc_insertion_point(class_scope:IpsMeasure)
 
 class WriteResponse(_message.Message):
   __metaclass__ = _reflection.GeneratedProtocolMessageType
@@ -563,12 +558,6 @@ class ResetResponse(_message.Message):
 
 class WriteOffsetRequest(_message.Message):
   __metaclass__ = _reflection.GeneratedProtocolMessageType
-
-  class IpsMeasure(_message.Message):
-    __metaclass__ = _reflection.GeneratedProtocolMessageType
-    DESCRIPTOR = _WRITEOFFSETREQUEST_IPSMEASURE
-
-    # @@protoc_insertion_point(class_scope:WriteOffsetRequest.IpsMeasure)
   DESCRIPTOR = _WRITEOFFSETREQUEST
 
   # @@protoc_insertion_point(class_scope:WriteOffsetRequest)
@@ -589,8 +578,8 @@ _FLASHSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=932,
-  serialized_end=1170,
+  serialized_start=911,
+  serialized_end=1149,
   methods=[
   _descriptor.MethodDescriptor(
     name='Read',

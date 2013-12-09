@@ -19,6 +19,13 @@ message WriteRequest {
     required bytes data = 2;
 }
 
+message IpsMeasure {
+    required int64 token = 1;
+    required float request_timestamp = 2;
+    required float token_timestamp = 3;
+    required float ips = 4;
+}
+
 message WriteResponse {
     enum Status {
         SUCCESS = 0;
@@ -28,10 +35,7 @@ message WriteResponse {
         ERROR_NO_CAPACITY = 4;
     }
     required Status status = 1;
-    required int64 token = 2;
-    required float token_timestamp = 3;
-    required float request_timestamp = 4;
-    required float ips = 5;
+    optional IpsMeasure measure = 2;
 }
 
 message FillHoleRequest {
@@ -61,12 +65,7 @@ message WriteOffsetRequest {
     required bytes data_id = 1;
     required int64 offset = 2;
     required bool is_full = 3;
-    message IpsMeasure {
-        required int64 token = 1;
-        required float request_timestamp = 2;
-        required float token_timestamp = 3;
-        required float ips = 4;
-    }
+    required IpsMeasure measure = 4;
 }
 
 message WriteOffsetResponse {

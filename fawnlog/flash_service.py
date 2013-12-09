@@ -10,7 +10,6 @@ from fawnlog import config
 from fawnlog import flashlib
 from fawnlog import flash_service_pb2
 
-from fawnlog.flash_unit import IpsMeasure
 from fawnlog.flash_unit import FlashUnit
 
 
@@ -57,14 +56,13 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
             status = flash_service_pb2.WriteResponse.ERROR_OVERWRITTEN
         except flashlib.ErrorFilledHole:
             status = flash_service_pb2.WriteResponse.ERROR_FILLED_HOLE
+        except flashlib.ErrorNoCapacity:
+            status = flash_service_pb2.WriteResponse.ERROR_NO_CAPACITY
         except ValueError:
             status = flash_service_pb2.WriteResponse.ERROR_OVERSIZED_DATA
         else:
             status = flash_service_pb2.WriteResponse.SUCCESS
-            response.token = token
-            response.token_timestamp = ips_measure.token_timestamp
-            response.request_timestamp = ips_measure.request_timestamp
-            response.ips = ips_measure.ips
+            response.measure = ips_measure
         response.status = status
         self.logger.debug("Responding with response: {0}".format(response))
 
@@ -74,11 +72,7 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
         """Writes the given data to the page at the given offset."""
         self.logger.debug("Received WriteOffset request: {0}".format(request))
 
-        ips_measure = IpsMeasure(request.IpsMeasure.token,
-            request.IpsMeasure.token_timestamp,
-            request.IpsMeasure.request_timestamp, request.IpsMeasure.ips)
-        self.flash_unit.write_token(request.data_id, request.IpsMeasure.token,
-                request.is_full, ips_measure)
+        self.flash_unit.write_offset(request.data_id, request)
 
         done.run(flash_service_pb2.WriteOffsetResponse())
 
