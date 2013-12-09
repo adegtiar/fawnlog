@@ -5,6 +5,7 @@ from fawnlog import flash_service_pb2
 from protobuf.socketrpc import RpcService
 from uuid import uuid4
 
+import math
 import time
 
 
@@ -111,8 +112,9 @@ class Client(object):
             return self.last_server + 1
         else:
             # SUCCESS or FAIL here
-            guess_inc = (time.time() - self.largest_timestamp) * self.latest_ips
-            guess_token = int(self.largest_token + guess_inc + self.delay)
+            guess_inc = ((self.delay + time.time() - self.largest_timestamp) *
+                    self.latest_ips)
+            guess_token = math.ceil(self.largest_token + guess_inc)
             (guess_server, _, _, _) = self.projection.translate(guess_token)
             return guess_server
 
