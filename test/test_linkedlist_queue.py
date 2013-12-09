@@ -43,7 +43,7 @@ class TestLinkedlistQueue(unittest.TestCase):
         queue = LinkedListQueue()
         head = queue.enqueue(1)
         queue.remove(head)
-        self.assertEqual(queue.is_empty(), True)
+        self.assertEqual(queue.empty(), True)
         self.assertEqual(queue.head, None)
         self.assertEqual(queue.tail, None)
 

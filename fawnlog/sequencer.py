@@ -1,3 +1,6 @@
+"""The sequencer.
+"""
+
 from fawnlog import config
 from fawnlog import projection
 from fawnlog import linkedlist_queue
@@ -15,7 +18,7 @@ class IpsThread(threading.Thread):
     """
 
     def __init__(self, sequencer, interval=config.COUNT_IPS_INTERVAL):
-        super(IpsThread, self).__init__() 
+        super(IpsThread, self).__init__()
         self.sequencer = sequencer
         self.alpha = config.COUNT_IPS_ALPHA
         self.interval = interval
@@ -28,6 +31,7 @@ class IpsThread(threading.Thread):
         threading.Timer(self.interval, self.count_ips).start()
 
     def stop(self):
+        """Stop the repeating timer."""
         self.stopped = True
 
     def count_ips(self):
@@ -46,17 +50,20 @@ class IpsThread(threading.Thread):
             threading.Timer(self.interval, self.count_ips).start()
 
     def get_ips(self):
+        """Get current ips."""
         return self.cur_ips
 
 
 class Request(object):
+    """Client request"""
+
     def __init__(self, data_id, flash_unit_index):
         self.data_id = data_id
         self.flash_unit_index = flash_unit_index
         # when we get the request
         self.request_timestamp = time.time()
 
-        
+
 class Sequencer(object):
     """
     A simple sequencer which serialize requests and generates tokens.
@@ -68,14 +75,14 @@ class Sequencer(object):
         # current projection
         group_index = start_token // (config.FLASH_PAGE_NUMBER *
             config.FLASH_PER_GROUP)
-        self.start_flash_index = config.FLASH_PER_GROUP * self.group_index
+        self.start_flash_index = config.FLASH_PER_GROUP * group_index
         self.end_flash_index = self.start_flash_index + config.FLASH_PER_GROUP
         self.flash_queue_table = [Queue.Queue()
             for i in range(config.FLASH_PER_GROUP)]
 
         self.token = start_token
         # self.cursor point to the current flash unit we should write to
-        (self.cursor, _, _, _) = projection.translate(self.token)
+        (self.cursor, _, _, _) = projection.Projection().translate(self.token)
 
         # global request queue
         self.global_req_queue = linkedlist_queue.LinkedListQueue()
@@ -95,11 +102,11 @@ class Sequencer(object):
         """
         total_flash = len(config.SERVER_ADDR_LIST)
         self.start_flash_index = self.end_flash_index % total_flash
-        self.end_flash_index = self.start_flash_index + config.FLAHS_PER_GROUP
+        self.end_flash_index = self.start_flash_index + config.FLASH_PER_GROUP
         # For requests still in the queue, reply the flash unit is full
-        for q in self.flash_queue_table:
-            while not q.empty():
-                request = q.get()
+        for queue in self.flash_queue_table:
+            while not queue.empty():
+                request = queue.get()
                 self.send_to_flash(request, -1, True)
 
     def _increase_one(self):
@@ -128,7 +135,7 @@ class Sequencer(object):
         if num < 0:
             num += config.FLASH_PER_GROUP
         token = self.token + num
-        (cursor, _, _, _) = projection.translate(token)
+        (cursor, _, _, _) = projection.Projection().translate(token)
         if cursor >= self.end_flash_index:
             # the flash unit group is full
             return False
@@ -137,11 +144,15 @@ class Sequencer(object):
             self.cursor = flash_unit_index
 
     def _set_global_timer(self):
+        """Set global timer for the request at the head of the
+        global_seq_queue.
+        """
         self.global_req_timer.cancel()
         if not self.global_req_queue.empty():
             timestamp = self.global_req_queue.head.data.request_timestamp
             interval = config.REQUEST_TIMEOUT - (time.time() - timestamp)
-            self.global_req_timer = Timer(interval, self.remove_request)
+            self.global_req_timer = threading.Timer(
+                interval, self.remove_request)
             self.global_req_timer.start()
 
     def _enqueue_global(self, request):
@@ -173,38 +184,38 @@ class Sequencer(object):
         request = Request(data_id, flash_unit_index)
         with self.lock:
             if self.cursor == flash_unit_index:
-                self.send_to_flash(reuqest, self.token, False)
+                self.send_to_flash(request, self.token, False)
                 self._increase_one()
-                q = self.flash_queue_table[self.cursor
+                queue = self.flash_queue_table[self.cursor
                     - self.start_flash_index]
-                while not q.empty():
-                    node = q.get()
+                while not queue.empty():
+                    node = queue.get()
                     self.send_to_flash(node.data, self.token, False)
                     self._remove_from_global(node)
-                    slef._increase_one()
-                    q = self.flash_queue_table[self.cursor
+                    self._increase_one()
+                    queue = self.flash_queue_table[self.cursor
                         - self.start_flash_index]
             else:
-                if not self._is_full(self.token, request.flash_unit_index): 
+                if not self._is_full(request.flash_unit_index):
                     node = self._enqueue_global(request)
-                    table_index = fash_unix_index % config.FLASH_PER_GROUP
+                    table_index = flash_unit_index % config.FLASH_PER_GROUP
                     self.flash_queue_table[table_index].put(node)
                 else:
                     self.send_to_flash(request, -1, True)
-                
+
     def remove_request(self):
         """Remove request from the head of global_req_queue
         Callback for the global_req_timer.
         """
         with self.lock:
-            request = self._global_req_queue.dequeue
+            request = self.global_req_queue.dequeue()
             ret = self._increase_to_index(request.flash_unit_index)
             if ret:
                 # increase token, create hole
-                self.send_to_flash(request, self.token)
+                self.send_to_flash(request, self.token, False)
                 table_index = request.flash_unit_index - self.start_flash_index
-                q = self.flash_queue_table[table_index]
-                node = q.get()
+                queue = self.flash_queue_table[table_index]
+                node = queue.get()
                 if node.request != request:
                     raise RuntimeError(
                         "global_req_queue does not match flash_queue_table.")
@@ -212,9 +223,9 @@ class Sequencer(object):
                 # the flash group is full
                 self.send_to_flash(request, -1, True)
             self._set_global_timer()
-        
-        
+
     def reset(self, counter):
+        """Resets the state of the sequencer."""
         pass
 
     def send_to_flash(self, request, token, is_full):
@@ -225,6 +236,7 @@ class Sequencer(object):
         (host, port) = config.SERVER_ADDR_LIST[request.flash_unit_index]
         service_f = RpcService(seq_to_flash_pb2.SeqToFlashService_Stub,
             host, port)
+        request_f = seq_to_flash_pb2.SeqToFlashRequest()
         request_f.data_id = request.data_id
         request_f.token = token
         request_f.request_timestamp = request.request_timestamp
@@ -232,6 +244,4 @@ class Sequencer(object):
         request_f.token_timestamp = time.time()
         request_f.ips = self.ips_thread.get_ips()
         request_f.is_full = is_full
-        response_f = service.Write(request_f, timeout=10000)
-
-        
+        service_f.Write(request_f, timeout=10000)
