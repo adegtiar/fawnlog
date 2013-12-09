@@ -23,7 +23,8 @@ class IpsThread(threading.Thread):
         self.alpha = config.COUNT_IPS_ALPHA
         self.interval = interval
         self.last_token = None
-        self.cur_ips = None
+        # FIXME: what should be the start up value?
+        self.cur_ips = -1
         self.stopped = False
 
     def run(self):
@@ -39,7 +40,7 @@ class IpsThread(threading.Thread):
 
         ips = (self.sequencer.token - self.last_token) * 1.0 / self.interval
         # calculate exponential moving average
-        if self.cur_ips is None:
+        if self.cur_ips is -1:
             self.cur_ips = ips
         else:
             self.cur_ips = self.alpha * ips + (1 - self.alpha) * self.cur_ips
@@ -150,9 +151,6 @@ class Sequencer(object):
         Return False otherwise
         """
         while (self.cursor != flash_unit_index):
-            new_group = self._increase_by_one()
-            if new_group:
-                return True
             queue = self.flash_queue_table[self.cursor
                 - self.start_flash_index]
             if queue.empty():
@@ -161,9 +159,14 @@ class Sequencer(object):
                 node = queue.get()
                 self._remove_from_global(node)
                 self.send_to_flash(node.data, self.token)
-        self._increase_by_one()
+            new_group = self._increase_by_one()
+            if new_group:
+                return True
+        queue = self.flash_queue_table[self.cursor
+                - self.start_flash_index]
         node = queue.get()
         self.send_to_flash(node.data, self.token)
+        self._increase_by_one()
         self._adjust_cursor()
         return False
 
@@ -171,7 +174,8 @@ class Sequencer(object):
         """Set global timer for the request at the head of the
         global_seq_queue.
         """
-        self.global_req_timer.cancel()
+        if self.global_req_timer is not None:
+            self.global_req_timer.cancel()
         if not self.global_req_queue.empty():
             timestamp = self.global_req_queue.head.data.request_timestamp
             interval = config.REQUEST_TIMEOUT - (time.time() - timestamp)
@@ -206,6 +210,11 @@ class Sequencer(object):
         This should be called by sequencer service.
         """
         request = Request(data_id, flash_unit_index)
+        # FIXME: flash unit index is out of range
+        if (flash_unit_index >= self.end_flash_index) or (
+            flash_unit_index < self.start_flash_index):
+            self.send_to_flash(request, -1, is_full=True)
+            return
         with self.lock:
             if self.cursor == flash_unit_index:
                 self.send_to_flash(request, self.token)
