@@ -2,7 +2,6 @@
 """The fawnlog server backend, which hosts an individual flash unit."""
 
 import logging
-import os.path
 import sys
 
 import protobuf.socketrpc.server
@@ -10,66 +9,40 @@ import protobuf.socketrpc.server
 from fawnlog import config
 from fawnlog import flashlib
 from fawnlog import flash_service_pb2
+from fawnlog.flash_unit import FlashUnit
 
 
 class FlashServiceImpl(flash_service_pb2.FlashService):
-    """Handles requests to read and write pages on flash storage."""
+    """Handles RPC requests to read and write pages on flash storage."""
 
-    def __init__(self, server_index=0, logger=None):
-        filepath = FlashServiceImpl._get_filepath(server_index)
-        self.pagestore = flashlib.PageStore(filepath, config.FLASH_PAGE_SIZE,
-                config.FLASH_PAGE_NUMBER)
+    def __init__(self, flash_unit, logger=None):
+        self.flash_unit = flash_unit
         self.logger = logger or logging.getLogger(__name__)
+
+    @classmethod
+    def from_index(cls, server_index=0, logger=None):
+        flash_unit = FlashUnit(server_index)
+        return FlashServiceImpl(flash_unit, logger)
 
     def Read(self, controller, request, done):
         """Reads the data from the page at the given offset."""
         self.logger.debug("Received read request: {0}".format(request))
         response = flash_service_pb2.ReadResponse()
 
-        data = None
         try:
-            data = self.pagestore.read(request.offset)
+            data = self.flash_unit.read(request.offset)
         except flashlib.ErrorUnwritten:
-            status, data = self._handle_read_unwritten(request.offset)
+            status = flash_service_pb2.ReadResponse.ERROR_UNWRITTEN
         except flashlib.ErrorFilledHole:
             status = flash_service_pb2.ReadResponse.ERROR_FILLED_HOLE
         else:
+            response.data = data
             status = flash_service_pb2.ReadResponse.SUCCESS
 
         response.status = status
-        if data:
-            response.data = data
         self.logger.debug("Responding with response: {0}".format(response))
 
         done.run(response)
-
-    def _handle_read_unwritten(self, offset):
-        """Handles the error of a read requests for an unwritten page.
-
-        Checks if the page is likely to be a hole, and potentially fills it.
-
-        """
-        data = None
-        if self._check_is_hole(offset):
-            try:
-                self.pagestore.fill_hole(offset)
-            except ErrorOverwritten:
-                # Unwritten page got written during check.
-                status = flash_service_pb2.ReadResponse.SUCCESS
-                data = self.pagestore.read(offset)
-            else:
-                # Page is now filled with a hole
-                status = flash_service_pb2.ReadResponse.ERROR_FILLED_HOLE
-        else:
-            # This page is not a hole - simply not yet written.
-            status = flash_service_pb2.ReadResponse.ERROR_UNWRITTEN
-
-        return status, data
-
-    def _check_is_hole(self, page):
-        """Determines whether the page is likely to be a hole."""
-        # TODO: implement this.
-        return False
 
     def Write(self, controller, request, done):
         """Writes the given data to the page at the given offset."""
@@ -77,7 +50,7 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
         response = flash_service_pb2.WriteResponse()
 
         try:
-            self.pagestore.write(request.data, request.offset)
+            self.flash_unit.write(request.data, request.offset)
         except flashlib.ErrorOverwritten:
             status = flash_service_pb2.WriteResponse.ERROR_OVERWRITTEN
         except flashlib.ErrorFilledHole:
@@ -97,7 +70,7 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
         response = flash_service_pb2.FillHoleResponse()
 
         try:
-            self.pagestore.fill_hole(request.offset)
+            self.flash_unit.fill_hole(request.offset)
         except flashlib.ErrorOverwritten:
             status = flash_service_pb2.FillHoleResponse.ERROR_OVERWRITTEN
         else:
@@ -113,7 +86,7 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
         response = flash_service_pb2.ResetResponse()
 
         try:
-            self.pagestore.reset()
+            self.flash_unit.reset()
         except OSError:
             status = flash_service_pb2.ResetResponse.ERROR
         else:
@@ -122,18 +95,6 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
         self.logger.debug("Responding with response: {0}".format(response))
 
         done.run(response)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, typ, value, traceback):
-        # Make sure the pagestore is closed.
-        self.pagestore.close()
-
-    @staticmethod
-    def _get_filepath(server_index):
-        base_path, ext = os.path.splitext(config.FLASH_FILE_PATH)
-        return "{0}_{1}{2}".format(base_path, server_index, ext)
 
 
 def main(server_index):
@@ -146,8 +107,8 @@ def main(server_index):
     server = protobuf.socketrpc.server.SocketRpcServer(port, host)
 
     try:
-        with FlashServiceImpl(server_index) as flash_service:
-            server.registerService(flash_service)
+        with FlashUnit(server_index) as flash_service:
+            server.registerService(FlashServiceImpl(flash_unit))
             server.run()
     except KeyboardInterrupt:
         sys.exit(0)

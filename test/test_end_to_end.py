@@ -43,7 +43,7 @@ class TestEndToEnd(unittest.TestCase):
     def _start_flash_server(cls, server_index):
         host, port = config.SERVER_ADDR_LIST[server_index]
         server_thread = test.helper.ServerThread(port, host,
-                flash_service.FlashServiceImpl(server_index))
+                flash_service.FlashServiceImpl.from_index(server_index))
         server_thread.start_server()
         return RpcService(flash_service_pb2.FlashService_Stub, port, host)
 
