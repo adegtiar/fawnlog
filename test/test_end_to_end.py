@@ -64,7 +64,8 @@ class TestEndToEnd(unittest.TestCase):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
         test_client = client.Client()
-        return_tokens = test_client.append(test_str)
+        (return_tokens, _) = test_client.append(test_str)
+        print 'return token:', return_tokens
         return_str = test_client.read(return_tokens[0])
         self.assertEqual(len(return_tokens), 1)
         self.assertEqual(test_str, return_str)
@@ -79,7 +80,7 @@ class TestEndToEnd(unittest.TestCase):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
         test_client = client.Client()
-        return_tokens = test_client.append(test_str)
+        (return_tokens, _) = test_client.append(test_str)
         return_str = test_client.read(return_tokens[0])
         self.assertEqual(len(return_tokens), 1)
         self.assertEqual(test_str, return_str)
@@ -94,7 +95,7 @@ class TestEndToEnd(unittest.TestCase):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
         test_client = client.Client()
-        return_tokens = test_client.append(test_str)
+        (return_tokens, _) = test_client.append(test_str)
         return_str_1 = test_client.read(return_tokens[0])
         return_str_2 = test_client.read(return_tokens[1])
         return_str = return_str_1 + return_str_2
@@ -111,7 +112,7 @@ class TestEndToEnd(unittest.TestCase):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
         test_client = client.Client()
-        return_tokens = test_client.append(test_str)
+        (return_tokens, _) = test_client.append(test_str)
         return_str = ""
         for token in return_tokens:
             return_str += test_client.read(token)
