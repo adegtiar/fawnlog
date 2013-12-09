@@ -25,7 +25,7 @@ class LinkedListQueue(object):
             for i in iter:
                 self.enqueue(i)
 
-    def is_empty(self):
+    def empty(self):
         return self.length == 0
 
     def enqueue(self, data):

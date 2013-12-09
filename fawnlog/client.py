@@ -8,6 +8,14 @@ from uuid import uuid4
 import time
 
 
+INITIAL, SUCCESS, FULL, FAIL = range(4)
+
+
+class Callback:
+    def run(self, response):
+        pass
+
+
 class Client(object):
     ''' Client handles the write and read requests to the shared log.
         It communicates with the sequencer and server using protobuf.
@@ -15,23 +23,26 @@ class Client(object):
     '''
     def __init__(self):
         self.projection = projection.Projection()
-        self.service = RpcService(client_to_seq_pb2.GetTokenService_Stub,
+        self.service = RpcService(client_to_seq_pb2.ClientToSeqService_Stub,
                                   config.SEQUENCER_PORT,
                                   config.SEQUENCER_HOST)
         self.client_id = str(uuid4())
         # guessing information
-        self.lagest_token = -2
+        self.largest_token = -1
+        self.largest_timestamp = 0.0
+        self.last_state = INITIAL
         self.last_server = -1
-        self.last_timestamp = 0.0
-        self.last_ips = 0.0
+        self.latest_ips = 0.0
+        self.delay = 0.0
 
     def append(self, data):
         ''' string -> int list
 
             Checking length of data and for every piece of the data, try
             guessing a server to write to and waiting for response. If a
-            guess failed, retry writing. Every time some feedback helps to
-            guess better next time. Return the list of tokens storing the data.
+            guess fails, retry writing. Every time some feedback helps to
+            guess better next time. Return the list of tokens storing the
+            data.
 
             Failure Handling:
                 Sequencer returns specific token ID when the guessing server
@@ -60,29 +71,32 @@ class Client(object):
                 server_w = self.guess_server()
                 piece_id = self.client_id
                 self.send_to_sequencer(server_w, piece_id)
-                response_w = self.write_to_flash(server_w,
-                                                 piece_data,
-                                                 piece_id)
+                request_timestamp = time.time()
+                response_w = self.write_to_flash(server_w, piece_data, piece_id)
+                self.update_guess_info(response_w, request_timestamp, server_w)
                 if response_w.status == flash_service_pb2.WriteResponse.SUCCESS:
                     token_list.append(response_w.token)
-                    self.lagest_token = max(response_w.token, self.largest_token)
-                    self.last_server = -1
-                    self.last_timestamp = response_w.timestamp
-                    self.last_ips = response_w.ips
                     break
-                elif response_w.status == flash_service_pb2.WriteResponse.ERROR_NO_CAPACITY:
-                    self.lagest_token = -1
-                    self.last_server = server_w
-                    self.last_timestamp = 0.0
-                    self.last_ips = 0.0
-                else:
-                    self.lagest_token = max(response_w.token, self.largest_token)
-                    self.last_server = -1
-                    self.last_timestamp = response_w.timestamp
-                    self.last_ips = response_w.ips
-
 
         return token_list
+
+    def update_guess_info(self, response, request_timestamp, server):
+        ''' update information about guessing after the response from flash
+        '''
+        if response.status == flash_service_pb2.WriteResponse.SUCCESS:
+            if self.largest_token < response.token:
+                self.largest_token = response.token
+                self.largest_timestamp = response.token_timestamp
+            self.latest_ips = response.ips
+            self.delay = response.request_timestamp - request_timestamp
+            self.last_state = SUCCESS
+        elif response.status == flash_service_pb2.WriteResponse.NO_CAPACITY:
+            self.latest_ips = response.ips
+            self.last_server = server
+            self.last_state = FULL
+        else:
+            self.latest_ips = response.ips
+            self.last_state = FAIL
 
     def guess_server(self):
         ''' None -> int
@@ -90,19 +104,17 @@ class Client(object):
             Guess the next server that should be written to.
 
         '''
-        if self.lagest_token == -2:
-            # the client write for the first time
+        if self.last_state == INITIAL:
             return 0
-        elif self.lagest_token == -1:
-            # the server contacted last time is full
+        elif self.last_state == FULL:
             return self.last_server + 1
         else:
-            guess_inc = int((time.time() - self.last_timestamp) * self.last_ips)
-            guess_token = self.lagest_token + guess_inc
-            (_, guess_host, _, _) = self.projection.translate(guess_token)
-            return guess_host
+            # SUCCESS or FAIL here
+            guess_inc = (time.time() - self.largest_timestamp) * self.latest_ips
+            guess_token = int(self.largest_token + guess_inc + self.delay)
+            (guess_server, _, _, _) = self.projection.translate(guess_token)
+            return guess_server
 
-    def done(self)
 
     def send_to_sequencer(self, flash_unit_number, data_id):
         ''' int * int -> GetTokenResponse
@@ -114,7 +126,9 @@ class Client(object):
         request_seq = client_to_seq_pb2.GetTokenRequest()
         request_seq.flash_unit_number = flash_unit_number
         request_seq.data_id = data_id
-        response_seq = self.service.Write(request_seq, timeout=10000, done)
+        response_seq = self.service.Write(request_seq,
+                                          timeout=10000,
+                                          callback=Callback())
         return response_seq
 
     def write_to_flash(self, server, data, data_id):
@@ -162,6 +176,14 @@ class Client(object):
             return response_r.data
         else:
             raise Exception("server read error")
+
+    def reset_guess_info(self):
+        self.largest_token = -1
+        self.largest_timestamp = 0.0
+        self.last_state = INITIAL
+        self.last_server = -1
+        self.latest_ips = 0.0
+        self.delay = 0.0
 
     def trim(self, token):
         # we don't need trim in this project

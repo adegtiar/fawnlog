@@ -15,7 +15,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='seq_to_flash.proto',
   package='',
-  serialized_pb='\n\x12seq_to_flash.proto\"S\n\x11SeqToFlashRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\r\n\x05token\x18\x02 \x02(\x03\x12\x11\n\ttimestamp\x18\x03 \x02(\x02\x12\x0b\n\x03ips\x18\x04 \x02(\x02\"\x14\n\x12SeqToFlashResponse2E\n\x11SeqToFlashService\x12\x30\n\x05Write\x12\x12.SeqToFlashRequest\x1a\x13.SeqToFlashResponseB\x03\x90\x01\x01')
+  serialized_pb='\n\x12seq_to_flash.proto\"\x85\x01\n\x11SeqToFlashRequest\x12\x0f\n\x07\x64\x61ta_id\x18\x01 \x02(\x0c\x12\r\n\x05token\x18\x02 \x02(\x03\x12\x19\n\x11request_timestamp\x18\x03 \x02(\x02\x12\x17\n\x0ftoken_timestamp\x18\x04 \x02(\x02\x12\x0b\n\x03ips\x18\x05 \x02(\x02\x12\x0f\n\x07is_full\x18\x06 \x02(\x08\"\x14\n\x12SeqToFlashResponse2E\n\x11SeqToFlashService\x12\x30\n\x05Write\x12\x12.SeqToFlashRequest\x1a\x13.SeqToFlashResponseB\x03\x90\x01\x01')
 
 
 
@@ -42,16 +42,30 @@ _SEQTOFLASHREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='timestamp', full_name='SeqToFlashRequest.timestamp', index=2,
+      name='request_timestamp', full_name='SeqToFlashRequest.request_timestamp', index=2,
       number=3, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='ips', full_name='SeqToFlashRequest.ips', index=3,
+      name='token_timestamp', full_name='SeqToFlashRequest.token_timestamp', index=3,
       number=4, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='ips', full_name='SeqToFlashRequest.ips', index=4,
+      number=5, type=2, cpp_type=6, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='is_full', full_name='SeqToFlashRequest.is_full', index=5,
+      number=6, type=8, cpp_type=7, label=2,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -64,8 +78,8 @@ _SEQTOFLASHREQUEST = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=22,
-  serialized_end=105,
+  serialized_start=23,
+  serialized_end=156,
 )
 
 
@@ -85,8 +99,8 @@ _SEQTOFLASHRESPONSE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=107,
-  serialized_end=127,
+  serialized_start=158,
+  serialized_end=178,
 )
 
 DESCRIPTOR.message_types_by_name['SeqToFlashRequest'] = _SEQTOFLASHREQUEST
@@ -114,8 +128,8 @@ _SEQTOFLASHSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=129,
-  serialized_end=198,
+  serialized_start=180,
+  serialized_end=249,
   methods=[
   _descriptor.MethodDescriptor(
     name='Write',

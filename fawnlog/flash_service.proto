@@ -29,8 +29,9 @@ message WriteResponse {
     }
     required Status status = 1;
     required int64 token = 2;
-    required float timestamp = 3;
-    required float ips = 4;
+    required float token_timestamp = 3;
+    required float request_timestamp = 4;
+    required float ips = 5;
 }
 
 message FillHoleRequest {

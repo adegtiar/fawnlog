@@ -1,45 +1,34 @@
 #!/usr/bin/env python2.7
-"""Test ips calculation."""
+"""Test client unit functionality."""
 
 import unittest
-import time
 
-from fawnlog import sequencer
-from fawnlog import config
+from fawnlog import client
 
-INTERVAL = 2 # in seconds
 
-class FakeSequencer(object):
-    """
-    Fake sequencer class only supports increasing token
-    """
+class TestClient(unittest.TestCase):
+    """Tests client functionality."""
 
-    def __init__(self, start_token=0):
-        self.token = start_token
+    def setUp(self):
+        self.client = client.Client()
 
-    def increase_token(self, num):
-        self.token += num
+    def test_guess_server_initial(self):
+        self.client.reset_guess_info()
+        server = self.client.guess_server()
+        self.assertEqual(server, 0)
 
-class TestIpsCount(unittest.TestCase):
-    """Tests ips count functionality."""
+    def test_guess_server_fail(self):
+        self.client.reset_guess_info()
+        self.client.largest_token = 0
+        self.client.last_state = client.FAIL
+        server = self.client.guess_server()
+        self.assertNotEqual(server, -1)
 
-    def test_ips_count(self):
-        alpha = config.COUNT_IPS_ALPHA
-        seq = FakeSequencer(10)
-        ips_thread = sequencer.IpsThread(seq, INTERVAL)
-        ips_thread.start()
-        time.sleep(0.5)
-        seq.increase_token(100)
-        time.sleep(2)
-        try:
-            self.assertEqual(ips_thread.get_ips(), 50)
-            seq.increase_token(50)
-            time.sleep(2)
-            ips = alpha * 25 + (1 - alpha) * 50
-            self.assertEqual(ips_thread.get_ips(), ips)
-        finally:
-            ips_thread.stop()
-            ips_thread.join()
+    def test_guess_server_full(self):
+        self.client.reset_guess_info()
+        self.client.last_state = client.FULL
+        server = self.client.guess_server()
+        self.assertEqual(server, 0)
 
 
 if __name__ == "__main__":
