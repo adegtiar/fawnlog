@@ -62,7 +62,7 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
             status = flash_service_pb2.WriteResponse.ERROR_OVERSIZED_DATA
         else:
             status = flash_service_pb2.WriteResponse.SUCCESS
-            response.measure = ips_measure
+            response.measure.CopyFrom(ips_measure)
         response.status = status
         self.logger.debug("Responding with response: {0}".format(response))
 
