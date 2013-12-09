@@ -227,7 +227,7 @@ class Sequencer(object):
                 self.send_to_flash(request, -1, is_full=True)
             self._set_global_timer()
 
-    def reset(self, counter):
+    def reset(self, token):
         """Resets the state of the sequencer."""
         pass
 
@@ -247,11 +247,11 @@ class Sequencer(object):
         request_f.data_id = request.data_id
         (_, _, _, request_f.offset) = self.projection.translate(token)
         request_f.is_full = is_full
-        request_f.IpsMeasure.token = token
-        request_f.IpsMeasure.request_timestamp = request.request_timestamp
+        request_f.measure.token = token
+        request_f.measure.request_timestamp = request.request_timestamp
         # timestamp is the timestamp for ips
-        request_f.IpsMeasure.token_timestamp = time.time()
-        request_f.IpsMeasure.ips = self.ips_thread.get_ips()
+        request_f.measure.token_timestamp = time.time()
+        request_f.measure.ips = self.ips_thread.get_ips()
         service_f.WriteOffset(request_f, callback=self.callback)
 
     def fill_hole_flash(self, token):
