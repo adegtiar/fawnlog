@@ -52,26 +52,18 @@ class TestEndToEnd(unittest.TestCase):
     def test_append_one_short(self):
         ''' test writing a short data to one page
         '''
-        test_data = os.urandom(config.FLASH_PAGE_SIZE // 100)
+        self._append_and_assert(os.urandom(config.FLASH_PAGE_SIZE // 100))
+
+    def test_append_one_long(self):
+        ''' test writing a long data to one page
+        '''
+        self._append_and_assert(os.urandom(config.FLASH_PAGE_SIZE - 1))
+
+    def _append_and_assert(self, test_data):
         return_tokens = self.test_client.append(test_data)
-        return_data = self.test_client.read(return_tokens[0])
         self.assertEqual(len(return_tokens), 1)
+        return_data = self.test_client.read(return_tokens[0])
         self.assertEqual(test_data, return_data)
-
-    # def test_append_one_long(self):
-    #     ''' test writing a long data to one page
-    #     '''
-    #     TestEndToEnd._reset_flash_servers()
-
-    #     test_str_list = []
-    #     for _ in xrange(config.FLASH_PAGE_SIZE - 1):
-    #         test_str_list.append(chr(random.randint(65, 90)))
-    #     test_str = ''.join(test_str_list)
-    #     test_client = client.Client()
-    #     return_tokens = test_client.append(test_str)
-    #     return_str = test_client.read(return_tokens[0])
-    #     self.assertEqual(len(return_tokens), 1)
-    #     self.assertEqual(test_str, return_str)
 
     # def test_append_two_page(self):
     #     ''' test writing to two pages
