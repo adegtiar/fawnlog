@@ -117,13 +117,13 @@ class Client(object):
 
 
     def send_to_sequencer(self, flash_unit_number, data_id):
-        ''' int * int -> GetTokenResponse
+        ''' int * int -> ClientToSeqResponse
 
             Asyncronously send server and data id to the sequencer, ignores
             the response.
 
         '''
-        request_seq = client_to_seq_pb2.GetTokenRequest()
+        request_seq = client_to_seq_pb2.ClientToSeqRequest()
         request_seq.flash_unit_number = flash_unit_number
         request_seq.data_id = data_id
         response_seq = self.service.Write(request_seq,
@@ -149,8 +149,8 @@ class Client(object):
         service_w = RpcService(flash_service_pb2.FlashService_Stub,
                                dest_port, dest_host)
         request_w = flash_service_pb2.WriteRequest()
-        request_w.data = data
         request_w.data_id = data_id
+        request_w.data = data
         response_w = service_w.Write(request_w, timeout=10000)
         return response_w
 

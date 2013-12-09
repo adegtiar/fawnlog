@@ -555,8 +555,8 @@ _FLASHSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=900,
-  serialized_end=1135,
+  serialized_start=742,
+  serialized_end=922,
   methods=[
   _descriptor.MethodDescriptor(
     name='Read',

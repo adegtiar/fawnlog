@@ -3,13 +3,13 @@
    GetToken RPC server implementation.
 """
 
-import config
-import get_token_pb2
+from fawnlog import config
+from fawnlog import client_to_seq_pb2
+from fawnlog import sequencer
 import logging
 import protobuf.socketrpc.server
-import sequencer
 
-class GetTokenImpl(get_token_pb2.GetTokenService):
+class ClientToSeqImpl(client_to_seq_pb2.ClientToSeqService):
     """GetToken service implementation."""
 
     def __init__(self, logger=None):
@@ -17,14 +17,11 @@ class GetTokenImpl(get_token_pb2.GetTokenService):
         self.logger = logger or logging.getLogger(__name__)
 
     def GetToken(self, controller, request, done):
-        number = request.number
-        self.logger.debug("request number: {0}".format(number))
+        flash_unit_number = request.flash_unit_number
+        data_id = request.data_id
 
-        response = get_token_pb2.GetTokenResponse()
-        response.token = self.sequencer.get_token(number)
-        self.logger.debug("response token: {0}".format(response.token))
-
-        done.run(response)
+        self.logger.debug("client {0} write to server {1}".format(data_id,
+                                                            flash_unit_number))
 
     def reset(self, counter):
         """Reset sequencer counter, convenience function for testing"""
@@ -36,7 +33,7 @@ def start_server():
         config.SEQUENCER_HOST, config.SEQUENCER_PORT))
     server = protobuf.socketrpc.server.SocketRpcServer(
         config.SEQUENCER_PORT, config.SEQUENCER_HOST)
-    server.registerService(GetTokenImpl(logger))
+    server.registerService(ClientToSeqImpl(logger))
     server.run()
 
 if __name__ == '__main__':
