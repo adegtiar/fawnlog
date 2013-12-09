@@ -1,0 +1,13 @@
+option py_generic_services = true;
+
+message SequencerServiceRequest {
+    required bytes data_id = 1;
+    required int32 flash_unit_number = 2;
+}
+
+message SequencerServiceResponse {
+}
+
+service SequencerServiceService {
+    rpc Write(SequencerServiceRequest) returns(SequencerServiceResponse);
+}

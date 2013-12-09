@@ -1,6 +1,6 @@
 from fawnlog import config
 from fawnlog import projection
-from fawnlog import client_to_seq_pb2
+from fawnlog import sequencer_service_pb2
 from fawnlog import flash_service_pb2
 from protobuf.socketrpc import RpcService
 from uuid import uuid4
@@ -23,7 +23,7 @@ class Client(object):
     '''
     def __init__(self):
         self.projection = projection.Projection()
-        self.service = RpcService(client_to_seq_pb2.ClientToSeqService_Stub,
+        self.service = RpcService(sequencer_service_pb2.SequencerService_Stub,
                                   config.SEQUENCER_PORT,
                                   config.SEQUENCER_HOST)
         self.client_id = str(uuid4())
@@ -117,13 +117,13 @@ class Client(object):
 
 
     def send_to_sequencer(self, flash_unit_number, data_id):
-        ''' int * int -> ClientToSeqResponse
+        ''' int * int -> SequencerServiceResponse
 
             Asyncronously send server and data id to the sequencer, ignores
             the response.
 
         '''
-        request_seq = client_to_seq_pb2.ClientToSeqRequest()
+        request_seq = sequencer_service_pb2.SequencerServiceRequest()
         request_seq.flash_unit_number = flash_unit_number
         request_seq.data_id = data_id
         response_seq = self.service.Write(request_seq,

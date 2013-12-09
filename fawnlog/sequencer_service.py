@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 """
-   GetToken RPC server implementation.
+   Sequencer RPC server implementation.
 """
 
 from fawnlog import config
