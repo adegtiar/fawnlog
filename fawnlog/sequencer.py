@@ -80,9 +80,11 @@ class Sequencer(object):
         self.flash_queue_table = [Queue.Queue()
             for i in range(config.FLASH_PER_GROUP)]
 
+        self.projection = projection.Projection()
+
         self.token = start_token
         # self.cursor point to the current flash unit we should write to
-        (self.cursor, _, _, _) = projection.Projection().translate(self.token)
+        (self.cursor, _, _, _) = self.projection.translate(self.token)
 
         # global request queue
         self.global_req_queue = linkedlist_queue.LinkedListQueue()
@@ -154,8 +156,7 @@ class Sequencer(object):
             queue = self.flash_queue_table[self.cursor
                 - self.start_flash_index]
             if queue.empty():
-                # TODO(Alex): send create hole to flash unit
-                pass
+                self.fill_hole_flash(self.token)
             else:
                 node = queue.get()
                 self._remove_from_global(node)
@@ -248,3 +249,13 @@ class Sequencer(object):
         request_f.ips = self.ips_thread.get_ips()
         request_f.is_full = is_full
         service_f.Write(request_f, timeout=10000)
+
+    def fill_hole_flash(self, token):
+        """Creates a hole at the token by sending a FillHole request."""
+        _, host, port, offset = self.projection.translate(token)
+
+        request_f = flash_service_pb2.FillHoleRequest()
+        request_f.offset = translate_to_local_page_offset(token)
+
+        service_f = RpcService(flash_service_pb2.FlashService_Stub, host, port)
+        service_f.FillHole(request_f, timeout=10000)
