@@ -57,9 +57,22 @@ message ResetResponse {
     required Status status = 1;
 }
 
+message WriteTokenRequest {
+    required bytes data_id = 1;
+    required int64 token = 2;
+    required float request_timestamp = 3;
+    required float token_timestamp = 4;
+    required float ips = 5;
+    required bool is_full = 6;
+}
+
+message WriteTokenResponse {
+}
+
 service FlashService {
     rpc Read(ReadRequest) returns (ReadResponse);
     rpc Write(WriteRequest) returns (WriteResponse);
     rpc FillHole(FillHoleRequest) returns (FillHoleResponse);
     rpc Reset(ResetRequest) returns (ResetResponse);
+    rpc WriteToken(WriteTokenRequest) returns(WriteTokenResponse);
 }
