@@ -1,5 +1,3 @@
-import sys
-
 class Empty(RuntimeError):
     """The LinkedListQueue is empty"""
 

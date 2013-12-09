@@ -103,16 +103,17 @@ class Sequencer(object):
         total_flash = len(config.SERVER_ADDR_LIST)
         self.start_flash_index = self.end_flash_index % total_flash
         self.end_flash_index = self.start_flash_index + config.FLASH_PER_GROUP
+        self.cursor = self.start_flash_index
         # For requests still in the queue, reply the flash unit is full
         for queue in self.flash_queue_table:
             while not queue.empty():
                 request = queue.get()
-                self.send_to_flash(request, -1, True)
+                self.send_to_flash(request, -1, is_full=True)
 
-    def _increase_one(self):
+    def _increase_by_one(self):
         """Increase token and cursor by one.
-        Invariant: the cursor always points to the flash unit which is not
-        full and the queue for the flash unit is empty.
+        Return True if the group is full, we moved to the next group,
+        Return False otherwise
         """
         self.token += 1
         self.cursor += 1
@@ -121,27 +122,49 @@ class Sequencer(object):
                 # the last flash unit in the group is full,
                 # move to the next group
                 self._next_group()
+                return True
             else:
                 self.cursor = self.start_flash_index
+        return False
+
+    def _adjust_cursor(self):
+        """Adjust the cursor to maintain the Invariant:
+        The cursor always points to the flash unit
+        which is not full and the queue for the flash unit is empty.
+        """
+        queue = self.flash_queue_table[self.cursor
+            - self.start_flash_index]
+        while not queue.empty():
+            node = queue.get()
+            self.send_to_flash(node.data, self.token)
+            self._remove_from_global(node)
+            self._increase_by_one()
+            queue = self.flash_queue_table[self.cursor
+                - self.start_flash_index]
 
     def _increase_to_index(self, flash_unit_index):
         """Increase token to make the cursor point to flash_unit_index.
-        If the flash unit pointed by flash_unit_index is full,
-        keep the current token and cursor.
-        Return True on success.
-        Return False if the flash_unix_index is full.
+        Return True if the group is full, we moved to the next group.
+        Return False otherwise
         """
-        num = flash_unit_index - self.cursor
-        if num < 0:
-            num += config.FLASH_PER_GROUP
-        token = self.token + num
-        (cursor, _, _, _) = projection.Projection().translate(token)
-        if cursor >= self.end_flash_index:
-            # the flash unit group is full
-            return False
-        else:
-            self.token = token
-            self.cursor = flash_unit_index
+        while (self.cursor != flash_unit_index):
+            new_group = self._increase_by_one()
+            if new_group:
+                return True
+            queue = self.flash_queue_table[self.cursor
+                - self.start_flash_index]
+            if queue.empty():
+                # TODO(Alex): send create hole to flash unit
+                pass
+            else:
+                node = queue.get()
+                self._remove_from_global(node)
+                self.send_to_flash(node.data, self.token)
+        self._increase_by_one()
+        node = queue.get()
+        self.send_to_flash(node.data, self.token)
+        self._adjust_cursor()
+        return False
 
     def _set_global_timer(self):
         """Set global timer for the request at the head of the
@@ -151,6 +174,7 @@ class Sequencer(object):
         if not self.global_req_queue.empty():
             timestamp = self.global_req_queue.head.data.request_timestamp
             interval = config.REQUEST_TIMEOUT - (time.time() - timestamp)
+            # TODO: if interval is negative or zero
             self.global_req_timer = threading.Timer(
                 interval, self.remove_request)
             self.global_req_timer.start()
@@ -184,24 +208,13 @@ class Sequencer(object):
         request = Request(data_id, flash_unit_index)
         with self.lock:
             if self.cursor == flash_unit_index:
-                self.send_to_flash(request, self.token, False)
-                self._increase_one()
-                queue = self.flash_queue_table[self.cursor
-                    - self.start_flash_index]
-                while not queue.empty():
-                    node = queue.get()
-                    self.send_to_flash(node.data, self.token, False)
-                    self._remove_from_global(node)
-                    self._increase_one()
-                    queue = self.flash_queue_table[self.cursor
-                        - self.start_flash_index]
+                self.send_to_flash(request, self.token)
+                self._increase_by_one()
+                self._adjust_cursor()
             else:
-                if not self._is_full(request.flash_unit_index):
-                    node = self._enqueue_global(request)
-                    table_index = flash_unit_index % config.FLASH_PER_GROUP
-                    self.flash_queue_table[table_index].put(node)
-                else:
-                    self.send_to_flash(request, -1, True)
+                node = self._enqueue_global(request)
+                table_index = flash_unit_index % config.FLASH_PER_GROUP
+                self.flash_queue_table[table_index].put(node)
 
     def remove_request(self):
         """Remove request from the head of global_req_queue
@@ -209,26 +222,16 @@ class Sequencer(object):
         """
         with self.lock:
             request = self.global_req_queue.dequeue()
-            ret = self._increase_to_index(request.flash_unit_index)
-            if ret:
-                # increase token, create hole
-                self.send_to_flash(request, self.token, False)
-                table_index = request.flash_unit_index - self.start_flash_index
-                queue = self.flash_queue_table[table_index]
-                node = queue.get()
-                if node.request != request:
-                    raise RuntimeError(
-                        "global_req_queue does not match flash_queue_table.")
-            else:
-                # the flash group is full
-                self.send_to_flash(request, -1, True)
+            new_group = self._increase_to_index(request.flash_unit_index)
+            if new_group:
+                self.send_to_flash(request, -1, is_full=True)
             self._set_global_timer()
 
     def reset(self, counter):
         """Resets the state of the sequencer."""
         pass
 
-    def send_to_flash(self, request, token, is_full):
+    def send_to_flash(self, request, token, is_full=False):
         """If is_full is True, token does not have any meaning,
         should be ignored.
         """
