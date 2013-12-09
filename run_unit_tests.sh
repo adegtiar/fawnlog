@@ -2,6 +2,8 @@
 
 echo "Running flash library tests"
 python -m test.test_flashlib
+echo "Running flash unit tests"
+python -m test.test_flash_unit
 echo "Running flash service tests"
 python -m test.test_flash_service
 echo "Running projection tests"
