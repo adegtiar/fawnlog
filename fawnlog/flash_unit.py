@@ -6,36 +6,36 @@ from fawnlog import config
 from fawnlog import flashlib
 
 
-class TokenBuffer(object):
-    """A synchronized table of token buffers."""
+class OffsetBuffer(object):
+    """A synchronized table of offset buffers."""
 
     def __init__(self):
-        self.buffer_table = collections.defaultdict(TokenBuffer.BufferEntry)
+        self.buffer_table = collections.defaultdict(OffsetBuffer.BufferEntry)
         self.buffer_lock = threading.Lock()
 
-    def pop_token_message(self, data_id):
-        """Retrieves and removes the token message for the given data_id.
+    def pop_offset_message(self, data_id):
+        """Retrieves and removes the offset message for the given data_id.
 
-        This call blocks until the token is added to the buffer.
+        This call blocks until the offset is added to the buffer.
 
         """
         with self.buffer_lock:
             entry = self.buffer_table[data_id]
-        entry.token_indicator.acquire()
+        entry.offset_indicator.acquire()
         del self.buffer_table[data_id]
-        return entry.token_message
+        return entry.offset_message
 
-    def put_token_message(self, data_id, token_message):
-        """Adds a token message to the buffer."""
+    def put_offset_message(self, data_id, offset_message):
+        """Adds a offset message to the buffer."""
         with self.buffer_lock:
             entry = self.buffer_table[data_id]
-        entry.token_message = token_message
-        entry.token_indicator.release()
+        entry.offset_message = offset_message
+        entry.offset_indicator.release()
 
     class BufferEntry(object):
         def __init__(self):
-            self.token_indicator = threading.Semaphore(0)
-            self.token_message = None
+            self.offset_indicator = threading.Semaphore(0)
+            self.offset_message = None
 
 
 class FlashUnit(object):
@@ -45,21 +45,21 @@ class FlashUnit(object):
         filepath = FlashUnit._get_filepath(server_index)
         self.pagestore = flashlib.PageStore(filepath, config.FLASH_PAGE_SIZE,
                 config.FLASH_PAGE_NUMBER)
-        self.token_buffer = TokenBuffer()
+        self.offset_buffer = OffsetBuffer()
 
     def read(self, offset):
         return self.pagestore.read(offset)
 
     def write(self, data_id, data):
-        token_message = self.token_buffer.pop_token_message(data_id)
-        if token_message.is_full:
+        offset_message = self.offset_buffer.pop_offset_message(data_id)
+        if offset_message.is_full:
             raise flashlib.ErrorNoCapacity()
         else:
-            self.page_store.write(token_message.offset, data)
-            return token_message.measure
+            self.page_store.write(offset_message.offset, data)
+            return offset_message.measure
 
     def write_offset(self, data_id, offset_message):
-        self.token_buffer.put_token_mssage(data_id, token_message)
+        self.offset_buffer.put_offset_mssage(data_id, offset_message)
 
     def fill_hole(self, offset):
         self.pagestore.fill_hole(offset)

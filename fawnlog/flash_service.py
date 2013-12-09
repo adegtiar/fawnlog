@@ -46,7 +46,7 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
         done.run(response)
 
     def Write(self, controller, request, done):
-        """Writes the given data, blocking until it receives a token."""
+        """Writes the given data, blocking until it receives a offset."""
         self.logger.debug("Received write request: {0}".format(request))
         response = flash_service_pb2.WriteResponse()
 
