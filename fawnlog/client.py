@@ -75,7 +75,7 @@ class Client(object):
                 response_w = self.write_to_flash(server_w, piece_data, piece_id)
                 self.update_guess_info(response_w, request_timestamp, server_w)
                 if response_w.status == flash_service_pb2.WriteResponse.SUCCESS:
-                    token_list.append(response_w.token)
+                    token_list.append(response_w.measure.token)
                     break
 
         return token_list
@@ -83,19 +83,20 @@ class Client(object):
     def update_guess_info(self, response, request_timestamp, server):
         ''' update information about guessing after the response from flash
         '''
+        ips_measure = response.measure
         if response.status == flash_service_pb2.WriteResponse.SUCCESS:
-            if self.largest_token < response.token:
-                self.largest_token = response.token
-                self.largest_timestamp = response.token_timestamp
-            self.latest_ips = response.ips
-            self.delay = response.request_timestamp - request_timestamp
+            if self.largest_token < ips_measure.token:
+                self.largest_token = ips_measure.token
+                self.largest_timestamp = ips_measure.token_timestamp
+            self.latest_ips = ips_measure.ips
+            self.delay = ips_measure.request_timestamp - request_timestamp
             self.last_state = SUCCESS
         elif response.status == flash_service_pb2.WriteResponse.NO_CAPACITY:
-            self.latest_ips = response.ips
+            self.latest_ips = ips_measure.ips
             self.last_server = server
             self.last_state = FULL
         else:
-            self.latest_ips = response.ips
+            self.latest_ips = ips_measure.ips
             self.last_state = FAIL
 
     def guess_server(self):
