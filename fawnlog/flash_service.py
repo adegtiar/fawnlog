@@ -9,6 +9,8 @@ import protobuf.socketrpc.server
 from fawnlog import config
 from fawnlog import flashlib
 from fawnlog import flash_service_pb2
+
+from fawnlog.flash_unit import IpsMeasure
 from fawnlog.flash_unit import FlashUnit
 
 
@@ -45,12 +47,12 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
         done.run(response)
 
     def Write(self, controller, request, done):
-        """Writes the given data to the page at the given offset."""
+        """Writes the given data, blocking until it receives a token."""
         self.logger.debug("Received write request: {0}".format(request))
         response = flash_service_pb2.WriteResponse()
 
         try:
-            self.flash_unit.write(request.data, request.offset)
+            ips_measure = self.flash_unit.write(request.data_id, request.data)
         except flashlib.ErrorOverwritten:
             status = flash_service_pb2.WriteResponse.ERROR_OVERWRITTEN
         except flashlib.ErrorFilledHole:
@@ -59,10 +61,25 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
             status = flash_service_pb2.WriteResponse.ERROR_OVERSIZED_DATA
         else:
             status = flash_service_pb2.WriteResponse.SUCCESS
+            response.token = token
+            response.token_timestamp = ips_measure.token_timestamp
+            response.request_timestamp = ips_measure.request_timestamp
+            response.ips = ips_measure.ips
         response.status = status
         self.logger.debug("Responding with response: {0}".format(response))
 
         done.run(response)
+
+    def WriteToken(self, controller, request, done):
+        """Writes the given data to the page at the given offset."""
+        self.logger.debug("Received WriteToken request: {0}".format(request))
+
+        ips_measure = IpsMeasure(request.token, request.token_timestamp,
+                request.request_timestamp, request.ips)
+        self.flash_unit.write_token(request.data_id, request.token,
+                request.is_full, ips_measure)
+
+        done.run(flash_service_pb2.WriteTokenResponse())
 
     def FillHole(self, controller, request, done):
         """Fills a hole at the page at the given offset."""

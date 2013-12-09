@@ -3,6 +3,17 @@ import os.path
 from fawnlog import config
 from fawnlog import flashlib
 
+
+class IpsMeasure(object):
+    """A recorded Ips measurement."""
+
+    def __init__(self, token, token_timestamp, request_timestamp, ips):
+        self.token = token
+        self.token_timestamp = token_timestamp
+        self.request_timestamp = request_timestamp
+        self.ips = ips
+
+
 class FlashUnit(object):
     """Handles requests to read and write pages on flash storage."""
 
@@ -14,8 +25,11 @@ class FlashUnit(object):
     def read(self, offset):
         return self.pagestore.read(offset)
 
-    def write(self, data, offset):
-        self.pagestore.write(data, offset)
+    def write(self, data_id, data):
+        pass
+
+    def write_token(self, data_id, token, is_full, ips_measure):
+        pass
 
     def fill_hole(self, offset):
         self.pagestore.fill_hole(offset)
