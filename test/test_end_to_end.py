@@ -23,12 +23,9 @@ class TestEndToEnd(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # start sequencer
-        cls.sequencer_thread = test.helper.ServerThread(config.SEQUENCER_PORT,
+        sequencer_thread = test.helper.ServerThread(config.SEQUENCER_PORT,
             config.SEQUENCER_HOST, sequencer_service.SequencerServiceImpl())
-        cls.sequencer_thread.start_server()
-        cls.sequencer_service = RpcService(
-                sequencer_service_pb2.SequencerService_Stub,
-                config.SEQUENCER_PORT, config.SEQUENCER_HOST)
+        sequencer_thread.start_server()
 
         cls.flash_services = []
         for i in xrange(config.FLASH_PER_GROUP):
