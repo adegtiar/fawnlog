@@ -91,6 +91,7 @@ class Client(object):
                 self.largest_timestamp = ips_measure.token_timestamp
             self.latest_ips = ips_measure.ips
             self.delay = ips_measure.request_timestamp - request_timestamp
+            assert(self.delay >= 0)
             self.last_state = SUCCESS
         elif response.status == flash_service_pb2.WriteResponse.NO_CAPACITY:
             self.latest_ips = ips_measure.ips
@@ -114,7 +115,7 @@ class Client(object):
             # SUCCESS or FAIL here
             guess_inc = ((self.delay + time.time() - self.largest_timestamp) *
                     self.latest_ips)
-            guess_token = math.ceil(self.largest_token + guess_inc)
+            guess_token = int(math.ceil(self.largest_token + guess_inc))
             (guess_server, _, _, _) = self.projection.translate(guess_token)
             return guess_server
 
