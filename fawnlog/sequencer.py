@@ -23,7 +23,6 @@ class IpsThread(threading.Thread):
         self.alpha = config.COUNT_IPS_ALPHA
         self.interval = interval
         self.last_token = None
-        # FIXME: what should be the start up value?
         self.cur_ips = -1
         self.stopped = False
         self.setDaemon(True)
@@ -53,7 +52,8 @@ class IpsThread(threading.Thread):
 
     def get_ips(self):
         """Get current ips."""
-        return self.cur_ips
+        cur_ips = 0 if self.cur_ips < 0 else self.cur_ips
+        return cur_ips
 
 
 class Request(object):
@@ -211,7 +211,6 @@ class Sequencer(object):
         This should be called by sequencer service.
         """
         request = Request(data_id, flash_unit_index)
-        # FIXME: flash unit index is out of range
         if (flash_unit_index >= self.end_flash_index) or (
             flash_unit_index < self.start_flash_index):
             self.send_to_flash(request, -1, is_full=True)
