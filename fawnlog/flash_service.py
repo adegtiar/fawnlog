@@ -119,7 +119,7 @@ def main(server_index):
     server = protobuf.socketrpc.server.SocketRpcServer(port, host)
 
     try:
-        with FlashUnit(server_index) as flash_service:
+        with FlashUnit(server_index) as flash_unit:
             server.registerService(FlashServiceImpl(flash_unit))
             server.run()
     except KeyboardInterrupt:
