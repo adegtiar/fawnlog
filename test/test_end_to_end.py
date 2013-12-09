@@ -50,13 +50,11 @@ class TestEndToEnd(unittest.TestCase):
             assert(response.status == flash_service_pb2.ResetResponse.SUCCESS)
 
     def test_append_one_short(self):
-        ''' test writing a short data to one page
-        '''
+        """Test writing a short data to one page."""
         self._append_and_assert(os.urandom(config.FLASH_PAGE_SIZE // 100))
 
     def test_append_one_long(self):
-        ''' test writing a long data to one page
-        '''
+        """Test writing a long data to one page."""
         self._append_and_assert(os.urandom(config.FLASH_PAGE_SIZE - 1))
 
     def _append_and_assert(self, test_data):
