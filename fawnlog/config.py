@@ -7,11 +7,10 @@ SERVER_ADDR_LIST = [("127.0.0.1", 10002),
                     ("127.0.0.1", 10005),
                     ("127.0.0.1", 10006),
                     ("127.0.0.1", 10007),
-                    ("127.0.0.1", 10008),
-                    ("127.0.0.1", 10009)]
+                    ("127.0.0.1", 10008)]
 
 FLASH_FILE_PATH = "pagefile.flog"
 FLASH_PAGE_NUMBER = 40000
-DEFAULT_BLOCK_SIZE = 4096
+DEFAULT_BLOCK_SIZE = 2048
 FLASH_PAGE_SIZE = DEFAULT_BLOCK_SIZE - 4 # Includes header size.
-FLASH_PER_GROUP = 5 # number of servers per group
+FLASH_PER_GROUP = 3 # number of servers per group
