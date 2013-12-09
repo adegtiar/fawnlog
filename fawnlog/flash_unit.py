@@ -91,14 +91,19 @@ class FlashUnit(object):
     def write(self, data_id, data):
         """Writes the data, blocking until the offset is received."""
         offset_message = self.offset_buffer.pop_offset_message(data_id)
-        if offset_message.is_full:
-            raise flashlib.ErrorNoCapacity()
-        else:
-            try:
-                self.pagestore.write(data, offset_message.offset)
-                return offset_message.measure
-            finally:
-                del self.offset_timestamps[offset_message.offset]
+        try:
+            if offset_message.is_full:
+                raise flashlib.ErrorNoCapacity()
+            else:
+                try:
+                    self.pagestore.write(data, offset_message.offset)
+                    return offset_message.measure
+                finally:
+                    del self.offset_timestamps[offset_message.offset]
+        except ValueError as err:
+            # Pass the measure even when there's an error.
+            err.ips_measure = offset_message.measure
+            raise err
 
     def write_offset(self, data_id, offset_message):
         """Writes the offset message for the given data id."""

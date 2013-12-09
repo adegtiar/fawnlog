@@ -52,17 +52,22 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
         try:
             ips_measure = self.flash_unit.write(request.data_id, request.data)
-        except flashlib.ErrorOverwritten:
+        except flashlib.ErrorOverwritten as err:
             status = flash_service_pb2.WriteResponse.ERROR_OVERWRITTEN
-        except flashlib.ErrorFilledHole:
+            ips_measure = err.ips_measure
+        except flashlib.ErrorFilledHole as err:
             status = flash_service_pb2.WriteResponse.ERROR_FILLED_HOLE
-        except flashlib.ErrorNoCapacity:
+            ips_measure = err.ips_measure
+        except flashlib.ErrorNoCapacity as err:
             status = flash_service_pb2.WriteResponse.ERROR_NO_CAPACITY
-        except ValueError:
+            ips_measure = err.ips_measure
+        except ValueError as err:
             status = flash_service_pb2.WriteResponse.ERROR_OVERSIZED_DATA
+            ips_measure = err.ips_measure
         else:
             status = flash_service_pb2.WriteResponse.SUCCESS
-            response.measure.CopyFrom(ips_measure)
+
+        response.measure.CopyFrom(ips_measure)
         response.status = status
         self.logger.debug("Responding with response: {0}".format(response))
 
