@@ -1,3 +1,10 @@
+"""LinkedListQueue.
+
+Special purpose Queue implemented based on doubly linked list,
+Support standard enqueue, dequeue, and remove a node in the middle.
+
+"""
+
 class Empty(RuntimeError):
     """The LinkedListQueue is empty"""
 
@@ -15,12 +22,12 @@ class LinkedListQueue(object):
        Support standard enqueue, dequeue,
        and remove a node in the middle"""
 
-    def __init__(self, iter=None):
+    def __init__(self, iteration=None):
         self.head = None
         self.tail = None
         self.length = 0
-        if iter is not None:
-            for i in iter:
+        if iteration is not None:
+            for i in iteration:
                 self.enqueue(i)
 
     def empty(self):
@@ -67,7 +74,7 @@ class LinkedListQueue(object):
         if node == self.tail:
             self.tail = self.tail.prev
         self.length -= 1
-        
+
     def peek(self):
         if self.head is None:
             return None
