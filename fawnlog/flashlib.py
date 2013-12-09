@@ -25,6 +25,10 @@ class ErrorOverwritten(ValueError):
     """The page intended to be written or filled is already written."""
 
 
+class ErrorNoCapacity(ValueError):
+    """The page cannot be written or filled due to low capacity."""
+
+
 class PageStore(object):
     """A page-based flash storage interface backed by a file.
 
