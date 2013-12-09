@@ -19,15 +19,15 @@ class SequencerServiceImpl(sequencer_service_pb2.SequencerService):
     def Write(self, controller, request, done):
         flash_unit_number = request.flash_unit_number
         data_id = request.data_id
-        self.logger.debug("client write to server {0} data_id {1}".format(
-            flash_unit_number, data_id))
+        self.logger.debug("Recieved request from client: flash_server= "
+                          "{0}, data_id={1}".format(flash_unit_number, data_id))
 
         response = sequencer_service_pb2.SequencerServiceResponse()
         self.sequencer.insert_request(data_id, flash_unit_number)
         done.run(response)
 
     def reset(self, token):
-        """Reset sequencer token, convenience function for testing"""
+        """Reset sequencer token, convenience function for testing."""
         self.sequencer.reset(token)
 
 def start_server():
