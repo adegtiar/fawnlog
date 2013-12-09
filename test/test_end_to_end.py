@@ -57,9 +57,13 @@ class TestEndToEnd(unittest.TestCase):
         """Test writing a long data to one page."""
         self._append_and_assert(config.FLASH_PAGE_SIZE - 1, 1)
 
-    def test_append_two_page(self):
+    def test_append_two_pages(self):
         """Test writing to two pages."""
         self._append_and_assert(config.FLASH_PAGE_SIZE * 2 - 1, 2)
+
+    def test_append_nine_pages(self):
+        """Test writing to nine pages."""
+        self._append_and_assert(config.FLASH_PAGE_SIZE * 9 - 1, 9)
 
     def _append_and_assert(self, data_size, expected_num_tokens):
         test_data = os.urandom(data_size)
@@ -67,23 +71,6 @@ class TestEndToEnd(unittest.TestCase):
         self.assertEqual(expected_num_tokens, len(return_tokens))
         return_data = [self.test_client.read(token) for token in return_tokens]
         self.assertEqual(test_data, "".join(return_data))
-
-    # def test_append_nine_page(self):
-    #     ''' test writing to nine pages
-    #     '''
-    #     TestEndToEnd._reset_flash_servers()
-
-    #     test_str_list = []
-    #     for _ in xrange(config.FLASH_PAGE_SIZE * 9 - 1):
-    #         test_str_list.append(chr(random.randint(65, 90)))
-    #     test_str = ''.join(test_str_list)
-    #     test_client = client.Client()
-    #     return_tokens = test_client.append(test_str)
-    #     return_str = ""
-    #     for token in return_tokens:
-    #         return_str += test_client.read(token)
-    #     self.assertEqual(len(return_tokens), 9)
-    #     self.assertEqual(test_str, return_str)
 
 if __name__ == "__main__":
     unittest.main()
