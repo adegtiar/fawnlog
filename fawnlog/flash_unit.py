@@ -55,11 +55,11 @@ class FlashUnit(object):
         if offset_message.is_full:
             raise flashlib.ErrorNoCapacity()
         else:
-            self.page_store.write(offset_message.offset, data)
+            self.pagestore.write(offset_message.offset, data)
             return offset_message.measure
 
     def write_offset(self, data_id, offset_message):
-        self.offset_buffer.put_offset_mssage(data_id, offset_message)
+        self.offset_buffer.put_offset_message(data_id, offset_message)
 
     def fill_hole(self, offset):
         self.pagestore.fill_hole(offset)
