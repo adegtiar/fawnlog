@@ -65,7 +65,6 @@ class TestEndToEnd(unittest.TestCase):
         test_str = ''.join(test_str_list)
         test_client = client.Client()
         (return_tokens, _) = test_client.append(test_str)
-        print 'return token:', return_tokens
         return_str = test_client.read(return_tokens[0])
         self.assertEqual(len(return_tokens), 1)
         self.assertEqual(test_str, return_str)
