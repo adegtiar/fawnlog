@@ -7,7 +7,6 @@ from protobuf.socketrpc import RpcService
 from uuid import uuid4
 
 import math
-import time
 import random
 
 
@@ -76,9 +75,7 @@ class Client(object):
                 piece_id = self.client_id
                 self.send_to_sequencer(server_w, piece_id)
                 request_timestamp = utils.nanotime()
-                start_time = time.time()
                 response_w = self.write_to_flash(server_w, piece_data, piece_id)
-                end_time = time.time()
                 self.update_guess_info(response_w, request_timestamp, server_w)
                 if response_w.status == flash_service_pb2.WriteResponse.SUCCESS:
                     token_list.append(response_w.measure.token)
@@ -113,7 +110,7 @@ class Client(object):
 
         '''
         if self.last_state == INITIAL:
-            return 0
+            return random.randint(0, self.config.FLASH_PER_GROUP - 1)
         elif self.last_state == FULL:
             return self.last_server + 1
         else:
