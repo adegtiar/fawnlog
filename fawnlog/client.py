@@ -99,7 +99,7 @@ class Client(object):
             self.delay = ips_measure.request_timestamp - request_timestamp
             assert(self.delay >= 0)
             self.last_state = SUCCESS
-        elif response.status == flash_service_pb2.WriteResponse.NO_CAPACITY:
+        elif response.status == flash_service_pb2.WriteResponse.ERROR_NO_CAPACITY:
             self.latest_ips = ips_measure.ips
             self.last_server = server
             self.last_state = FULL
