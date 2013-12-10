@@ -1,4 +1,3 @@
-from fawnlog import config
 from fawnlog import projection
 from fawnlog import get_token_pb2
 from fawnlog import flash_service_pb2
@@ -12,11 +11,12 @@ class Client(object):
         It communicates with the sequencer and server using protobuf.
 
     """
-    def __init__(self):
+    def __init__(self, arg_config):
         self.projection = projection.Projection()
+        self.config = arg_config
         self.service = RpcService(get_token_pb2.GetTokenService_Stub,
-                                  config.SEQUENCER_PORT,
-                                  config.SEQUENCER_HOST)
+                                  self.config.SEQUENCER_PORT,
+                                  self.config.SEQUENCER_HOST)
 
     def append(self, data):
         """ string -> int list
@@ -37,7 +37,7 @@ class Client(object):
         if data_len == 0:
             return []
 
-        number_of_tokens = (data_len - 1) // config.FLASH_PAGE_SIZE + 1
+        number_of_tokens = (data_len - 1) // self.config.FLASH_PAGE_SIZE + 1
         token_head = self.get_tokens(number_of_tokens)
         token_list = [token_head + i for i in range(0, number_of_tokens)]
         latency_list = []
@@ -45,8 +45,8 @@ class Client(object):
         # try send every piece of data
         for i in range(number_of_tokens):
             cur_token = token_list[i]
-            piece_beg = i * config.FLASH_PAGE_SIZE
-            piece_end = (i + 1) * config.FLASH_PAGE_SIZE
+            piece_beg = i * self.config.FLASH_PAGE_SIZE
+            piece_end = (i + 1) * self.config.FLASH_PAGE_SIZE
             if i == number_of_tokens - 1:
                 piece_end = data_len
             piece_data = data[piece_beg:piece_end]
