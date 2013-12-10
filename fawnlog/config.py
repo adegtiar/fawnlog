@@ -13,4 +13,4 @@ FLASH_FILE_PATH = "pagefile.flog"
 FLASH_PAGE_NUMBER = 40000
 DEFAULT_BLOCK_SIZE = 2048
 FLASH_PAGE_SIZE = DEFAULT_BLOCK_SIZE - 4 # Includes header size.
-FLASH_PER_GROUP = 2 # number of servers per group
+FLASH_PER_GROUP = 4 # number of servers per group
