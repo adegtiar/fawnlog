@@ -120,7 +120,8 @@ class Client(object):
         else:
             # SUCCESS or FAIL here
             guess_inc = (utils.nanos_to_sec(self.delay + utils.nanotime() -
-                self.largest_timestamp) * self.latest_ips)
+                self.largest_timestamp) * self.latest_ips + 1 +
+                self.config.CLIENT_GUESS_OVERESTIMATION)
             guess_token = int(math.ceil(self.largest_token + guess_inc))
             (guess_server, _, _, _) = self.projection.translate(guess_token)
             return guess_server
