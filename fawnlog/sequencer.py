@@ -5,6 +5,8 @@ from fawnlog import config
 from fawnlog import projection
 from fawnlog import linkedlist_queue
 from fawnlog import flash_service_pb2
+from fawnlog import utils
+
 from protobuf.socketrpc import RpcService
 
 import Queue
@@ -63,7 +65,7 @@ class Request(object):
         self.data_id = data_id
         self.flash_unit_index = flash_unit_index
         # when we get the request
-        self.request_timestamp = time.time()
+        self.request_timestamp = utils.nanotime()
 
 
 class Sequencer(object):
@@ -179,7 +181,9 @@ class Sequencer(object):
             self.global_req_timer.cancel()
         if not self.global_req_queue.empty():
             timestamp = self.global_req_queue.head.data.request_timestamp
-            interval = config.REQUEST_TIMEOUT - (time.time() - timestamp)
+            interval = config.REQUEST_TIMEOUT - (time.time() -
+                    utils.nanos_to_sec(timestamp))
+
             self.global_req_timer = threading.Timer(
                 interval, self.remove_request)
             self.global_req_timer.start()
@@ -258,7 +262,7 @@ class Sequencer(object):
         request_f.measure.token = token
         request_f.measure.request_timestamp = request.request_timestamp
         # timestamp is the timestamp for ips
-        request_f.measure.token_timestamp = time.time()
+        request_f.measure.token_timestamp = utils.nanotime()
         request_f.measure.ips = self.ips_thread.get_ips()
         service_f.WriteOffset(request_f, callback=self.callback)
 

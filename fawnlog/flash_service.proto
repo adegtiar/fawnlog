@@ -21,8 +21,8 @@ message WriteRequest {
 
 message IpsMeasure {
     required int64 token = 1;
-    required float request_timestamp = 2;
-    required float token_timestamp = 3;
+    required int64 request_timestamp = 2;
+    required int64 token_timestamp = 3;
     required float ips = 4;
 }
 

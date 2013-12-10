@@ -1,10 +1,10 @@
 import collections
 import os.path
 import threading
-import time
 
 from fawnlog import config
 from fawnlog import flashlib
+from fawnlog import utils
 
 
 class OffsetBuffer(object):
@@ -81,7 +81,8 @@ class FlashUnit(object):
 
         """
         try:
-            time_since_offset = time.time() - self.offset_timestamps[offset]
+            time_since_offset = (utils.nanotime() -
+                    self.offset_timestamps[offset])
         except KeyError:
             # This offset has not been received from the sequencer.
             return False
@@ -108,7 +109,7 @@ class FlashUnit(object):
     def write_offset(self, data_id, offset_message):
         """Writes the offset message for the given data id."""
         if not offset_message.is_full:
-            self.offset_timestamps[offset_message.offset] = time.time()
+            self.offset_timestamps[offset_message.offset] = utils.nanotime()
         self.offset_buffer.put_offset_message(data_id, offset_message)
 
     def fill_hole(self, offset):

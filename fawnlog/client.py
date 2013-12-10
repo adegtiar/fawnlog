@@ -2,11 +2,11 @@ from fawnlog import config
 from fawnlog import projection
 from fawnlog import sequencer_service_pb2
 from fawnlog import flash_service_pb2
+from fawnlog import utils
 from protobuf.socketrpc import RpcService
 from uuid import uuid4
 
 import math
-import time
 
 
 INITIAL, SUCCESS, FULL, FAIL = range(4)
@@ -72,7 +72,7 @@ class Client(object):
                 server_w = self.guess_server()
                 piece_id = self.client_id
                 self.send_to_sequencer(server_w, piece_id)
-                request_timestamp = time.time()
+                request_timestamp = utils.nanotime()
                 response_w = self.write_to_flash(server_w, piece_data, piece_id)
                 self.update_guess_info(response_w, request_timestamp, server_w)
                 if response_w.status == flash_service_pb2.WriteResponse.SUCCESS:
@@ -113,8 +113,8 @@ class Client(object):
             return self.last_server + 1
         else:
             # SUCCESS or FAIL here
-            guess_inc = ((self.delay + time.time() - self.largest_timestamp) *
-                    self.latest_ips)
+            guess_inc = (utils.nanos_to_sec(self.delay + utils.nanotime() -
+                self.largest_timestamp) * self.latest_ips)
             guess_token = int(math.ceil(self.largest_token + guess_inc))
             (guess_server, _, _, _) = self.projection.translate(guess_token)
             return guess_server
