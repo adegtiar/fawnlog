@@ -16,6 +16,16 @@ from fawnlog import get_token_service
 from fawnlog import flash_service_pb2
 from fawnlog import flash_service
 
+SEQUENCER_PORT = 10001
+SEQUENCER_HOST = "127.0.0.1"
+
+SERVER_ADDR_LIST = [("127.0.0.1", 10002),
+                    ("127.0.0.1", 10003),
+                    ("127.0.0.1", 10004),
+                    ("127.0.0.1", 10005),
+                    ("127.0.0.1", 10006),
+                    ("127.0.0.1", 10007),
+                    ("127.0.0.1", 10008)]
 
 class TestEndToEnd(unittest.TestCase):
     """Tests flash service functionality."""
@@ -23,11 +33,11 @@ class TestEndToEnd(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # start sequencer
-        cls.sequencer_thread = test.helper.ServerThread(config.SEQUENCER_PORT,
-            config.SEQUENCER_HOST, get_token_service.GetTokenImpl())
+        cls.sequencer_thread = test.helper.ServerThread(SEQUENCER_PORT,
+            SEQUENCER_HOST, get_token_service.GetTokenImpl())
         cls.sequencer_thread.start_server()
         cls.sequencer_service = RpcService(get_token_pb2.GetTokenService_Stub,
-            config.SEQUENCER_PORT, config.SEQUENCER_HOST)
+            SEQUENCER_PORT, SEQUENCER_HOST)
 
         # start flash servers 0 and 1
         cls.flash_services = []
@@ -42,7 +52,7 @@ class TestEndToEnd(unittest.TestCase):
 
     @classmethod
     def _start_flash_server(cls, server_index):
-        host, port = config.SERVER_ADDR_LIST[server_index]
+        host, port = SERVER_ADDR_LIST[server_index]
         server_thread = test.helper.ServerThread(port, host,
                 flash_service.FlashServiceImpl(server_index))
         server_thread.start_server()
