@@ -8,6 +8,7 @@ from uuid import uuid4
 
 import math
 import time
+import random
 
 
 INITIAL, SUCCESS, FULL, FAIL = range(4)
@@ -123,6 +124,7 @@ class Client(object):
                 self.largest_timestamp) * self.latest_ips + 1 +
                 self.config.CLIENT_GUESS_OVERESTIMATION)
             guess_token = int(math.ceil(self.largest_token + guess_inc))
+            guess_token += random.randint(0, 1)
             (guess_server, _, _, _) = self.projection.translate(guess_token)
             return guess_server
 
