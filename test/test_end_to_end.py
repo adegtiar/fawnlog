@@ -71,7 +71,7 @@ class TestEndToEnd(unittest.TestCase):
 
     def _append_and_assert(self, data_size, expected_num_tokens):
         test_data = os.urandom(data_size)
-        return_tokens = self.test_client.append(test_data)
+        return_tokens = self.test_client.append(test_data)[0]
         self.assertEqual(expected_num_tokens, len(return_tokens))
         return_data = [self.test_client.read(token) for token in return_tokens]
         self.assertEqual(test_data, "".join(return_data))
