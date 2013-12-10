@@ -6,6 +6,7 @@
 import config
 import get_token_pb2
 import sequencer
+import utils
 
 import logging
 import protobuf.socketrpc.server
@@ -20,10 +21,15 @@ class GetTokenImpl(get_token_pb2.GetTokenService):
     def GetToken(self, controller, request, done):
         number = request.number
         self.logger.debug("request number: {0}".format(number))
-
         response = get_token_pb2.GetTokenResponse()
+
+        request_timestamp = utils.nanotime()
         response.token = self.sequencer.get_token(number)
+        token_timestamp  = utils.nanotime()
+
         self.logger.debug("response token: {0}".format(response.token))
+        self.logger.debug("sequencing overhead: {0}ns".format(
+            token_timestamp - request_timestamp))
 
         done.run(response)
 
