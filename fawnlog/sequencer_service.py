@@ -34,8 +34,7 @@ def start_server():
     logger = logging.getLogger(__name__)
     logger.info("Starting sequencer server on port {0}:{1}".format(
         config.SEQUENCER_HOST, config.SEQUENCER_PORT))
-    server = protobuf.socketrpc.server.SocketRpcServer(
-        config.SEQUENCER_PORT, config.SEQUENCER_HOST)
+    server = protobuf.socketrpc.server.SocketRpcServer(config.SEQUENCER_PORT, "0.0.0.0")
     server.registerService(SequencerServiceImpl(logger))
     server.run()
 
