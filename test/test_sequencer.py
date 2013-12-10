@@ -76,6 +76,7 @@ class TestSequencer(unittest.TestCase):
             if sequencer.global_req_timer is not None:
                 sequencer.global_req_timer.cancel()
 
+    @unittest.skip("does not apply anymore")
     def test_adjust_cursor(self):
         """There is a hole in the requests and after that all the requests
         are continuous.
@@ -87,9 +88,7 @@ class TestSequencer(unittest.TestCase):
                 data_id = i + start_index
                 flash_unit_index = data_id % config.FLASH_PER_GROUP
                 sequencer.insert_request(str(data_id), flash_unit_index)
-                print "cursor {0}, flash_unit_index {1}, token {2}".format(
-                    sequencer.cursor, flash_unit_index, sequencer.token)
-                #self.assertEqual(sequencer.cursor, cursor)
+                self.assertEqual(sequencer.cursor, cursor)
         finally:
            sequencer.ips_thread.stop()
            sequencer.ips_thread.join()
