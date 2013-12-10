@@ -226,6 +226,8 @@ class Sequencer(object):
             self.send_to_flash(request, -1, is_full=True)
             return
         with self.lock:
+            off = self.cursor - flash_unit_index
+            self.logger.debug("guessing off by (cursor - guessed index) {0}".format(off))
             if self.cursor == flash_unit_index:
                 self.logger.debug("request {0} guessed correctly".format(
                     data_id))
