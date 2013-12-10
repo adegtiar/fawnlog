@@ -101,7 +101,7 @@ class Sequencer(object):
                 config.COUNT_IPS_INTERVAL)
         self.ips_thread.start()
 
-        self.off = 0
+        self.off = {}
 
     def _is_full(self, flash_unit_index):
         """Check if the flash with flash_unit_index is full"""
@@ -230,7 +230,8 @@ class Sequencer(object):
         with self.lock:
             off = flash_unit_index - self.cursor
             self.logger.debug("guessing off by (guessed index - cursor) {0}".format(off))
-            self.off += off
+            self.off[off] = self.off.get(off, 0) + 1
+            print self.off
             if self.cursor == flash_unit_index:
                 self.logger.debug("request {0} guessed correctly".format(
                     data_id))

@@ -40,7 +40,6 @@ def start_server():
     try:
         server.run()
     except KeyboardInterrupt:
-        print self.sequencer.off
         sys.exit(0)
 
 if __name__ == '__main__':
