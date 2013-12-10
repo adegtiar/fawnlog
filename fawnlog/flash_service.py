@@ -124,7 +124,7 @@ def main(server_index):
     server = protobuf.socketrpc.server.SocketRpcServer(port, "0.0.0.0")
 
     try:
-        with FlashUnit(server_index) as flash_unit:
+        with FlashUnit(server_index, global_config) as flash_unit:
             server.registerService(FlashServiceImpl(flash_unit))
             server.run()
     except KeyboardInterrupt:
