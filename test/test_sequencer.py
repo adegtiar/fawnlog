@@ -5,7 +5,6 @@ import unittest
 import time
 
 from fawnlog.sequencer import Sequencer
-from fawnlog import config
 
 from test import config
 
@@ -88,7 +87,7 @@ class TestSequencer(unittest.TestCase):
                 data_id = i + start_index
                 flash_unit_index = data_id % config.FLASH_PER_GROUP
                 sequencer.insert_request(str(data_id), flash_unit_index)
-                cursor = 0 if flash_unit_index > 0 else 1 
+                cursor = 0 if flash_unit_index > 0 else 1
                 self.assertEqual(sequencer.cursor, cursor)
         finally:
            sequencer.ips_thread.stop()
