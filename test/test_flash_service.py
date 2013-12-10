@@ -8,13 +8,14 @@ from protobuf.socketrpc import RpcService
 
 import test.helper
 
+from fawnlog import config
 from fawnlog import flash_service_pb2
 from fawnlog import flash_service
 
 
 FLASH_SERVER_PORT = 40001
 FLASH_SERVER_HOST = "127.0.0.1"
-PAGE_SIZE = 4000
+PAGE_SIZE = config.FLASH_PAGE_SIZE - 1
 
 class TestFlashService(unittest.TestCase):
     """Tests flash service functionality."""
