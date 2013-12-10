@@ -3,11 +3,12 @@
    GetToken RPC server implementation.
 """
 
-import config
-import get_token_pb2
+from fawnlog import config
+from fawnlog import get_token_pb2
+from fawnlog import sequencer
+
 import logging
 import protobuf.socketrpc.server
-import sequencer
 
 class GetTokenImpl(get_token_pb2.GetTokenService):
     """GetToken service implementation."""
@@ -34,7 +35,7 @@ def start_server():
     logger = logging.getLogger(__name__)
     logger.info("Starting sequencer server on port {0}:{1}".format(
         config.SEQUENCER_HOST, config.SEQUENCER_PORT))
-    server = protobuf.socketrpc.server.SocketRpcServer(config.SEQUENCER_PORT)
+    server = protobuf.socketrpc.server.SocketRpcServer(config.SEQUENCER_PORT, "0.0.0.0")
     server.registerService(GetTokenImpl(logger))
     server.run()
 
