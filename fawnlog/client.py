@@ -122,7 +122,7 @@ class Client(object):
                 self.largest_timestamp) * self.latest_ips + 1 +
                 self.config.CLIENT_GUESS_OVERESTIMATION)
             guess_token = int(math.ceil(self.largest_token + guess_inc))
-            guess_token += random.randint(0, 1)
+            guess_token += random.randint(1, 2)
             (guess_server, _, _, _) = self.projection.translate(guess_token)
             return guess_server
 
