@@ -2,7 +2,6 @@
 """Tests flash service."""
 
 import os
-import random
 import unittest
 
 from protobuf.socketrpc import RpcService
@@ -10,14 +9,11 @@ from protobuf.socketrpc import RpcService
 import test.helper
 
 from fawnlog import client
-from fawnlog import sequencer_service_pb2
 from fawnlog import sequencer_service
 from fawnlog import flash_service_pb2
 from fawnlog import flash_service
 
 from test import config
-
-import logging
 
 
 class TestEndToEnd(unittest.TestCase):
@@ -71,7 +67,7 @@ class TestEndToEnd(unittest.TestCase):
 
     def _append_and_assert(self, data_size, expected_num_tokens):
         test_data = os.urandom(data_size)
-        return_tokens = self.test_client.append(test_data)[0]
+        return_tokens = self.test_client.append(test_data)
         self.assertEqual(expected_num_tokens, len(return_tokens))
         return_data = [self.test_client.read(token) for token in return_tokens]
         self.assertEqual(test_data, "".join(return_data))

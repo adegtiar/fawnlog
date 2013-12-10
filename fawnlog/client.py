@@ -62,7 +62,6 @@ class Client(object):
 
         number_of_tokens = (data_len - 1) // self.config.FLASH_PAGE_SIZE + 1
         token_list = []
-        latency_list = []
 
         # try send every piece of data by guessing
         for i in xrange(number_of_tokens):
@@ -83,10 +82,9 @@ class Client(object):
                 self.update_guess_info(response_w, request_timestamp, server_w)
                 if response_w.status == flash_service_pb2.WriteResponse.SUCCESS:
                     token_list.append(response_w.measure.token)
-                    latency_list.append(end_time - start_time)
                     break
 
-        return (token_list, latency_list)
+        return token_list
 
     def update_guess_info(self, response, request_timestamp, server):
         ''' update information about guessing after the response from flash
