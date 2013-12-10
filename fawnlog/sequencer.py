@@ -8,6 +8,7 @@ from fawnlog import utils
 
 from protobuf.socketrpc import RpcService
 
+import logging
 import Queue
 import threading
 import time
@@ -72,9 +73,10 @@ class Sequencer(object):
     A simple sequencer which serialize requests and generates tokens.
     """
 
-    def __init__(self, config, start_token=0):
+    def __init__(self, config, start_token=0, logger=None):
         self.lock = threading.Lock()
         self.config = config
+        self.logger = logger or logging.getLogger(__name__)
 
         # current projection
         group_index = start_token // (config.FLASH_PAGE_NUMBER *
@@ -265,9 +267,14 @@ class Sequencer(object):
         request_f.measure.token = token
         request_f.measure.request_timestamp = request.request_timestamp
         # timestamp is the timestamp for ips
-        request_f.measure.token_timestamp = utils.nanotime()
+        token_timestamp = utils.nanotime()
+        request_f.measure.token_timestamp = token_timestamp
         request_f.measure.ips = self.ips_thread.get_ips()
         service_f.WriteOffset(request_f, callback=self.callback)
+
+        sequencing_overhead = token_timestamp - request.request_timestamp
+        self.logger.debug("sequencing overhead for {0}: {1}ns".format(
+            request.data_id, sequencing_overhead))
 
     def fill_hole_flash(self, token):
         """Creates a hole at the token by sending a FillHole request."""
