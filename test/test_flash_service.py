@@ -11,6 +11,8 @@ import test.helper
 from fawnlog import flash_service_pb2
 from fawnlog import flash_service
 
+from test import config
+
 
 FLASH_SERVER_PORT = 40001
 FLASH_SERVER_HOST = "127.0.0.1"
@@ -23,7 +25,8 @@ class TestFlashService(unittest.TestCase):
     def setUpClass(cls):
         # start server thread
         cls.server_thread = test.helper.ServerThread(FLASH_SERVER_PORT,
-            FLASH_SERVER_HOST, flash_service.FlashServiceImpl.from_index(0))
+            FLASH_SERVER_HOST, flash_service.FlashServiceImpl.from_index(0,
+                config))
         cls.server_thread.start_server()
         cls.service = RpcService(flash_service_pb2.FlashService_Stub,
             FLASH_SERVER_PORT, FLASH_SERVER_HOST)
