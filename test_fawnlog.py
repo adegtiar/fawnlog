@@ -1,8 +1,6 @@
 from fawnlog import config
 from fawnlog import client
 from test import helper
-from fawnlog import get_token_service
-from fawnlog import flash_service
 
 import sys
 import random
