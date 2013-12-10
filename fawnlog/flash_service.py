@@ -112,7 +112,7 @@ def main(server_index):
     # Start the server.
     logger.info("Starting flash server {0} on {1}:{2}".format(server_index,
         host, port))
-    server = protobuf.socketrpc.server.SocketRpcServer(port, host)
+    server = protobuf.socketrpc.server.SocketRpcServer(port, "0.0.0.0")
 
     try:
         with FlashServiceImpl(server_index) as flash_service:
