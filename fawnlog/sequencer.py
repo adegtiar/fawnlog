@@ -118,8 +118,9 @@ class Sequencer(object):
         # For requests still in the queue, reply the flash unit is full
         for queue in self.flash_queue_table:
             while not queue.empty():
-                request = queue.get()
-                self.send_to_flash(request, -1, is_full=True)
+                node = queue.get()
+                self.send_to_flash(node.data, -1, is_full=True)
+                self._remove_from_global(node)
 
     def _increase_by_one(self):
         """Increase token and cursor by one.
