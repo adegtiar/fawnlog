@@ -161,10 +161,10 @@ class Sequencer(object):
         """
         i = 0
         while (self.cursor != flash_unit_index):
-            i += 1
             queue = self.flash_queue_table[self.cursor
                 - self.start_flash_index]
             if queue.empty():
+                i += 1
                 self.fill_hole_flash(self.token)
             else:
                 node = queue.get()
@@ -172,6 +172,9 @@ class Sequencer(object):
                 self.send_to_flash(node.data, self.token)
             new_group = self._increase_by_one()
             if new_group:
+                print "new group!!!!!!"
+                print "create {0} holes".format(i)
+                raise RuntimeError("new group")
                 return True
         print "create {0} holes".format(i)
         if i > self.config.FLASH_PER_GROUP:
