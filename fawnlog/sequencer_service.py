@@ -37,7 +37,11 @@ def start_server():
     server = protobuf.socketrpc.server.SocketRpcServer(
             global_config.SEQUENCER_PORT, "0.0.0.0")
     server.registerService(SequencerServiceImpl(logger))
-    server.run()
+    try:
+        server.run()
+    except KeyboardInterrupt:
+        print self.sequencer.off
+        sys.exit(0)
 
 if __name__ == '__main__':
     protobuf_log = logging.getLogger("protobuf.socketrpc.server")

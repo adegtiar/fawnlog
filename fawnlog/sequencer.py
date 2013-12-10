@@ -27,6 +27,7 @@ class IpsThread(threading.Thread):
         self.last_token = None
         self.cur_ips = -1
         self.stopped = False
+        self.off = 0
         self.setDaemon(True)
 
     def run(self):
@@ -226,8 +227,9 @@ class Sequencer(object):
             self.send_to_flash(request, -1, is_full=True)
             return
         with self.lock:
-            off = self.cursor - flash_unit_index
-            self.logger.debug("guessing off by (cursor - guessed index) {0}".format(off))
+            off = flash_unit_index - self.cursor
+            self.logger.debug("guessing off by (guessed index - cursor) {0}".format(off))
+            self.off += off
             if self.cursor == flash_unit_index:
                 self.logger.debug("request {0} guessed correctly".format(
                     data_id))
