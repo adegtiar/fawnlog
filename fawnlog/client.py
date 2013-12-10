@@ -7,6 +7,7 @@ from protobuf.socketrpc import RpcService
 from uuid import uuid4
 
 import math
+import time
 
 
 INITIAL, SUCCESS, FULL, FAIL = range(4)
@@ -38,7 +39,7 @@ class Client(object):
         self.config = config
 
     def append(self, data):
-        ''' string -> int list
+        ''' string -> (int list * float list)
 
             Checking length of data and for every piece of the data, try
             guessing a server to write to and waiting for response. If a
@@ -60,6 +61,7 @@ class Client(object):
 
         number_of_tokens = (data_len - 1) // self.config.FLASH_PAGE_SIZE + 1
         token_list = []
+        latency_list = []
 
         # try send every piece of data by guessing
         for i in xrange(number_of_tokens):
@@ -74,13 +76,16 @@ class Client(object):
                 piece_id = self.client_id
                 self.send_to_sequencer(server_w, piece_id)
                 request_timestamp = utils.nanotime()
+                start_time = time.time()
                 response_w = self.write_to_flash(server_w, piece_data, piece_id)
+                end_time = time.time()
                 self.update_guess_info(response_w, request_timestamp, server_w)
                 if response_w.status == flash_service_pb2.WriteResponse.SUCCESS:
                     token_list.append(response_w.measure.token)
+                    latency_list.append(end_time - start_time)
                     break
 
-        return token_list
+        return (token_list, latency_list)
 
     def update_guess_info(self, response, request_timestamp, server):
         ''' update information about guessing after the response from flash
