@@ -3,7 +3,7 @@ SEQUENCER_PORT = 10001
 
 COUNT_IPS_INTERVAL = 0.1 # seconds
 COUNT_IPS_ALPHA = 0.5 # weight for exponential moving average calculation
-REQUEST_TIMEOUT = 0.1 # seconds
+REQUEST_TIMEOUT = 0 # seconds
 
 SERVER_ADDR_LIST = [("54.201.158.32", 10002),
                     ("54.201.7.112", 10002),
@@ -24,4 +24,4 @@ FLASH_PAGE_SIZE = DEFAULT_BLOCK_SIZE - 4 # Includes header size.
 FLASH_PER_GROUP = 2 # number of servers per group
 
 # Number of tokens ahead of approximation to guess.
-CLIENT_GUESS_OVERESTIMATION = 1
+CLIENT_GUESS_OVERESTIMATION = 0
