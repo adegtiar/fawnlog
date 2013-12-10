@@ -8,6 +8,7 @@ import sys
 import random
 import threading
 import os
+import time
 
 
 latencies = []
@@ -18,6 +19,7 @@ def _client_impl(number_of_pages, client_number):
     latency_list = []
     for i in xrange(number_of_pages):
         data_str = os.urandom(config.FLASH_PAGE_SIZE)
+        print "client_{0} appends {1}th page".format(client_number, i)
         start_time = time.time()
         _ = c.append(data_str)
         end_time = time.time()
@@ -33,7 +35,7 @@ def _start_clients(number_of_clients, number_of_pages):
     for i in xrange(number_of_clients):
         threads[i].join()
     result = sum(latencies) / number_of_clients
-    print "the average latency of writing a page is {0} seconds".format(result)
+    print "the average latency of appending a page is {0} seconds".format(result)
 
 
 class TestCorfu(object):
