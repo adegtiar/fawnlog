@@ -42,7 +42,7 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
     def Write(self, controller, request, done):
         """Writes the given data to the page at the given offset."""
-        self.logger.debug("Received write request: {0}".format(request))
+        self.logger.debug("Received write request: offset {0}, length {1}".format(request.offset, len(request.data)))
         response = flash_service_pb2.WriteResponse()
 
         try:
