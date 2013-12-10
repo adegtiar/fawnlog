@@ -1,4 +1,4 @@
-from fawnlog import config
+from fawnlog import config as global_config
 from fawnlog import projection
 from fawnlog import sequencer_service_pb2
 from fawnlog import flash_service_pb2
@@ -22,8 +22,8 @@ class Client(object):
         It communicates with the sequencer and server using protobuf.
 
     '''
-    def __init__(self):
-        self.projection = projection.Projection()
+    def __init__(self, config=global_config):
+        self.projection = projection.Projection(config)
         self.service = RpcService(sequencer_service_pb2.SequencerService_Stub,
                                   config.SEQUENCER_PORT,
                                   config.SEQUENCER_HOST)
@@ -35,6 +35,7 @@ class Client(object):
         self.last_server = -1
         self.latest_ips = 0.0
         self.delay = 0.0
+        self.config = config
 
     def append(self, data):
         ''' string -> int list
@@ -57,13 +58,13 @@ class Client(object):
         if data_len == 0:
             return []
 
-        number_of_tokens = (data_len - 1) // config.FLASH_PAGE_SIZE + 1
+        number_of_tokens = (data_len - 1) // self.config.FLASH_PAGE_SIZE + 1
         token_list = []
 
         # try send every piece of data by guessing
         for i in xrange(number_of_tokens):
-            piece_beg = i * config.FLASH_PAGE_SIZE
-            piece_end = (i + 1) * config.FLASH_PAGE_SIZE
+            piece_beg = i * self.config.FLASH_PAGE_SIZE
+            piece_end = (i + 1) * self.config.FLASH_PAGE_SIZE
             if i == number_of_tokens - 1:
                 piece_end = data_len
             piece_data = data[piece_beg:piece_end]
@@ -149,7 +150,7 @@ class Client(object):
 
         '''
         # data must be fit in a page right now
-        (dest_host, dest_port) = config.SERVER_ADDR_LIST[server]
+        (dest_host, dest_port) = self.config.SERVER_ADDR_LIST[server]
         service_w = RpcService(flash_service_pb2.FlashService_Stub,
                                dest_port, dest_host)
         request_w = flash_service_pb2.WriteRequest()

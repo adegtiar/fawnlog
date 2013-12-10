@@ -10,11 +10,14 @@ from protobuf.socketrpc import RpcService
 import test.helper
 
 from fawnlog import client
-from fawnlog import config
 from fawnlog import sequencer_service_pb2
 from fawnlog import sequencer_service
 from fawnlog import flash_service_pb2
 from fawnlog import flash_service
+
+from test import config
+
+import logging
 
 
 class TestEndToEnd(unittest.TestCase):
@@ -24,7 +27,8 @@ class TestEndToEnd(unittest.TestCase):
     def setUpClass(cls):
         # start sequencer
         sequencer_thread = test.helper.ServerThread(config.SEQUENCER_PORT,
-            config.SEQUENCER_HOST, sequencer_service.SequencerServiceImpl())
+            config.SEQUENCER_HOST,
+            sequencer_service.SequencerServiceImpl(config=config))
         sequencer_thread.start_server()
 
         cls.flash_services = []
@@ -35,7 +39,7 @@ class TestEndToEnd(unittest.TestCase):
     def _start_flash_server(cls, server_index):
         host, port = config.SERVER_ADDR_LIST[server_index]
         server_thread = test.helper.ServerThread(port, host,
-                flash_service.FlashServiceImpl.from_index(server_index))
+                flash_service.FlashServiceImpl.from_index(server_index, config))
         server_thread.start_server()
         return RpcService(flash_service_pb2.FlashService_Stub, port, host)
 
@@ -47,7 +51,7 @@ class TestEndToEnd(unittest.TestCase):
 
     def setUp(self):
         TestEndToEnd._reset_flash_servers()
-        self.test_client = client.Client()
+        self.test_client = client.Client(config)
 
     def test_append_one_short(self):
         """Test writing a short data to one page."""
@@ -73,4 +77,7 @@ class TestEndToEnd(unittest.TestCase):
         self.assertEqual(test_data, "".join(return_data))
 
 if __name__ == "__main__":
+    #protobuf_log = logging.getLogger("protobuf.socketrpc.server")
+    #protobuf_log.setLevel(logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
     unittest.main()

@@ -1,7 +1,6 @@
 """The sequencer.
 """
 
-from fawnlog import config
 from fawnlog import projection
 from fawnlog import linkedlist_queue
 from fawnlog import flash_service_pb2
@@ -19,10 +18,10 @@ class IpsThread(threading.Thread):
     to calculate increments per second (ips).
     """
 
-    def __init__(self, sequencer, interval=config.COUNT_IPS_INTERVAL):
+    def __init__(self, sequencer, interval, alpha):
         super(IpsThread, self).__init__()
         self.sequencer = sequencer
-        self.alpha = config.COUNT_IPS_ALPHA
+        self.alpha = alpha
         self.interval = interval
         self.last_token = None
         self.cur_ips = -1
@@ -73,8 +72,9 @@ class Sequencer(object):
     A simple sequencer which serialize requests and generates tokens.
     """
 
-    def __init__(self, start_token=0):
+    def __init__(self, config, start_token=0):
         self.lock = threading.Lock()
+        self.config = config
 
         # current projection
         group_index = start_token // (config.FLASH_PAGE_NUMBER *
@@ -84,7 +84,7 @@ class Sequencer(object):
         self.flash_queue_table = [Queue.Queue()
             for i in range(config.FLASH_PER_GROUP)]
 
-        self.projection = projection.Projection()
+        self.projection = projection.Projection(config)
 
         self.token = start_token
         # self.cursor point to the current flash unit we should write to
@@ -95,20 +95,23 @@ class Sequencer(object):
         self.global_req_timer = None
 
         # start calculating ips
-        self.ips_thread = IpsThread(self)
+        self.ips_thread = IpsThread(self, self.config.COUNT_IPS_INTERVAL,
+                config.COUNT_IPS_INTERVAL)
         self.ips_thread.start()
 
     def _is_full(self, flash_unit_index):
         """Check if the flash with flash_unit_index is full"""
-        return self.token >= config.FLASH_PAGE_NUMBER * (flash_unit_index + 1)
+        return (self.token >= self.config.FLASH_PAGE_NUMBER *
+                (flash_unit_index + 1))
 
     def _next_group(self):
         """When this group of flash units are full,
         Move to the next group, the group wraps around (wrong).
         """
-        total_flash = len(config.SERVER_ADDR_LIST)
+        total_flash = len(self.config.SERVER_ADDR_LIST)
         self.start_flash_index = self.end_flash_index % total_flash
-        self.end_flash_index = self.start_flash_index + config.FLASH_PER_GROUP
+        self.end_flash_index = (self.start_flash_index +
+                self.config.FLASH_PER_GROUP)
         self.cursor = self.start_flash_index
         # For requests still in the queue, reply the flash unit is full
         for queue in self.flash_queue_table:
@@ -181,7 +184,7 @@ class Sequencer(object):
             self.global_req_timer.cancel()
         if not self.global_req_queue.empty():
             timestamp = self.global_req_queue.head.data.request_timestamp
-            interval = config.REQUEST_TIMEOUT - (time.time() -
+            interval = self.config.REQUEST_TIMEOUT - (time.time() -
                     utils.nanos_to_sec(timestamp))
 
             self.global_req_timer = threading.Timer(
@@ -226,7 +229,7 @@ class Sequencer(object):
                 self._adjust_cursor()
             else:
                 node = self._enqueue_global(request)
-                table_index = flash_unit_index % config.FLASH_PER_GROUP
+                table_index = flash_unit_index % self.config.FLASH_PER_GROUP
                 self.flash_queue_table[table_index].put(node)
 
     def remove_request(self):
@@ -252,7 +255,7 @@ class Sequencer(object):
         """If is_full is True, token does not have any meaning,
         should be ignored.
         """
-        (host, port) = config.SERVER_ADDR_LIST[request.flash_unit_index]
+        (host, port) = self.config.SERVER_ADDR_LIST[request.flash_unit_index]
         # TODO: initialize RpcService in init
         service_f = RpcService(flash_service_pb2.FlashService_Stub, port, host)
         request_f = flash_service_pb2.WriteOffsetRequest()

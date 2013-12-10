@@ -4,10 +4,11 @@ import unittest
 
 from collections import namedtuple
 
-from fawnlog import config
 from fawnlog import flashlib
 from fawnlog.flash_unit import FlashUnit
 from fawnlog import utils
+
+from test import config
 
 
 Measure = namedtuple("Measure", ["timestamp"])
@@ -25,7 +26,7 @@ full_msg = OffsetMessage(None, is_full=True, offset=-1)
 class TestFlashUnit(unittest.TestCase):
 
     def setUp(self):
-        self.flash_unit = FlashUnit(0)
+        self.flash_unit = FlashUnit(0, config)
         self.flash_unit.reset()
 
     def tearDown(self):

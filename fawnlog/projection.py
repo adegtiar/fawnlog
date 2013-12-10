@@ -1,6 +1,3 @@
-from fawnlog import config
-
-
 class Projection(object):
     """ Projection maps the 64-bit virtual address in the whole log to a
         tuple (dest_host, dest_port, dest_page).
@@ -8,7 +5,7 @@ class Projection(object):
         Currently this mapping is static.
 
     """
-    def __init__(self):
+    def __init__(self, config):
         """ Initialize a Projection object.
 
         flash_page_number: the number of flash pages in a server
@@ -19,6 +16,7 @@ class Projection(object):
         """
         self.flash_page_number = config.FLASH_PAGE_NUMBER
         self.flash_per_group = config.FLASH_PER_GROUP
+        self.config = config
 
     def translate(self, token):
         """ Statically translate the 64-bit virtual address in the whole
@@ -33,7 +31,7 @@ class Projection(object):
             Suppose all variables are starting from 0.
 
         """
-        total_server = len(config.SERVER_ADDR_LIST)
+        total_server = len(self.config.SERVER_ADDR_LIST)
         if token >= self.flash_page_number * total_server:
             # todo: garbage collection
             token %= (self.flash_page_number * total_server)
@@ -54,6 +52,6 @@ class Projection(object):
         dest_server = prev_server + (group_page % group_server)
         dest_page = group_page // group_server
 
-        (dest_host, dest_port) = config.SERVER_ADDR_LIST[dest_server]
+        (dest_host, dest_port) = self.config.SERVER_ADDR_LIST[dest_server]
 
         return (dest_server, dest_host, dest_port, dest_page)

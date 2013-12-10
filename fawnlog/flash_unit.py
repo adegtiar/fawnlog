@@ -2,7 +2,6 @@ import collections
 import os.path
 import threading
 
-from fawnlog import config
 from fawnlog import flashlib
 from fawnlog import utils
 
@@ -42,10 +41,11 @@ class OffsetBuffer(object):
 class FlashUnit(object):
     """Handles requests to read and write pages on flash storage."""
 
-    def __init__(self, server_index):
-        filepath = FlashUnit._get_filepath(server_index)
+    def __init__(self, server_index, config):
+        filepath = FlashUnit._get_filepath(server_index, config.FLASH_FILE_PATH)
         self.pagestore = flashlib.PageStore(filepath, config.FLASH_PAGE_SIZE,
                 config.FLASH_PAGE_NUMBER)
+        self.flash_hole_delay_threshold = config.FLASH_HOLE_DELAY_THRESHOLD
         self.offset_buffer = OffsetBuffer()
         # WriteOffset timestamps, used for hole detection.
         self.offset_timestamps = dict()
@@ -87,7 +87,7 @@ class FlashUnit(object):
             # This offset has not been received from the sequencer.
             return False
         else:
-            return time_since_offset > config.FLASH_HOLE_DELAY_THRESHOLD
+            return time_since_offset > self.flash_hole_delay_threshold
 
     def write(self, data_id, data):
         """Writes the data, blocking until the offset is received."""
@@ -132,6 +132,6 @@ class FlashUnit(object):
         self.close()
 
     @staticmethod
-    def _get_filepath(server_index):
-        base_path, ext = os.path.splitext(config.FLASH_FILE_PATH)
+    def _get_filepath(server_index, flash_file_path):
+        base_path, ext = os.path.splitext(flash_file_path)
         return "{0}_{1}{2}".format(base_path, server_index, ext)

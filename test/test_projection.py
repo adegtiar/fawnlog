@@ -3,9 +3,9 @@
 
 import unittest
 
-from fawnlog import config
 from fawnlog import projection
 
+from test import config
 
 class TestProjection(unittest.TestCase):
     """Tests the basic page file functionality.
@@ -15,7 +15,7 @@ class TestProjection(unittest.TestCase):
     """
 
     def setUp(self):
-        self.projection = projection.Projection()
+        self.projection = projection.Projection(config)
         self.servers = config.SERVER_ADDR_LIST
 
     def test_translate_basic(self):

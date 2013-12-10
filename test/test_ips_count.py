@@ -26,7 +26,7 @@ class TestIpsCount(unittest.TestCase):
     def test_ips_count(self):
         alpha = config.COUNT_IPS_ALPHA
         seq = FakeSequencer(10)
-        ips_thread = sequencer.IpsThread(seq, INTERVAL)
+        ips_thread = sequencer.IpsThread(seq, INTERVAL, alpha)
         ips_thread.start()
         time.sleep(0.5)
         seq.increase_token(100)

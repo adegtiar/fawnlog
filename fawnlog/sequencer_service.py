@@ -3,7 +3,7 @@
    Sequencer RPC server implementation.
 """
 
-from fawnlog import config
+from fawnlog import config as global_config
 from fawnlog import sequencer_service_pb2
 from fawnlog import sequencer
 import logging
@@ -12,8 +12,8 @@ import protobuf.socketrpc.server
 class SequencerServiceImpl(sequencer_service_pb2.SequencerService):
     """Sequencer service implementation."""
 
-    def __init__(self, logger=None):
-        self.sequencer = sequencer.Sequencer()
+    def __init__(self, logger=None, config=global_config):
+        self.sequencer = sequencer.Sequencer(config)
         self.logger = logger or logging.getLogger(__name__)
 
     def Write(self, controller, request, done):

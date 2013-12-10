@@ -7,7 +7,13 @@ import time
 from fawnlog.sequencer import Sequencer
 from fawnlog import config
 
+from test import config
+
 class SequencerCore(Sequencer):
+
+    def __init__(self, start_token=0):
+        super(SequencerCore, self).__init__(config, start_token)
+
     """Override methods so we don't make RPC calls"""
     def send_to_flash(self, request, token, is_full=False):
         pass

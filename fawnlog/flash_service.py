@@ -6,7 +6,7 @@ import sys
 
 import protobuf.socketrpc.server
 
-from fawnlog import config
+from fawnlog import config as global_config
 from fawnlog import flashlib
 from fawnlog import flash_service_pb2
 
@@ -21,8 +21,8 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
         self.logger = logger or logging.getLogger(__name__)
 
     @classmethod
-    def from_index(cls, server_index=0, logger=None):
-        flash_unit = FlashUnit(server_index)
+    def from_index(cls, server_index=0, config=global_config, logger=None):
+        flash_unit = FlashUnit(server_index, config)
         return FlashServiceImpl(flash_unit, logger)
 
     def Read(self, controller, request, done):
@@ -116,7 +116,7 @@ class FlashServiceImpl(flash_service_pb2.FlashService):
 
 def main(server_index):
     logger = logging.getLogger(__name__)
-    host, port = config.SERVER_ADDR_LIST[server_index]
+    host, port = global_config.SERVER_ADDR_LIST[server_index]
 
     # Start the server.
     logger.info("Starting flash server {0} on {1}:{2}".format(server_index,
