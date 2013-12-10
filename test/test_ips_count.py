@@ -5,7 +5,8 @@ import unittest
 import time
 
 from fawnlog import sequencer
-from fawnlog import config
+
+from test import config
 
 INTERVAL = 2 # in seconds
 
