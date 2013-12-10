@@ -27,7 +27,6 @@ class IpsThread(threading.Thread):
         self.last_token = None
         self.cur_ips = -1
         self.stopped = False
-        self.off = 0
         self.setDaemon(True)
 
     def run(self):
@@ -101,6 +100,8 @@ class Sequencer(object):
         self.ips_thread = IpsThread(self, self.config.COUNT_IPS_INTERVAL,
                 config.COUNT_IPS_INTERVAL)
         self.ips_thread.start()
+
+        self.off = 0
 
     def _is_full(self, flash_unit_index):
         """Check if the flash with flash_unit_index is full"""
