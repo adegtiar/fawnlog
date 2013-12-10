@@ -244,11 +244,12 @@ class Sequencer(object):
         Callback for the global_req_timer.
         """
         with self.lock:
-            request = self.global_req_queue.dequeue()
-            new_group = self._increase_to_index(request.flash_unit_index)
-            if new_group:
-                self.send_to_flash(request, -1, is_full=True)
-            self._set_global_timer()
+            if not self.global_req_queue.empty():
+                request = self.global_req_queue.dequeue()
+                new_group = self._increase_to_index(request.flash_unit_index)
+                if new_group:
+                    self.send_to_flash(request, -1, is_full=True)
+                self._set_global_timer()
 
     def reset(self, token):
         """Resets the state of the sequencer."""
