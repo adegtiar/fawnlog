@@ -3,9 +3,9 @@
    GetToken RPC server implementation.
 """
 
-from fawnlog import config
-from fawnlog import get_token_pb2
-from fawnlog import sequencer
+import config
+import get_token_pb2
+import sequencer
 
 import logging
 import protobuf.socketrpc.server
