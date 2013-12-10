@@ -21,7 +21,7 @@ FLASH_HOLE_DELAY_THRESHOLD = 1.0
 FLASH_PAGE_NUMBER = 4000
 DEFAULT_BLOCK_SIZE = 4096
 FLASH_PAGE_SIZE = DEFAULT_BLOCK_SIZE - 4 # Includes header size.
-FLASH_PER_GROUP = 4 # number of servers per group
+FLASH_PER_GROUP = 6 # number of servers per group
 
 # Number of tokens ahead of approximation to guess.
 CLIENT_GUESS_OVERESTIMATION = 0
