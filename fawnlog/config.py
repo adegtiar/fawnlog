@@ -18,7 +18,7 @@ FLASH_FILE_PATH = "pagefile.flog"
 # The time interval (in seconds) since a flash unit receives an offset
 # after which an unwritten page is considered a hole.
 FLASH_HOLE_DELAY_THRESHOLD = 1.0
-FLASH_PAGE_NUMBER = 40000
+FLASH_PAGE_NUMBER = 4000
 DEFAULT_BLOCK_SIZE = 4096
 FLASH_PAGE_SIZE = DEFAULT_BLOCK_SIZE - 4 # Includes header size.
 FLASH_PER_GROUP = 2 # number of servers per group
