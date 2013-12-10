@@ -10,22 +10,11 @@ import test.helper
 import random
 
 from fawnlog import client
-from fawnlog import config
+from fawnlog import test_config as config
 from fawnlog import get_token_pb2
 from fawnlog import get_token_service
 from fawnlog import flash_service_pb2
 from fawnlog import flash_service
-
-SEQUENCER_PORT = 10001
-SEQUENCER_HOST = "127.0.0.1"
-
-SERVER_ADDR_LIST = [("127.0.0.1", 10002),
-                    ("127.0.0.1", 10003),
-                    ("127.0.0.1", 10004),
-                    ("127.0.0.1", 10005),
-                    ("127.0.0.1", 10006),
-                    ("127.0.0.1", 10007),
-                    ("127.0.0.1", 10008)]
 
 class TestEndToEnd(unittest.TestCase):
     """Tests flash service functionality."""
@@ -33,11 +22,11 @@ class TestEndToEnd(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # start sequencer
-        cls.sequencer_thread = test.helper.ServerThread(SEQUENCER_PORT,
-            SEQUENCER_HOST, get_token_service.GetTokenImpl())
+        cls.sequencer_thread = test.helper.ServerThread(config.SEQUENCER_PORT,
+            config.SEQUENCER_HOST, get_token_service.GetTokenImpl())
         cls.sequencer_thread.start_server()
         cls.sequencer_service = RpcService(get_token_pb2.GetTokenService_Stub,
-            SEQUENCER_PORT, SEQUENCER_HOST)
+            config.SEQUENCER_PORT, config.SEQUENCER_HOST)
 
         # start flash servers 0 and 1
         cls.flash_services = []
@@ -52,7 +41,7 @@ class TestEndToEnd(unittest.TestCase):
 
     @classmethod
     def _start_flash_server(cls, server_index):
-        host, port = SERVER_ADDR_LIST[server_index]
+        host, port = config.SERVER_ADDR_LIST[server_index]
         server_thread = test.helper.ServerThread(port, host,
                 flash_service.FlashServiceImpl(server_index))
         server_thread.start_server()
@@ -73,7 +62,7 @@ class TestEndToEnd(unittest.TestCase):
         for _ in xrange(config.FLASH_PAGE_SIZE // 100):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
-        test_client = client.Client()
+        test_client = client.Client(config)
         (return_tokens, _) = test_client.append(test_str)
         return_str = test_client.read(return_tokens[0])
         self.assertEqual(len(return_tokens), 1)
@@ -88,7 +77,7 @@ class TestEndToEnd(unittest.TestCase):
         for _ in xrange(config.FLASH_PAGE_SIZE - 1):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
-        test_client = client.Client()
+        test_client = client.Client(config)
         (return_tokens, _) = test_client.append(test_str)
         return_str = test_client.read(return_tokens[0])
         self.assertEqual(len(return_tokens), 1)
@@ -103,7 +92,7 @@ class TestEndToEnd(unittest.TestCase):
         for _ in xrange(config.FLASH_PAGE_SIZE * 2 - 1):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
-        test_client = client.Client()
+        test_client = client.Client(config)
         (return_tokens, _) = test_client.append(test_str)
         return_str_1 = test_client.read(return_tokens[0])
         return_str_2 = test_client.read(return_tokens[1])
@@ -120,7 +109,7 @@ class TestEndToEnd(unittest.TestCase):
         for _ in xrange(config.FLASH_PAGE_SIZE * 9 - 1):
             test_str_list.append(chr(random.randint(65, 90)))
         test_str = ''.join(test_str_list)
-        test_client = client.Client()
+        test_client = client.Client(config)
         (return_tokens, _) = test_client.append(test_str)
         return_str = ""
         for token in return_tokens:
