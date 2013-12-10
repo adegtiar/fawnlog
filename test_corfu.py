@@ -17,7 +17,7 @@ def _client_impl(number_of_pages, client_number):
     c = client.Client(config)
     latency_list = []
     for i in xrange(number_of_pages):
-        data_str = os.urandom(config.FLASH_PAGESIZE)
+        data_str = os.urandom(config.FLASH_PAGE_SIZE)
         start_time = time.time()
         _ = c.append(data_str)
         end_time = time.time()
