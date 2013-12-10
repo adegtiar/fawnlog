@@ -3,8 +3,6 @@ from fawnlog import get_token_pb2
 from fawnlog import flash_service_pb2
 from protobuf.socketrpc import RpcService
 
-import time
-
 
 class Client(object):
     """ Client handles the write and read requests to the shared log.
@@ -40,7 +38,6 @@ class Client(object):
         number_of_tokens = (data_len - 1) // self.config.FLASH_PAGE_SIZE + 1
         token_head = self.get_tokens(number_of_tokens)
         token_list = [token_head + i for i in range(0, number_of_tokens)]
-        latency_list = []
 
         # try send every piece of data
         for i in range(number_of_tokens):
@@ -52,16 +49,14 @@ class Client(object):
             piece_data = data[piece_beg:piece_end]
 
             while True:
-                start_time = time.time()
                 status_w = self.write_to(piece_data, cur_token)
                 if status_w == flash_service_pb2.WriteResponse.SUCCESS:
-                    latency_list.append(time.time() - start_time)
                     break
                 else:
                     new_token = self.get_tokens(1)
                     token_list[i] = new_token
                     cur_token = new_token
-        return (token_list, latency_list)
+        return token_list
 
     def write_to(self, data, token):
         ''' string * int -> WriteResponse.Status

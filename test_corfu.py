@@ -7,6 +7,7 @@ from fawnlog import flash_service
 import sys
 import random
 import threading
+import os
 
 
 latencies = []
@@ -16,13 +17,11 @@ def _client_impl(number_of_pages, client_number):
     c = client.Client(config)
     latency_list = []
     for i in xrange(number_of_pages):
-        data_str_list = []
-        for _ in xrange(config.FLASH_PAGE_SIZE):
-            data_str_list.append(chr(random.randint(65, 90)))
-        print "client_{0} appends the {1}th page".format(client_number, i)
-        data_str = ''.join(data_str_list)
-        (_, ll) = c.append(data_str)
-        latency_list.extend(ll)
+        data_str = os.urandom(config.FLASH_PAGESIZE)
+        start_time = time.time()
+        _ = c.append(data_str)
+        end_time = time.time()
+        latency_list.append(end_time - start_time)
     latencies.append(sum(latency_list) / number_of_pages)
 
 def _start_clients(number_of_clients, number_of_pages):
