@@ -226,10 +226,14 @@ class Sequencer(object):
             return
         with self.lock:
             if self.cursor == flash_unit_index:
+                self.logger.debug("request {0} guessed correctly".format(
+                    data_id))
                 self.send_to_flash(request, self.token)
                 self._increase_by_one()
                 self._adjust_cursor()
             else:
+                self.logger.debug("request {0} guessed incorrectly".format(
+                    data_id))
                 node = self._enqueue_global(request)
                 table_index = flash_unit_index % self.config.FLASH_PER_GROUP
                 self.flash_queue_table[table_index].put(node)
