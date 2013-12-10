@@ -159,7 +159,9 @@ class Sequencer(object):
         Return True if the group is full, we moved to the next group.
         Return False otherwise
         """
+        i = 0
         while (self.cursor != flash_unit_index):
+            i += 1
             queue = self.flash_queue_table[self.cursor
                 - self.start_flash_index]
             if queue.empty():
@@ -171,6 +173,9 @@ class Sequencer(object):
             new_group = self._increase_by_one()
             if new_group:
                 return True
+        print "create {0} holes".format(i)
+        if i > self.config.FLASH_PER_GROUP:
+            raise RuntimeError("too many holes")
         queue = self.flash_queue_table[self.cursor
                 - self.start_flash_index]
         node = queue.get()
