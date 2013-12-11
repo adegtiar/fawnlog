@@ -1,54 +1,0 @@
-\documentclass[letterpaper,twocolumn,10pt]{article}
-\usepackage{paper,epsfig,endnotes}
-\usepackage{graphicx}
-\usepackage{geometry}
-\geometry{left=1in,right=1in,top=1in,bottom=1in}
-\usepackage{titlesec}
-
-\titleformat*{\section}{\Large\bfseries}
-\titleformat*{\subsection}{\Large\bfseries}
-
-
-\begin{document}
-\date{}
-
-\title{\LARGE \bf Fawnlog : A Shared Log on FAWN}
-
-\author{
-{\rm Alex Degtiar, Zhixing Zheng, Junya Huang}\\
-Carnegie Mellon University}
-
-\maketitle
-
-% Use the following at camera-ready time to suppress page numbers.
-% Comment it out when you first submit the paper for review.
-\thispagestyle{empty}
-
-
-\subsection*{Abstract}
-The first step, key range splitting, occurs as described for\cite{corfu}FAWN-DS\cite{fawn}. While this operation can occur concurrently withthe rest (the split and data transmission can overlap), forclarity, we describe the rest of this process as if the split hadalready taken place.
-After the key ranges have been split appropriately, the nodemust become a working member of R chains. For each of these chains, the node must receive a consistent copy of the datastore file corresponding to the key range. The process below does so with minimal locking and ensures that if the node fails during the data copy operation, the existing replicas
-\section{Introduction}
-The first step, key range splitting, occurs as described forFAWN-DS. While this operation can occur concurrently withthe rest (the split and data transmission can overlap), forclarity, we describe the rest of this process as if the split hadalready taken place.
-After the key ranges have been split appropriately, the nodemust become a working member of R chains. For each of these chains, the node must receive a consistent copy of the datastore file corresponding to the key range. The process below does so with minimal locking and ensures that if the node fails during the data copy operation, the existing replicas
-\section{Design and Implementation}
-The first step, key range splitting, occurs as described forFAWN-DS. While this operation can occur concurrently withthe rest (the split and data transmission can overlap), forclarity, we describe the rest of this process as if the split hadalready taken place.
-After the key ranges have been split appropriately, the nodemust become a working member of R chains. For each of these chains, the node must receive a consistent copy of the datastore file corresponding to the key range. The process below does so with minimal locking and ensures that if the node fails during the data copy operation, the existing replicas
-\section{Evaluation}
-The first step, key range splitting, occurs as described forFAWN-DS. While this operation can occur concurrently withthe rest (the split and data transmission can overlap), forclarity, we describe the rest of this process as if the split hadalready taken place.
-After the key ranges have been split appropriately, the nodemust become a working member of R chains. For each of these chains, the node must receive a consistent copy of the datastore file corresponding to the key range. The process below does so with minimal locking and ensures that if the node fails during the data copy operation, the existing replicas
-\section{Conclusion}
-The first step, key range splitting, occurs as described forFAWN-DS. While this operation can occur concurrently withthe rest (the split and data transmission can overlap), forclarity, we describe the rest of this process as if the split hadalready taken place.
-After the key ranges have been split appropriately, the nodemust become a working member of R chains. For each of these chains, the node must receive a consistent copy of the datastore file corresponding to the key range. The process below does so with minimal locking and ensures that if the node fails during the data copy operation, the existing replicas
-
-{\footnotesize \bibliographystyle{abbrv}
-\bibliography{ref}}
-
-\end{document}
-
-
-
-
-
-
-
