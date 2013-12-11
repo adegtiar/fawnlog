@@ -30,11 +30,15 @@ def _start_clients(number_of_clients, number_of_pages):
     threads = []
     for i in xrange(number_of_clients):
         threads.append(threading.Thread(target=_client_impl, args=(number_of_pages, i)))
+    start_time = time.time()
     for i in xrange(number_of_clients):
         threads[i].start()
     for i in xrange(number_of_clients):
         threads[i].join()
+    end_time = time.time()
     result = sum(latencies) / number_of_clients
+    qps = (number_of_clients * number_of_pages) / (end_time - start_time)
+    print "the query per second is {0}".format(qps)
     print "the average latency of appending a page is {0} seconds".format(result)
 
 
